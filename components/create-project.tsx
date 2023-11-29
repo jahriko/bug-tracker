@@ -54,7 +54,7 @@ export function CreateProject() {
 							setOpen(false);
 							return createProject(formData)
 						}}
-					// onSubmit={form.handleSubmit(handleSubmit)}
+					// onSubmit={form.handleSubmit(onSubmit)}
 					>
 								<FormField
 									control={form.control}
