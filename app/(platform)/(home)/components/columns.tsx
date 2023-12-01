@@ -1,30 +1,20 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { labels, priorities, statuses } from "../data/data";
+import { statuses } from "../data/data";
 import { Task } from "../data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
-import { DataTableRowActions } from "./data-table-row-actions";
 
 import {
-	ChatBubbleLeftEllipsisIcon,
 	PaperClipIcon,
 	TagIcon,
 	UserCircleIcon,
 	XMarkIcon as XMarkIconMini,
 } from "@heroicons/react/20/solid";
-import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { StopwatchIcon } from "@radix-ui/react-icons";

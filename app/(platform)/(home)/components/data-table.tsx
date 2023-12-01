@@ -27,17 +27,7 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
