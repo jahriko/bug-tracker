@@ -33,14 +33,7 @@ export default function ProjectIdLayout({ children }: { children: React.ReactNod
 
 	return (
 		<>
-			{/*
-        This example requires updating your template:
 
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
 			<div>
 				<Transition.Root show={sidebarOpen} as={Fragment}>
 					<Dialog as="div" className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
