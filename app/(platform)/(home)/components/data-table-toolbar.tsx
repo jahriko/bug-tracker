@@ -9,6 +9,8 @@ import { DataTableViewOptions } from "./data-table-view-options";
 
 import { priorities, statuses } from "../data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
+import { useState } from "react";
+import CreateIssue from "@/components/create-issue";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -56,9 +58,7 @@ export function DataTableToolbar<TData>({
 				)}
 			</div>
 			<DataTableViewOptions table={table} />
-			<Button size="sm" className="hidden h-8 lg:flex ml-4">
-				Create issue
-			</Button>
+			<CreateIssue />
 		</div>
 	);
 }

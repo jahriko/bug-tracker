@@ -8,7 +8,7 @@ import { z } from "zod";
 
 async function getTasks() {
 	const data = await fs.readFile(
-		path.join(process.cwd(), "app/(platform)/(home)/project/[projectId]/data/tasks.json")
+		path.join(process.cwd(), "app/(platform)/(home)/data/tasks.json")
 	);
 
 	const tasks = JSON.parse(data.toString());
@@ -17,19 +17,12 @@ async function getTasks() {
 }
  
 
-export default async function ProjectId({ params }: { params: { projectId: string } }) {
+export default async function ProjectId() {
 	const tasks = await getTasks();
 
 	return (
 		<>
-			<div className="py-10">
-				<header>
-					<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-						<h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
-							{params.projectId}
-						</h1>
-					</div>
-				</header>
+			<div className="py-6">
 				<main>
 					<div className="mx-auto lg:max-w-[1500px] sm:px-6 lg:px-8 max-w-full">
 						<DataTable data={tasks} columns={columns} />
