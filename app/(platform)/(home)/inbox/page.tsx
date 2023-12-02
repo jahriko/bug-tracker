@@ -1,9 +1,9 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-import { columns } from "./components/columns";
-import { DataTable } from "./components/data-table";
-import { taskSchema } from "./data/schema";
+import { columns } from "../components/columns";
+import { DataTable } from "../components/data-table";
+import { taskSchema } from "../data/schema";
 import { z } from "zod";
 
 async function getTasks() {
@@ -15,9 +15,8 @@ async function getTasks() {
 
 	return z.array(taskSchema).parse(tasks);
 }
- 
 
-export default async function ProjectId() {
+export default async function Inbox() {
 	const tasks = await getTasks();
 
 	return (

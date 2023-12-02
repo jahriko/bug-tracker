@@ -79,11 +79,11 @@ export const columns: ColumnDef<Task>[] = [
 						<div className="flex space-x-2">
 							{/* {label && <Badge variant="outline">{label.label}</Badge>} */}
 							<SheetTrigger asChild>
-								<span className="cursor-pointer max-w-[600px] truncate font-medium hover:text-indigo-600 text-md">
+								<span className="cursor-pointer max-w-3xl truncate font-medium hover:text-indigo-600">
 									{row.getValue("title")}
 								</span>
 							</SheetTrigger>
-							<SheetContent side="right" className="h-full sm:max-w-6xl sm:rounded-3xl">
+							<SheetContent side="right" className="h-full sm:max-w-6xl">
 								<div className="mx-auto max-w-full">
 									<div className="mx-auto grid max-w-2xl grid-cols-1 grid-rows-1 items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
 										<div className="-mx-4 py-8 sm:mx-0 sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:pb-4 xl:pt-6">
@@ -319,15 +319,6 @@ export const columns: ColumnDef<Task>[] = [
 											<h2 className="text-sm font-semibold leading-6 text-gray-900">
 												Status
 											</h2>
-											<h2 className="text-sm font-semibold leading-6 text-gray-900">
-												Assignee
-											</h2>
-											<h2 className="text-sm font-semibold leading-6 text-gray-900">
-												Due Date
-											</h2>
-											<h2 className="text-sm font-semibold leading-6 text-gray-900">
-												Issued by
-											</h2>
 
 											<div className="flex w-[100px] items-center">
 												<StopwatchIcon className="mr-2 h-4 w-4 text-muted-foreground" />
@@ -339,7 +330,7 @@ export const columns: ColumnDef<Task>[] = [
 							</SheetContent>
 						</div>
 					</Sheet>
-					<div className="text-gray-400 mt-1.5">{row.original.id}</div>
+					<div className="text-gray-400 text-sm">{row.original.id}</div>
 				</>
 			);
 		},
