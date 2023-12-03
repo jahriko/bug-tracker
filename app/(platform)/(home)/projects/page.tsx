@@ -1,31 +1,9 @@
 "use client"
+import { CreateProject } from "@/components/create-project";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
-const projects = [
-	{
-		title: "Bug Tracker",
-		source:
-			"https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-	},
-	// More files...
-];
 
 export default function Projects() {
 
@@ -41,9 +19,7 @@ export default function Projects() {
 		
 	return (
 		<div>
-			<Button variant="default" className="rounded-full">
-				Create Project
-			</Button>
+			<CreateProject/>
 			<Separator className="my-6" />
 			<ul
 				role="list"

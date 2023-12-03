@@ -30,15 +30,6 @@ export function CreateProject() {
 		},
 	});
 
-	// const handleSubmit = async (data: ProjectName) => {
-	// 	const { title } = data;
-	// 	const res = await createProject(title);
-		// if (res) {
-		// 	setOpen(false);
-		// }
-	// 	setOpen(false);
-	// }
-
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
