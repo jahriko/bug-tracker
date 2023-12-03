@@ -42,7 +42,7 @@ export function CreateProject() {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline">Create Project</Button>
+				<Button variant="default">Create Project</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-md">
 				<Form {...form}>
