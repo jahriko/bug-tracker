@@ -11,35 +11,24 @@ datasource db {
 }
 
 model User {
-  id              Int         @id @default(autoincrement())
-  email           String      @unique
-  name            String?
-  password        String
-  issues          Issue[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  comments        Comment[]
-  workspaces      Workspace[]
-  ownedWorkspaces Workspace[] @relation("Owner")
-
-  WorkspaceMember WorkspaceMember[]
-  Team            Team?             @relation(fields: [teamId], references: [id])
-  teamId          Int?
-  TeamMember      TeamMember[]
-
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  name        String?
+  password    String
+  issues      Issue[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   ProjectLead Project[] @relation("ProjectLead")
 }
 
 model Project {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   title         String
   issues        Issue[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  workspace     Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId   Int
-  projectLead   User      @relation(fields: [projectLeadId], references: [id], name: "ProjectLead")
-  projectLeadId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  projectLead   User     @relation(fields: [projectLeadId], references: [id], name: "ProjectLead")
+  projectLeadId Int      @default(1)
 }
 
 model Issue {
@@ -47,68 +36,11 @@ model Issue {
   title     String
   status    String
   priority  String
+  label     String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   user      User      @relation(fields: [userId], references: [id])
   userId    Int
   project   Project   @relation(fields: [projectId], references: [id])
   projectId String
-  comments  Comment[]
-
-  @@map("Bug")
-}
-
-model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
-  bug       Issue    @relation(fields: [bugId], references: [id])
-  bugId     Int
-}
-
-model Workspace {
-  id              Int               @id @default(autoincrement())
-  title           String
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  owner           User              @relation(fields: [ownerId], references: [id], name: "Owner")
-  ownerId         Int
-  users           User[]
-  projects        Project[]
-  WorkspaceMember WorkspaceMember[]
-  Team            Team[]
-  TeamMember      TeamMember[]
-}
-
-model WorkspaceMember {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id])
-  userId      Int
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId Int
-}
-
-model Team {
-  id          Int          @id @default(autoincrement())
-  name        String
-  members     User[]
-  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
-  workspaceId Int
-  TeamMember  TeamMember[]
-}
-
-model TeamMember {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id])
-  userId      Int
-  team        Team      @relation(fields: [teamId], references: [id])
-  teamId      Int
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  workspaceId Int
 }
