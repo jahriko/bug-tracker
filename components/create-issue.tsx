@@ -1,5 +1,4 @@
 import { Label } from "@radix-ui/react-label"
-import { FancyMultiSelect } from "./fancy-multi-select"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import {
@@ -22,7 +21,7 @@ export default function CreateIssue() {
 						Create Issue
 					</Button>
 				</SheetTrigger>
-				<SheetContent side="right" className="sm:max-w-xl sm:rounded-3xl">
+				<SheetContent side="right" className="sm:max-w-2xl sm:rounded-3xl">
 					<div className="mx-auto max-w-full">
 						<div className="mx-auto max-w-2xl items-start gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none w-full">
 							<div className="-mx-4 py-8 sm:mx-0 space-y-6 sm:px-8 sm:pb-14 lg:col-span-2 lg:row-span-2 lg:row-end-2 xl:pb-4 xl:pt-6 w-full">
@@ -37,8 +36,19 @@ export default function CreateIssue() {
 								</div>
 
 								<div className="grid w-full items-center gap-1.5">
-									<Label htmlFor="description">Tags</Label>
-									<FancyMultiSelect />
+									<Label htmlFor="description">Label</Label>
+									<Select>
+										<SelectTrigger>
+											<SelectValue placeholder="Select a priority" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectGroup>
+												<SelectItem value="bug">Bug</SelectItem>
+												<SelectItem value="documentation">Documentation</SelectItem>
+												<SelectItem value="feature">Feature</SelectItem>
+											</SelectGroup>
+										</SelectContent>
+									</Select>
 								</div>
 
 								<div className="grid gap-1.5 mt-6 ">
