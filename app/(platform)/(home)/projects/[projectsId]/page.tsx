@@ -1,4 +1,4 @@
-export default function ProjectId({ params}) {
+export default function ProjectId({ params }) {
 	return (
 		<>
 			<div className="py-6">
@@ -9,5 +9,5 @@ export default function ProjectId({ params}) {
 				</main>
 			</div>
 		</>
-	);
+	)
 }

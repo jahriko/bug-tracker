@@ -1,12 +1,12 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import TanstackProvider from "@/lib/tanstack-provider";
+import TanstackProvider from "@/lib/tanstack-provider"
+import { ClerkProvider } from "@clerk/nextjs"
 
-export default function PlatformLayout({ children }: { children: React.ReactNode }) {
+export default function PlatformLayout({
+	children
+}: { children: React.ReactNode }) {
 	return (
 		<ClerkProvider>
-			<TanstackProvider>
-				{children}
-			</TanstackProvider>
+			<TanstackProvider>{children}</TanstackProvider>
 		</ClerkProvider>
 	)
 }
