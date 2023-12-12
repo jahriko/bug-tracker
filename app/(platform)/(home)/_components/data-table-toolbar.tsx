@@ -4,23 +4,23 @@ import { Cross2Icon } from "@radix-ui/react-icons"
 import { Table } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input";
-import { DataTableViewOptions } from "./data-table-view-options";
+import { Input } from "@/components/ui/input"
+import { DataTableViewOptions } from "./data-table-view-options"
 
-import { priorities, statuses } from "../data/data"
+import CreateIssue from "@/components/create-issue"
+import { priorities, statuses } from "../_data/data"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
-import CreateIssue from "@/components/create-issue";
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>
+	table: Table<TData>
 }
 
 export function DataTableToolbar<TData>({
-  table,
+	table
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
+	const isFiltered = table.getState().columnFilters.length > 0
 
-  return (
+	return (
 		<div className="flex items-center justify-between">
 			<div className="flex flex-1 items-center space-x-2">
 				<Input
@@ -52,5 +52,5 @@ export function DataTableToolbar<TData>({
 			<DataTableViewOptions table={table} />
 			<CreateIssue />
 		</div>
-	);
+	)
 }

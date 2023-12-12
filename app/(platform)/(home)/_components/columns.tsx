@@ -1,26 +1,29 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
-import { statuses } from "../data/data";
-import { Task } from "../data/schema";
-import { DataTableColumnHeader } from "./data-table-column-header";
+import { ColumnDef } from "@tanstack/react-table"
+import { statuses } from "../_data/data"
+import { Task } from "../_data/schema"
+import { DataTableColumnHeader } from "./data-table-column-header"
 
 import {
 	PaperClipIcon,
 	TagIcon,
 	UserCircleIcon,
-	XMarkIcon as XMarkIconMini,
-} from "@heroicons/react/20/solid";
+	XMarkIcon as XMarkIconMini
+} from "@heroicons/react/20/solid"
 
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
-import { StopwatchIcon } from "@radix-ui/react-icons";
-import { Fragment } from "react";
-
-
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import {
+	Sheet,
+	SheetContent,
+	SheetTitle,
+	SheetTrigger
+} from "@/components/ui/sheet"
+import { Textarea } from "@/components/ui/textarea"
+import { StopwatchIcon } from "@radix-ui/react-icons"
+import Link from "next/link"
+import { Fragment } from "react"
 
 const activity = [
 	{
@@ -31,14 +34,14 @@ const activity = [
 			"https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80",
 		comment:
 			"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt nunc ipsum tempor purus vitae id. Morbi in vestibulum nec varius. Et diam cursus quis sed purus nam. ",
-		date: "6d ago",
+		date: "6d ago"
 	},
 	{
 		id: 2,
 		type: "assignment",
 		person: { name: "Hilary Mahy", href: "#" },
 		assigned: { name: "Kristin Watson", href: "#" },
-		date: "2d ago",
+		date: "2d ago"
 	},
 	{
 		id: 3,
@@ -46,9 +49,9 @@ const activity = [
 		person: { name: "Hilary Mahy", href: "#" },
 		tags: [
 			{ name: "Bug", href: "#", color: "fill-red-500" },
-			{ name: "Accessibility", href: "#", color: "fill-indigo-500" },
+			{ name: "Accessibility", href: "#", color: "fill-indigo-500" }
 		],
-		date: "6h ago",
+		date: "6h ago"
 	},
 	{
 		id: 4,
@@ -58,19 +61,20 @@ const activity = [
 			"https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80",
 		comment:
 			"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt nunc ipsum tempor purus vitae id. Morbi in vestibulum nec varius. Et diam cursus quis sed purus nam. Scelerisque amet elit non sit ut tincidunt condimentum. Nisl ultrices eu venenatis diam.",
-		date: "2h ago",
-	},
-];
+		date: "2h ago"
+	}
+]
 
 function classNames(...classes) {
-	return classes.filter(Boolean).join(" ");
+	return classes.filter(Boolean).join(" ")
 }
-
 
 export const columns: ColumnDef<Task>[] = [
 	{
 		accessorKey: "title",
-		header: ({ column }) => <DataTableColumnHeader column={column} title="Title" />,
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Title" />
+		),
 		cell: ({ row }) => {
 			// const label = labels.find((label) => label.value === row.original.label)
 			return (
@@ -96,9 +100,10 @@ export const columns: ColumnDef<Task>[] = [
 											<div>
 												<div className="mt-4 space-y-6 text-sm leading-6 text-gray-800">
 													<p>
-														Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo
-														expedita voluptas culpa sapiente alias molestiae. Numquam
-														corrupti in laborum sed rerum et corporis.
+														Lorem ipsum dolor sit amet consectetur adipisicing
+														elit. Nemo expedita voluptas culpa sapiente alias
+														molestiae. Numquam corrupti in laborum sed rerum et
+														corporis.
 													</p>
 												</div>
 											</div>
@@ -106,7 +111,7 @@ export const columns: ColumnDef<Task>[] = [
 											<Separator className="my-10" />
 
 											<div className="flow-root">
-												<ul role="list" className="-mb-8">
+												<ul className="-mb-8">
 													{activity.map((activityItem, activityItemIdx) => (
 														<li key={activityItem.id}>
 															<div className="relative pb-8">
@@ -249,7 +254,11 @@ export const columns: ColumnDef<Task>[] = [
 																										viewBox="0 0 6 6"
 																										aria-hidden="true"
 																									>
-																										<circle cx={3} cy={3} r={3} />
+																										<circle
+																											cx={3}
+																											cy={3}
+																											r={3}
+																										/>
 																									</svg>
 																									{tag.name}
 																								</a>{" "}
@@ -295,10 +304,12 @@ export const columns: ColumnDef<Task>[] = [
 																			className="h-5 w-5"
 																			aria-hidden="true"
 																		/>
-																		<span className="sr-only">Attach a file</span>
+																		<span className="sr-only">
+																			Attach a file
+																		</span>
 																	</button>
 																</div>
-																<div className="flex items-center"></div>
+																<div className="flex items-center" />
 															</div>
 															<div className="flex-shrink-0">
 																<Button
@@ -332,29 +343,34 @@ export const columns: ColumnDef<Task>[] = [
 					</Sheet>
 					<div className="text-gray-400 text-sm">{row.original.id}</div>
 				</>
-			);
-		},
+			)
+		}
 	},
 	{
 		accessorKey: "status",
-		header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+		header: ({ column }) => (
+			<DataTableColumnHeader column={column} title="Status" />
+		),
 		cell: ({ row }) => {
-			const status = statuses.find((status) => status.value === row.getValue("status"));
+			const status = statuses.find(
+				(status) => status.value === row.getValue("status")
+			)
 
 			if (!status) {
-				return null;
+				return null
 			}
 
 			return (
 				<div className="flex w-[100px] items-center">
-					{status.icon && <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+					{status.icon && (
+						<status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+					)}
 					<span>{status.label}</span>
 				</div>
-			);
+			)
 		},
 		filterFn: (row, id, value) => {
-			return value.includes(row.getValue(id));
-		},
-	},
-
-];
+			return value.includes(row.getValue(id))
+		}
+	}
+]

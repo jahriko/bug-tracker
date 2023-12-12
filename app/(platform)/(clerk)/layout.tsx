@@ -1,7 +1,9 @@
-export default function ClerkLayout({ children }: { children: React.ReactNode }) {
+export default function ClerkLayout({
+	children
+}: { children: React.ReactNode }) {
 	return (
 		<div className="flex flex-col items-center justify-center h-full">
-				{children}
+			{children}
 		</div>
 	)
 }
