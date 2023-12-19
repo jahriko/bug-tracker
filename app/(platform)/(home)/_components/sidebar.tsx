@@ -10,6 +10,22 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Fragment, useState } from "react"
+type SidebarProps = {
+  projects: {
+    id: string
+    title: string
+    createdAt: Date
+    updatedAt: Date
+    projectLeadId: string | null
+  }[]
+  profile: {
+    userId: string
+  } & {
+    name?: string | null | undefined
+    email?: string | null | undefined
+    image?: string | null | undefined
+  }
+}
 
 const navigation = [
 	{ name: "All Issues", href: "/inbox", icon: InboxIcon, current: true },
@@ -25,7 +41,7 @@ function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ")
 }
 
-export default function Sidebar({ projects }: { projects: any }) {
+export default function Sidebar({ projects, profile }: SidebarProps) {
 	const [sidebarOpen, setSidebarOpen] = useState(false)
 	const path = usePathname()
 
