@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+package.json
+next.config.js
+LICENSE
+components.json
+tsconfig.json
+.next
+build
