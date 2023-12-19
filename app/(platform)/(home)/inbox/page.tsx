@@ -17,17 +17,23 @@ async function getTasks() {
 }
 
 export default async function Inbox() {
-	const tasks = await getTasks()
-
-	return (
-		<>
-			<div className="py-6">
-				<main>
-					<div className="mx-auto lg:max-w-[1300px] sm:px-6 lg:px-8 max-w-full">
-						<DataTable data={tasks} columns={columns} />
-					</div>
-				</main>
-			</div>
-		</>
-	)
+  const session = await auth()
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login",
+      },
+    }
+  }
+  return (
+    <>
+      <div className="py-6">
+        <main>
+          <div className="mx-auto max-w-full sm:px-6 lg:max-w-[1300px] lg:px-8">
+            <DataTable data={tasks} columns={columns} />
+          </div>
+        </main>
+      </div>
+    </>
+  )
 }
