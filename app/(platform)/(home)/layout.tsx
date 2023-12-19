@@ -20,9 +20,13 @@ export default async function DashboardLayout({
 
   const profile = session?.user
 
-			<main className="py-10 lg:pl-64 bg-white">
-				<div className="px-4 sm:px-6 lg:px-8">{children}</div>
-			</main>
-		</>
-	)
+  return (
+    <>
+      <Sidebar projects={await getProjects()} profile={profile} />
+
+      <main className="bg-white py-10 lg:pl-64">
+        <div className="px-4 sm:px-6 lg:px-8">{children}</div>
+      </main>
+    </>
+  )
 }
