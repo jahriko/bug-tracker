@@ -44,6 +44,11 @@ const LoginForm = () => {
     }
 
     router.push("/inbox")
+    return toast({
+      title: "Success",
+      description: "You have been logged in",
+      variant: "default"
+    })
   }
 
   return (
