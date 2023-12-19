@@ -5,6 +5,7 @@ import { z } from "zod"
 import { columns } from "../_components/columns"
 import { DataTable } from "../_components/data-table"
 import { taskSchema } from "../_data/schema"
+import { auth } from "@/lib/auth"
 
 async function getTasks() {
 	const data = await fs.readFile(
