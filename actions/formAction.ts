@@ -1,22 +1,14 @@
 "use server"
 
-import { auth, authOptions } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import prisma from "@/lib/prisma"
 import {
   IssueSchema,
-  LoginSchema,
   ProjectSchema,
   RegisterSchema
 } from "@/types"
-import { compare, hash } from "bcrypt"
-import { getServerSession } from "next-auth"
-import { signIn } from "next-auth/react"
+import { hash } from "bcrypt"
 import { revalidatePath } from "next/cache"
-import { z } from "zod"
-
-const schema = z.object({
-	title: z.string().min(1).max(50)
-})
 
 export async function createProject(formData: FormData) {
   const parse = ProjectSchema.safeParse({
