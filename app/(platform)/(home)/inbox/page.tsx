@@ -18,6 +18,7 @@ async function getTasks() {
 }
 
 export default async function Inbox() {
+  const tasks = await getTasks()
   const session = await auth()
   if (!session) {
     return {
