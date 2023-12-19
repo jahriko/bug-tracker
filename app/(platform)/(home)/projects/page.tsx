@@ -3,17 +3,14 @@ import { CreateProject } from "@/components/create-project"
 import { Separator } from "@/components/ui/separator"
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
+import prisma from "@/lib/prisma"
 
-export default function Projects() {
-	const { data: projects } = useQuery({
-		queryKey: ["projects"],
-		queryFn: async () => {
-			const response = await fetch("/api/projects")
-			const data = await response.json()
+async function getProjects() {
+  return prisma.project.findMany()
+}
 
-			return data
-		}
-	})
+export default async function Projects() {
+  const projects = await getProjects()
 
 	return (
 		<div>
@@ -29,7 +26,7 @@ export default function Projects() {
 								className="pointer-events-none object-cover"
 							/>
 						</div>
-						<Link href="/">
+            <Link href={`/projects/${project.id}`}>
 							<p className="mt-2 block truncate text-sm font-medium text-gray-900 hover:text-indigo-700">
 								{project.title}
 							</p>
