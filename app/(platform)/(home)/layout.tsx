@@ -1,10 +1,10 @@
-import { db } from "@/lib/prisma"
+import prisma from "@/lib/prisma"
 import Sidebar from "./_components/sidebar"
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 
 async function getProjects() {
-	return db.project.findMany()
+  return prisma?.project.findMany()
 }
 
 export default async function DashboardLayout({
