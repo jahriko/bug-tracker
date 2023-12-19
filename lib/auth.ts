@@ -8,7 +8,7 @@ import prisma from "./prisma"
 import type {
   GetServerSidePropsContext,
   NextApiRequest,
-  NextApiResponse
+  NextApiResponse,
 } from "next"
 import { getServerSession } from "next-auth"
 
@@ -17,12 +17,12 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
   pages: {
-    signIn: "/login"
+    signIn: "/login",
   },
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60 // 24 hours
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   providers: [
     CredentialsProvider({
@@ -30,13 +30,13 @@ export const authOptions = {
       name: "IssueTracker",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "" },
-        password: { label: "Password", type: "password", placeholder: "" }
+        password: { label: "Password", type: "password", placeholder: "" },
       },
       async authorize(credentials) {
         if (!credentials) return null
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         })
 
         if (!user || !user.hashedPassword) {
@@ -51,8 +51,8 @@ export const authOptions = {
         }
 
         return user
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, account, profile }) {
@@ -66,8 +66,8 @@ export const authOptions = {
         session.user.userId = token.sub as string
       }
       return session
-    }
-  }
+    },
+  },
 } satisfies NextAuthOptions
 
 // Use it in server contexts

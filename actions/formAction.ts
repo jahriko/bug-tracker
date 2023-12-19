@@ -2,17 +2,13 @@
 
 import { auth } from "@/lib/auth"
 import prisma from "@/lib/prisma"
-import {
-  IssueSchema,
-  ProjectSchema,
-  RegisterSchema
-} from "@/types"
+import { IssueSchema, ProjectSchema, RegisterSchema } from "@/types"
 import { hash } from "bcrypt"
 import { revalidatePath } from "next/cache"
 
 export async function createProject(formData: FormData) {
   const parse = ProjectSchema.safeParse({
-    title: formData.get("title")
+    title: formData.get("title"),
   })
 
   if (!parse.success) {
@@ -24,8 +20,8 @@ export async function createProject(formData: FormData) {
   try {
     const project = await prisma.project.create({
       data: {
-        title: data.title as string
-      }
+        title: data.title as string,
+      },
     })
 
     if (project) {
@@ -61,8 +57,8 @@ export async function createIssue(projectId: string, data: IssueSchema) {
         description,
         label,
         projectId: "clq3ae1am0000q28tbx9rqzbb",
-        userId: session.user.userId as string
-      }
+        userId: session.user.userId as string,
+      },
     })
   } catch (error) {
     console.error(error)
@@ -77,8 +73,8 @@ export async function createUser(data: RegisterSchema) {
 
     const userExists = await prisma?.user.findUnique({
       where: {
-        email
-      }
+        email,
+      },
     })
 
     if (userExists) {
@@ -89,8 +85,8 @@ export async function createUser(data: RegisterSchema) {
       data: {
         name,
         email,
-        hashedPassword: await hash(password, 13)
-      }
+        hashedPassword: await hash(password, 13),
+      },
     })
 
     revalidatePath("/login")

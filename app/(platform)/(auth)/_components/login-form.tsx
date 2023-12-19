@@ -17,9 +17,9 @@ const LoginForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm<LoginSchemaType>({
-    resolver: zodResolver(LoginSchema)
+    resolver: zodResolver(LoginSchema),
   })
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { toast } = useToast()
@@ -30,7 +30,7 @@ const LoginForm = () => {
 
     const login = await signIn("credentials", {
       ...data,
-      redirect: false
+      redirect: false,
     })
 
     setIsLoading(false)
@@ -39,7 +39,7 @@ const LoginForm = () => {
       return toast({
         title: "Error",
         description: "Invalid email or password",
-        variant: "destructive"
+        variant: "destructive",
       })
     }
 
@@ -47,7 +47,7 @@ const LoginForm = () => {
     return toast({
       title: "Success",
       description: "You have been logged in",
-      variant: "default"
+      variant: "default",
     })
   }
 

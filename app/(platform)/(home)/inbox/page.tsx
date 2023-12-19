@@ -8,18 +8,19 @@ import { taskSchema } from "../_data/schema"
 import { auth } from "@/lib/auth"
 
 async function getTasks() {
-	const data = await fs.readFile(
-		path.join(process.cwd(), "app/(platform)/(home)/_data/tasks.json")
-	)
+  const data = await fs.readFile(
+    path.join(process.cwd(), "app/(platform)/(home)/_data/tasks.json")
+  )
 
-	const tasks = JSON.parse(data.toString())
+  const tasks = JSON.parse(data.toString())
 
-	return z.array(taskSchema).parse(tasks)
+  return z.array(taskSchema).parse(tasks)
 }
 
 export default async function Inbox() {
   const tasks = await getTasks()
   const session = await auth()
+
   if (!session) {
     return {
       redirect: {
