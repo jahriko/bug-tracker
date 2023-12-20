@@ -10,4 +10,3 @@ Do for next time
 
 - [x] Fix register UI page
 - [ ] Fix DataTable to use the correct data
-- [ ] Do git stuff and push
