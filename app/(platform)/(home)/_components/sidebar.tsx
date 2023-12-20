@@ -132,7 +132,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                                   item.current
                                     ? "bg-gray-50 text-indigo-600"
                                     : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                                  "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                                  "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                                 )}
                               >
                                 <item.icon
@@ -140,7 +140,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                                     item.current
                                       ? "text-indigo-600"
                                       : "text-gray-400 group-hover:text-indigo-600",
-                                    "h-6 w-6 shrink-0"
+                                    "h-6 w-6 shrink-0",
                                   )}
                                   aria-hidden="true"
                                 />
@@ -163,7 +163,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                                   project.current
                                     ? "bg-gray-50 text-indigo-600"
                                     : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                                  "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                                  "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                                 )}
                               >
                                 <span
@@ -171,7 +171,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                                     project.current
                                       ? "border-indigo-600 text-indigo-600"
                                       : "border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600",
-                                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium"
+                                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium",
                                   )}
                                 >
                                   {project.title.charAt(0)}
@@ -242,7 +242,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                           path === item.href
                             ? "bg-gray-50 text-indigo-600"
                             : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                          "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                          "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                         )}
                       >
                         <item.icon
@@ -250,7 +250,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                             path === item.href
                               ? "text-indigo-600"
                               : "text-gray-400 group-hover:text-indigo-600",
-                            "h-6 w-6 shrink-0"
+                            "h-6 w-6 shrink-0",
                           )}
                           aria-hidden="true"
                         />
@@ -273,7 +273,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                           project.current
                             ? "bg-gray-50 text-indigo-600"
                             : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-                          "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                          "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                         )}
                       >
                         <span
@@ -281,7 +281,7 @@ export default function Sidebar({ projects, profile }: SidebarProps) {
                             project.current
                               ? "border-indigo-600 text-indigo-600"
                               : "border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600",
-                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium"
+                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-white text-[0.625rem] font-medium",
                           )}
                         >
                           {project.title.charAt(0)}
