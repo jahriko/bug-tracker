@@ -66,8 +66,6 @@ export async function createIssue(projectId: string, data: IssueSchema) {
 }
 
 export async function createUser(data: RegisterSchema) {
-  "use server"
-
   try {
     const { name, email, password } = data
 
