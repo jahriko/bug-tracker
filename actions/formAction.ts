@@ -94,3 +94,27 @@ export async function createUser(data: RegisterSchema) {
     console.error(error)
   }
 }
+
+export async function createComment(issueId: number, formData: FormData) {
+  const session = await auth()
+
+  const comment = formData.get("comment")
+
+  if (!session || !comment) {
+    return
+  }
+
+  try {
+    console.log("PRISMA COMMENT CREATE")
+
+    await prisma.comment.create({
+      data: {
+        text: comment as string,
+        userId: session.user.userId,
+        issueId,
+      },
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
