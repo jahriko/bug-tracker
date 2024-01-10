@@ -1,15 +1,5 @@
 import { z } from "zod"
 
-export const IssueSchema = z.object({
-  title: z.string().min(2, { message: "Issue title is required." }).max(40),
-  status: z.string().min(2, { message: "Status is required." }),
-  priority: z.string().min(2, { message: "Priority is required." }),
-  description: z.string().min(2, { message: "Description is required." }),
-  label: z.string().min(2, { message: "Label is required." }),
-})
-
-export type IssueSchema = z.infer<typeof IssueSchema>
-
 export const ProjectSchema = z.object({
   title: z.string().min(1).max(50),
 })
