@@ -1,9 +1,5 @@
 import { NextRequest } from "next/server"
 
-// This example protects all routes including api/trpc routes
-// Please edit this to allow other routes to be public as needed.
-// See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
-
 export function middleware(req: NextRequest) {
   if (req.nextUrl.pathname === "/") {
     return Response.redirect(new URL("/inbox", req.url))
@@ -11,5 +7,6 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
 }
