@@ -1,6 +1,6 @@
 datasource db {
-    provider = "sqlite"
-    url = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -8,73 +8,123 @@ generator client {
 }
 
 model Account {
-    id String @id() @default(cuid())
-    userId String
-    type String
-    provider String
+    id                String  @id() @default(cuid())
+    userId            String
+    type              String
+    provider          String
     providerAccountId String
-    refresh_token String?
-    access_token String?
-    expires_at Int?
-    token_type String?
-    scope String?
-    id_token String?
-    session_state String?
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id String @id() @default(cuid())
-    sessionToken String @unique()
-    userId String
-    expires DateTime
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id() @default(cuid())
+    sessionToken String   @unique()
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id String @id() @default(cuid())
-    name String
-    email String? @unique()
-    emailVerified DateTime?
-    image String?
+    id             String       @id() @default(cuid())
+    name           String
+    email          String?      @unique()
+    emailVerified  DateTime?
+    image          String?
     hashedPassword String
-    accounts Account[]
-    sessions Session[]
-    issues Issue[]
-    ProjectLead Project[] @relation("ProjectLead")
+    accounts       Account[]
+    sessions       Session[]
+    issues         Issue[]
+    ProjectLead    Project[]    @relation("ProjectLead")
+    Activities     Activities[]
+    Comment        Comment[]
+    assignedIssues Issue[]      @relation("Assignee")
 }
 
 model VerificationToken {
     identifier String
-    token String @unique()
-    expires DateTime
+    token      String   @unique()
+    expires    DateTime
 
     @@unique([identifier, token])
 }
 
 model Project {
-    id String @id() @default(cuid())
-    title String
-    issues Issue[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt()
-    projectLead User? @relation(fields: [projectLeadId], references: [id], name: "ProjectLead")
+    id            String   @id() @default(cuid())
+    title         String
+    issues        Issue[]
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt()
+    projectLead   User?    @relation(fields: [projectLeadId], references: [id], name: "ProjectLead")
     projectLeadId String?
 }
 
 model Issue {
-    id Int @id() @default(autoincrement())
-    title String
-    status String
-    priority String
+    id          Int          @id() @default(autoincrement())
+    title       String
+    status      String
+    priority    String
     description String
-    label String
+    label       String[]
+    labels      Label[]
+    assignee    User?        @relation(fields: [assigneeId], references: [id], name: "Assignee")
+    assigneeId  String?
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt()
+    user        User         @relation(fields: [userId], references: [id])
+    userId      String
+    project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId   String
+    activities  Activities[]
+    comment     Comment[]
+    issueLabels  IssueLabel[]
+}
+
+model Label {
+    id    Int    @id() @default(autoincrement())
+    name  String
+    color String
+
+    Issue      Issue?       @relation(fields: [issueId], references: [id])
+    issueId    Int?
+    issueLabels IssueLabel[]
+}
+
+model IssueLabel {
+    issueId Int
+    labelId Int
+    issue   Issue @relation(fields: [issueId], references: [id])
+    label   Label @relation(fields: [labelId], references: [id])
+
+    @@id([issueId, labelId])
+}
+
+model Activities {
+    id        Int      @id() @default(autoincrement())
+    type      String
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    Issue     Issue?   @relation(fields: [issueId], references: [id])
+    updatedAt DateTime @updatedAt()
+    issueId   Int?
+}
+
+model Comment {
+    id        Int      @id() @default(autoincrement())
+    text      String
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    issue     Issue    @relation(fields: [issueId], references: [id])
+    issueId   Int
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt()
-    user User @relation(fields: [userId], references: [id])
-    userId String
-    project Project @relation(fields: [projectId], references: [id])
-    projectId String
 }
