@@ -49,6 +49,7 @@ const RegisterForm = () => {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <Form {...form}>
           <form
+            className="w-96 space-y-6"
             onSubmit={form.handleSubmit(onSubmit)}
           >
             <div className="space-y-2">
