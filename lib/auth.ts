@@ -1,20 +1,19 @@
+/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcrypt from "bcrypt"
-import { NextAuthOptions } from "next-auth"
+import { NextAuthOptions, getServerSession } from "next-auth"
 import { Adapter } from "next-auth/adapters"
 import CredentialsProvider from "next-auth/providers/credentials"
-import prisma from "./prisma"
-
 import type {
   GetServerSidePropsContext,
   NextApiRequest,
   NextApiResponse,
 } from "next"
-import { getServerSession } from "next-auth"
+import prisma from "./prisma"
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET as string,
   debug: process.env.NODE_ENV === "development",
   pages: {
     signIn: "/login",
@@ -39,15 +38,19 @@ export const authOptions = {
           where: { email: credentials.email },
         })
 
-        if (!user || !user.hashedPassword) {
-          throw new Error("Invalid credentials")
+        if (!user?.hashedPassword) {
+          console.log("Invalid credentials")
+          return null
         }
 
-        if (
-          user &&
-          !bcrypt.compareSync(credentials.password, user.hashedPassword)
-        ) {
-          throw new Error("Invalid credentials")
+        const valid = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword,
+        )
+
+        if (!valid) {
+          console.log(`Invalid Credentials`)
+          return null
         }
 
         return user
@@ -55,15 +58,15 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    jwt({ token, account, profile }) {
       if (account) {
         token.id = profile?.sub
       }
       return token
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.userId = token.sub as string
+    session({ session, token }) {
+      if (token.sub) {
+        session.user.userId = token.sub
       }
       return session
     },
