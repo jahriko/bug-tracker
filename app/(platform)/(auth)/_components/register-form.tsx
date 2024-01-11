@@ -1,6 +1,9 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Form,
   FormControl,
@@ -9,13 +12,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
-import { createUser } from "@/actions/formAction"
+import { createUser } from "@/server/actions/user"
 import { RegisterSchema } from "@/types"
-import { useRouter } from "next/navigation"
 
 const RegisterForm = () => {
   const form = useForm<RegisterSchema>({
@@ -50,7 +50,6 @@ const RegisterForm = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-96 space-y-6"
           >
             <div className="space-y-2">
               <FormField
