@@ -1,5 +1,9 @@
 "use client"
-import { createProject } from "@/actions/formAction"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+import { createProject } from "@/server/actions/user"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,10 +20,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
 
 const projectNameSchema = z.object({
   title: z.string().min(2, { message: "Project name is required." }).max(40),
@@ -38,20 +38,20 @@ export function CreateProject() {
   })
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button variant="default">Create Project</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <Form {...form}>
           <form
-            id="createProjectFormId"
             action={async (formData: FormData) => {
               const valid = await form.trigger()
               if (!valid) return
               setOpen(false)
               return createProject(formData)
             }}
+            id="createProjectFormId"
           >
             <FormField
               control={form.control}
@@ -71,7 +71,7 @@ export function CreateProject() {
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="createProjectFormId" className="w-full">
+          <Button className="w-full" form="createProjectFormId" type="submit">
             Create
           </Button>
         </DialogFooter>
