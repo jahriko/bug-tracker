@@ -15,9 +15,17 @@ import {
   Command,
 } from "@/components/ui/command"
 import { Users } from "@/app/(platform)/(home)/layout"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Button } from "./ui/button"
-import { FormField, FormItem, FormControl } from "./ui/form"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../../../../components/ui/avatar"
+import { Button } from "../../../../../components/ui/button"
+import {
+  FormField,
+  FormItem,
+  FormControl,
+} from "../../../../../components/ui/form"
 
 export default function AssigneeBox({ assignees }: { assignees: Users[] }) {
   const { control, setValue } = useFormContext()

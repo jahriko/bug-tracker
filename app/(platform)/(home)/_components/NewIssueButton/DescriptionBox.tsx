@@ -1,6 +1,11 @@
 import { useFormContext } from "react-hook-form"
-import { FormField, FormItem, FormControl, FormMessage } from "./ui/form"
-import { Textarea } from "./ui/textarea"
+import {
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from "../../../../../components/ui/form"
+import { Textarea } from "../../../../../components/ui/textarea"
 
 export default function DescriptionBox() {
   const { control } = useFormContext()

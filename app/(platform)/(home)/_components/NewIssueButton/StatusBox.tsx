@@ -1,8 +1,9 @@
 import {
-  MinusCircle,
-  SignalLow,
-  SignalMedium,
-  SignalHigh,
+  HelpCircle,
+  Circle,
+  ArrowUpCircle,
+  CheckCircle2,
+  XCircle,
   LucideIcon,
 } from "lucide-react"
 import { useState } from "react"
@@ -21,50 +22,57 @@ import {
   CommandItem,
   Command,
 } from "@/components/ui/command"
-import { Button } from "./ui/button"
-import { FormField, FormItem, FormControl } from "./ui/form"
+import { Button } from "@/components/ui/button"
+import { FormField, FormItem, FormControl } from "@/components/ui/form"
 
-export default function PriorityBox() {
-  const { setValue, control } = useFormContext()
-  const priorities = [
+export default function StatusBox() {
+  const { control, setValue } = useFormContext()
+
+  const statuses: Status[] = [
     {
-      value: "no priority",
-      label: "No priority",
-      icon: MinusCircle,
+      value: "backlog",
+      label: "Backlog",
+      icon: HelpCircle,
     },
     {
-      value: "low",
-      label: "Low",
-      icon: SignalLow,
+      value: "todo",
+      label: "Todo",
+      icon: Circle,
     },
     {
-      value: "medium",
-      label: "Medium",
-      icon: SignalMedium,
+      value: "in progress",
+      label: "In Progress",
+      icon: ArrowUpCircle,
     },
     {
-      value: "high",
-      label: "High",
-      icon: SignalHigh,
+      value: "done",
+      label: "Done",
+      icon: CheckCircle2,
+    },
+    {
+      value: "canceled",
+      label: "Canceled",
+      icon: XCircle,
     },
   ]
 
-  interface Priority {
+  interface Status {
     value: string
     label: string
     icon: LucideIcon
   }
   const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState<Priority | null>({
-    value: "no priority",
-    label: "No priority",
-    icon: MinusCircle,
+  const [selected, setSelected] = useState<Status | null>({
+    value: "backlog",
+    label: "Backlog",
+    icon: HelpCircle,
   })
-  setValue("priority", selected?.value)
+  setValue("status", selected?.value)
+
   return (
     <FormField
       control={control}
-      name="priority"
+      name="status"
       render={() => (
         <FormItem className="flex flex-col">
           <Popover onOpenChange={setOpen} open={open}>
@@ -81,10 +89,7 @@ export default function PriorityBox() {
                       {selected.label}
                     </>
                   ) : (
-                    <>
-                      <selected.icon className="mr-2 h-4 w-4 shrink-0 text-gray-500" />
-                      <span className="text-gray-500">Set Priority</span>
-                    </>
+                    <>Set status</>
                   )}
                 </Button>
               </FormControl>
@@ -95,29 +100,28 @@ export default function PriorityBox() {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    {priorities.map((priority) => (
+                    {statuses.map((status) => (
                       <CommandItem
-                        key={priority.value}
+                        key={status.value}
                         onSelect={(value) => {
                           setSelected(
-                            priorities.find(
-                              (priority) => priority.value === value,
-                            ) ?? null,
+                            statuses.find((status) => status.value === value) ??
+                              null,
                           )
+                          setValue("status", status.value)
                           setOpen(false)
-                          setValue("priority", priority.value)
                         }}
-                        value={priority.value}
+                        value={status.value}
                       >
-                        <priority.icon
+                        <status.icon
                           className={cn(
                             "mr-2 h-4 w-4",
-                            priority.value === selected?.value
+                            status.value === selected?.value
                               ? "opacity-100"
                               : "opacity-40",
                           )}
                         />
-                        <span>{priority.label}</span>
+                        <span>{status.label}</span>
                       </CommandItem>
                     ))}
                   </CommandGroup>

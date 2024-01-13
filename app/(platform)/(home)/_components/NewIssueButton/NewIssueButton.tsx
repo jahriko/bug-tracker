@@ -21,14 +21,14 @@ import {
   Labels,
   ProjectIdAndTitle,
 } from "@/app/(platform)/(home)/layout"
-import { toast } from "./ui/use-toast"
-import TitleBox from "./new-issue-titlebox"
-import DescriptionBox from "./new-issue-descriptionbox"
-import PriorityBox from "./new-issue-prioritybox"
-import StatusBox from "./new-issue-statusbox"
-import AssigneeBox from "./new-isssue-assigneebox"
-import LabelBox from "./new-issue-labelbox"
-import ProjectBox from "./new-issue-projectbox"
+import { toast } from "../../../../../components/ui/use-toast"
+import TitleBox from "./TitleBox"
+import DescriptionBox from "./DescriptionBox"
+import PriorityBox from "./PriorityBox"
+import StatusBox from "./StatusBox"
+import AssigneeBox from "./AssigneeBox"
+import LabelBox from "./LabelBox"
+import ProjectBox from "./ProjectBox"
 
 export default function NewIssueButton({
   projects,
