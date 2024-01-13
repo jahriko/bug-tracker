@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { Bars3Icon } from "@heroicons/react/24/outline"
-import { useSidebar } from "./sidebar"
+import { useSidebar } from "./Sidebar"
 
 export default function MobileHeader() {
   const { setSidebarOpen } = useSidebar()

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { ProjectIdAndTitle } from "../layout"
+import { ProjectIdAndTitle } from "../../layout"
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ")
