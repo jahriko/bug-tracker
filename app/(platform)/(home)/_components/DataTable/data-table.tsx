@@ -1,3 +1,4 @@
+/* eslint-disable import/named */
 "use client"
 import * as React from "react"
 import {
@@ -22,21 +23,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { atom, useAtom } from "jotai"
 import { DataTablePagination } from "./data-table-pagination"
-import { DataTableToolbar } from "./data-table-toolbar"
-import { projectIdAtom } from "@/lib/atoms"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  projectId?: string
+  data: any
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  projectId,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -45,9 +41,6 @@ export function DataTable<TData, TValue>({
     [],
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
-
-  const [_, setProjectId] = useAtom(projectIdAtom)
-  setProjectId(projectId as string)
 
   const table = useReactTable({
     data,
@@ -78,15 +71,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
-      <div className="rounded-md border">
+      <div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead colSpan={header.colSpan} key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -100,15 +92,14 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  // onClick={() => setOpen(true)}
+                  key={row.id}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell className="px-6" key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),
@@ -120,8 +111,8 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
                   className="h-24 text-center"
+                  colSpan={columns.length}
                 >
                   No results.
                 </TableCell>
