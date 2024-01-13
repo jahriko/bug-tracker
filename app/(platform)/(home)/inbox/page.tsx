@@ -1,10 +1,11 @@
 // eslint-disable-next-line camelcase
 import { unstable_cache } from "next/cache"
-import { columns } from "../_components/columns"
-import { DataTable } from "../_components/data-table"
+import prisma from "@/lib/prisma"
+import { columns } from "../_components/DataTable/columns"
+import { DataTable } from "../_components/DataTable/data-table"
 
 const getCachedIssueList = unstable_cache(async () => {
-  const issueList = await prisma?.issue.findMany({
+  const issueList = await prisma.issue.findMany({
     select: {
       id: true,
       title: true,
