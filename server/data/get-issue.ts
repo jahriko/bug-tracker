@@ -10,6 +10,7 @@ export async function getIssue(issueId: number) {
       project: {
         select: {
           title: true,
+          id: true,
         },
       },
       labels: {
