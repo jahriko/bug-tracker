@@ -85,7 +85,7 @@ export default async function DashboardLayout({
     <>
       <Sidebar>
         {/* Desktop Layout */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col ">
+        <div className="hidden lg:fixed lg:top-16 lg:bottom-0 lg:z-50 lg:flex lg:w-64 lg:flex-col ">
           <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r px-6">
             <ProfileDropdown profile={profile} />
             <NewIssueButton {...{ users, labels, projects }} />
