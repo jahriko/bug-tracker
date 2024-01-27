@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 // import Circle from "@uiw/react-color-circle"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { addLabelsToIssue, createIssue } from "@/server/actions/issue"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,7 +22,6 @@ import {
   Labels,
   ProjectIdAndTitle,
 } from "@/app/(platform)/(home)/layout"
-import { toast } from "../../../../../components/ui/use-toast"
 import TitleBox from "./TitleBox"
 import DescriptionBox from "./DescriptionBox"
 import PriorityBox from "./PriorityBox"
@@ -54,26 +54,17 @@ export default function NewIssueButton({
   })
 
   async function onSubmit(data: IssueSchema) {
-    console.log(data)
     const result = await createIssue(data)
 
     if (result.code === "error") {
-      return toast({
-        title: "Error",
-        description: result.message,
-        variant: "destructive",
-      })
+      return toast("Error creating issue")
     }
 
     form.reset({
       assigneeId: "",
     })
 
-    return toast({
-      title: "Success",
-      description: result.message,
-      variant: "default",
-    })
+    return toast("Created Issue")
   }
 
   return (
