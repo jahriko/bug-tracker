@@ -61,6 +61,7 @@ export default function StatusBox() {
     label: string
     icon: LucideIcon
   }
+
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<Status | null>({
     value: "backlog",
@@ -96,7 +97,7 @@ export default function StatusBox() {
             </PopoverTrigger>
             <PopoverContent align="start" className="p-0" side="bottom">
               <Command>
-                <CommandInput placeholder="Change priority..." />
+                <CommandInput placeholder="Change status..." />
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
