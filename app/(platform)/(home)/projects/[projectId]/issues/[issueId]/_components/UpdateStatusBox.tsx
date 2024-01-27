@@ -150,12 +150,7 @@ export function UpdateStatusBox({
                       className="-ml-2.5 w-[10rem] justify-start"
                       variant="ghost"
                     >
-                      {selected ? (
-                        <>
-                          <StatusIcon status={selected.value} />
-                          <span className="capitalize">{selected.label}</span>
-                        </>
-                      ) : status ? (
+                      {status ? (
                         <>
                           <StatusIcon status={status} />
                           <span className="capitalize">{status}</span>
