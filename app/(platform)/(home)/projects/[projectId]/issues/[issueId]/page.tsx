@@ -17,17 +17,19 @@ import {
 } from "./_components/Details"
 import { UpdateStatusBox } from "./_components/UpdateStatusBox"
 import IssueComment from "./_components/Comment"
+import { getStatus } from "@/server/data/get-status";
 
 export default async function IssueId({
   params,
 }: {
   params: { issueId: string }
 }) {
-  const [issue, issueLabels, users, projects] = await Promise.all([
+  const [issue, issueLabels, users, projects, status] = await Promise.all([
     getIssue(Number(params.issueId)),
     getIssueLabels(Number(params.issueId)),
     getUsers(),
     getProjects(),
+    getStatus(Number(params.issueId)),
   ])
 
   return (
@@ -178,7 +180,7 @@ export default async function IssueId({
               <div className="flex items-center space-x-2 sm:col-span-2">
                 <UpdateStatusBox
                   issueId={params.issueId}
-                  status={issue.status}
+                  status={status}
                 />
               </div>
             </div>
