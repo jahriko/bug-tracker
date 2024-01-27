@@ -1,7 +1,7 @@
 "use server"
 
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
-import { revalidatePath } from "next/cache"
+import { revalidateTag } from "next/cache";
 import prisma from "@/lib/prisma"
 
 export async function updateStatus(issueId: number, newStatus: string) {
@@ -13,7 +13,7 @@ export async function updateStatus(issueId: number, newStatus: string) {
       },
     })
 
-    revalidatePath(`/issues/${issueId}`)
+    revalidateTag("issue-status")
 
     return { code: "success", message: "Issue updated successfully." }
   } catch (e) {
