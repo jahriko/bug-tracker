@@ -15,7 +15,7 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "plugins": ["react", "prettier", "import"],
+  "plugins": ["react", "prettier", "import", "oxlint"],
   "rules": {
     "semi": "off",
     "quotes": "off",
