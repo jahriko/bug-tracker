@@ -16,6 +16,7 @@ import {
   ProjectBox,
 } from "./_components/Details"
 import { UpdateStatusBox } from "./_components/UpdateStatusBox"
+import { PriorityBox } from "./_components/PriorityBox"
 import IssueComment from "./_components/Comment"
 import { getStatus } from "@/server/data/get-status";
 
