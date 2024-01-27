@@ -9,7 +9,6 @@ import MobileHeader from "./_components/Sidebar/SidebarMobileHeader"
 import ProfileDropdown from "./_components/Sidebar/SidebarProfileDropdown"
 import SidebarNavigationLinks from "./_components/Sidebar/SidebarNavigationLinks"
 import ProjectList from "./_components/Sidebar/SidebarProjectList"
-import { Button } from "@/components/react-aria/Button"
 
 const projectIdAndTitleSelect = {
   id: true,
