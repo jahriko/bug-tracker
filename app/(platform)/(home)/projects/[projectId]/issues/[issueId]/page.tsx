@@ -12,10 +12,10 @@ import IssueActivityFeed from "./_components/ActivityFeed"
 import {
   PriorityBox,
   AssigneeBox,
-  UpdateStatusBox,
   LabelBox,
   ProjectBox,
 } from "./_components/Details"
+import { UpdateStatusBox } from "./_components/UpdateStatusBox"
 import IssueComment from "./_components/Comment"
 
 export default async function IssueId({
