@@ -67,7 +67,6 @@ export function UpdateStatusBox({
 
   async function onSubmit(data: z.infer<typeof StatusSchema>) {
     const { status } = data
-    console.log("here: ", status)
 
     const result = await updateStatus(Number(issueId), status)
 
@@ -115,10 +114,7 @@ export function UpdateStatusBox({
   return (
     <Form {...form} key="status-update-form">
       <form
-        id="updateStatus"
-        // key="status-update-form"
         onSubmit={handleSubmit(onSubmit, (errors) => {
-          console.log("error form eeeeeeeee")
           console.error(errors)
         })}
       >
