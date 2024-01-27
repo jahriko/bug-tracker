@@ -119,9 +119,9 @@ export default async function DashboardLayout({
         </SidebarMobile>
         <MobileHeader />
       </Sidebar>
-      <main className="mx-auto  bg-white lg:pl-64">
-        <div className="">{children}</div>
-      </main>
+        <main className="mx-auto  bg-white lg:pl-64">
+          {children}
+        </main>
     </>
   )
 }
