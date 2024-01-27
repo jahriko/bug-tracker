@@ -10,7 +10,6 @@ import { getIssueLabels } from "@/server/data/get-issue-labels"
 import { getProjects } from "@/server/data/get-project"
 import IssueActivityFeed from "./_components/ActivityFeed"
 import {
-  PriorityBox,
   AssigneeBox,
   LabelBox,
   ProjectBox,
