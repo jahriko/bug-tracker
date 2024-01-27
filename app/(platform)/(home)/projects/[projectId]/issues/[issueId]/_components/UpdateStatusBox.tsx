@@ -50,10 +50,10 @@ const StatusSchema = z.object({
 })
 
 export function UpdateStatusBox({
-                                  status,
-                                  issueId,
-                                }: {
-  status: string | undefined
+  status,
+  issueId,
+}: {
+  status: StatusData
   issueId: string
 }) {
   const { handleSubmit, watch, ...form } = useForm<
