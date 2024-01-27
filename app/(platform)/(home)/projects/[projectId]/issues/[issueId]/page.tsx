@@ -171,12 +171,6 @@ export default async function IssueId({
             </div>
           </section>
         </div>
-        {/* <IssueDetails
-          issue={issue}
-          issueLabels={issueLabels}
-          projects={projects}
-          users={users}
-        /> */}
         <aside className="xl:pl-8">
           <div className="space-y-6">
             <div className="flex items-center sm:grid sm:grid-cols-3">
