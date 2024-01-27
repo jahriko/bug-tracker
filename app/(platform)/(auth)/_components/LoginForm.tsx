@@ -6,11 +6,12 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/components/ui/use-toast"
+// import { useToast } from "@/components/ui/use-toast"
 import { type LoginSchema as LoginSchemaType, LoginSchema } from "@/types"
 
 const LoginForm = () => {
@@ -22,7 +23,6 @@ const LoginForm = () => {
     resolver: zodResolver(LoginSchema),
   })
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const { toast } = useToast()
   const router = useRouter()
 
   async function onSubmit(data: LoginSchema) {
