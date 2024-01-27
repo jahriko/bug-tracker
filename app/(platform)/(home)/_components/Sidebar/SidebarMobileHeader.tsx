@@ -7,9 +7,9 @@ import { useSidebar } from "./Sidebar"
 export default function MobileHeader() {
   const { setSidebarOpen } = useSidebar()
   return (
-    <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden ">
+    <div className="sticky top-0 z-40 flex items-center gap-x-6 border-b border-gray-200 bg-white p-4">
       <button
-        className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+        className="-m-2.5 p-2.5 text-gray-700 "
         onClick={() => {
           setSidebarOpen(true)
         }}
