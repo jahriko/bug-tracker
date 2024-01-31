@@ -58,7 +58,7 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
                         {selectedValues.length}
                       </Badge>
                       <div className="hidden space-x-1 lg:flex">
-                        {selectedValues.length > 1 ? (
+                        {selectedValues.length > 3 ? (
                           <Badge
                             className="rounded-sm px-1 font-normal"
                             variant="secondary"
