@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { User } from "lucide-react"
@@ -46,9 +47,8 @@ export function AssigneeBox({ assignees }: { assignees: Users[] }) {
               <PopoverTrigger asChild>
                 <FormControl>
                   <Button
-                    className="h-7 items-center justify-start text-xs"
-                    size="sm"
-                    variant="outline"
+                    className="p-0 h-auto"
+                    variant="link"
                   >
                     {field.value && getAssignee ? (
                       <>
@@ -63,7 +63,7 @@ export function AssigneeBox({ assignees }: { assignees: Users[] }) {
                     ) : (
                       <>
                         <User className="mr-2 h-4 w-4 shrink-0" />
-                        Assignee
+                        Set Assignee
                       </>
                     )}
                   </Button>

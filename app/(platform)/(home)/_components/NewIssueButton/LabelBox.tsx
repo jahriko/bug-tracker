@@ -44,14 +44,13 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  className="h-7 items-center justify-start text-xs"
-                  size="sm"
-                  variant="outline"
+                  className="p-0 h-auto"
+                  variant="link"
                 >
                   <Tag className="size-4" />
                   {selectedValues.length > 0 && (
                     <>
-                      <Separator className="mx-2 h-4" orientation="vertical" />
+                      <Separator className="mr-2 h-4" orientation="vertical" />
                       <Badge
                         className="rounded-sm px-1 font-normal lg:hidden"
                         variant="secondary"

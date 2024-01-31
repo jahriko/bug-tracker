@@ -75,9 +75,8 @@ export function PriorityBox() {
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  className="h-7 items-center justify-start text-xs"
-                  size="sm"
-                  variant="outline"
+                  className="p-0 h-auto"
+                  variant="link"
                 >
                   {selected ? (
                     <>
