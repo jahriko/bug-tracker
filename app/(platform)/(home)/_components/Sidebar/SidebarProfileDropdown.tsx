@@ -23,20 +23,12 @@ export default function ProfileDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="mt-4 flex shrink-0 cursor-pointer items-center">
-          <div className="flex items-center space-x-4">
-            <Avatar>
-              <AvatarImage src={profile.image ?? undefined} />
-              <AvatarFallback>
-                {profile.name?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="text-sm font-medium leading-none">{profile.name}</p>
-              <p className="text-sm text-muted-foreground">{profile.email}</p>
-            </div>
-          </div>
-        </div>
+        <Avatar className="cursor-pointer hover:ring-2 hover:ring-offset-1">
+          <AvatarImage src={profile.image ?? undefined} />
+          <AvatarFallback>
+            {profile.name?.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56" forceMount>
         <DropdownMenuGroup>
