@@ -28,7 +28,7 @@ import {
   FormControl,
 } from "../../../../../components/ui/form"
 
-export default function PriorityBox() {
+export function PriorityBox() {
   const { setValue, control } = useFormContext()
   const priorities = [
     {

@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { FormField, FormItem, FormControl } from "@/components/ui/form"
 
-export default function StatusBox() {
+export function StatusBox() {
   const { control, setValue } = useFormContext()
 
   const statuses: Status[] = [
