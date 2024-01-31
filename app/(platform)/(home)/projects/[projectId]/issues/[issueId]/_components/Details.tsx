@@ -38,7 +38,7 @@ import {
 import { ProjectIdAndTitle, Users } from "@/app/(platform)/(home)/layout"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UsersData } from "@/server/data/get-users"
-import { ProjectsData } from "@/server/data/get-project"
+import { ProjectsData } from "@/server/data/get-projects"
 import { updateStatus } from "@/server/actions/update-issue-status"
 import { FormField, Form, FormControl, FormItem } from "@/components/ui/form"
 import { Issue, IssueLabel } from "../page"
