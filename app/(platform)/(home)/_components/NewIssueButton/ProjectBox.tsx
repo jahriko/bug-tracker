@@ -22,7 +22,7 @@ import {
   FormControl,
 } from "../../../../../components/ui/form"
 
-export default function ProjectBox({
+export function ProjectBox({
   projects,
 }: {
   projects: ProjectIdAndTitle[]
@@ -42,10 +42,8 @@ export default function ProjectBox({
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  className="h-7 items-center justify-start text-xs capitalize"
-                  role="combobox"
-                  size="sm"
-                  variant="outline"
+                  className="p-0 h-auto"
+                  variant="link"
                 >
                   {field.value ? (
                     <>

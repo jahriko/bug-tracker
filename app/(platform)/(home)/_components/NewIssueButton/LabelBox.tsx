@@ -28,7 +28,7 @@ import {
 import { Badge } from "../../../../../components/ui/badge"
 import { Separator } from "../../../../../components/ui/separator"
 
-export default function LabelBox({ labels }: { labels: Labels[] }) {
+export function LabelBox({ labels }: { labels: Labels[] }) {
   const { control, setValue } = useFormContext()
   // const [background, setBackground] = useState("#B4D455")
 
@@ -44,14 +44,13 @@ export default function LabelBox({ labels }: { labels: Labels[] }) {
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  className="h-7 items-center justify-start text-xs"
-                  size="sm"
-                  variant="outline"
+                  className="p-0 h-auto"
+                  variant="link"
                 >
                   <Tag className="size-4" />
                   {selectedValues.length > 0 && (
                     <>
-                      <Separator className="mx-2 h-4" orientation="vertical" />
+                      <Separator className="mr-2 h-4" orientation="vertical" />
                       <Badge
                         className="rounded-sm px-1 font-normal lg:hidden"
                         variant="secondary"
@@ -59,7 +58,7 @@ export default function LabelBox({ labels }: { labels: Labels[] }) {
                         {selectedValues.length}
                       </Badge>
                       <div className="hidden space-x-1 lg:flex">
-                        {selectedValues.length > 1 ? (
+                        {selectedValues.length > 3 ? (
                           <Badge
                             className="rounded-sm px-1 font-normal"
                             variant="secondary"

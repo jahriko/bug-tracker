@@ -1,14 +1,17 @@
 import { notFound } from "next/navigation"
 import { Prisma } from "@prisma/client"
+import { PencilSquareIcon } from "@heroicons/react/24/outline"
 import prisma from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/get-current-user"
 import NewIssueButton from "@/app/(platform)/(home)/_components/NewIssueButton/NewIssueButton"
+import { Button } from "@/components/ui/button"
 import Sidebar from "./_components/Sidebar/Sidebar"
 import SidebarMobile from "./_components/Sidebar/SidebarMobile"
 import MobileHeader from "./_components/Sidebar/SidebarMobileHeader"
 import ProfileDropdown from "./_components/Sidebar/SidebarProfileDropdown"
 import SidebarNavigationLinks from "./_components/Sidebar/SidebarNavigationLinks"
 import ProjectList from "./_components/Sidebar/SidebarProjectList"
+import Link from "next/link"
 
 const projectIdAndTitleSelect = {
   id: true,
@@ -84,10 +87,24 @@ export default async function DashboardLayout({
     <>
       <Sidebar>
         {/* Desktop Layout */}
-        <div className="hidden lg:fixed lg:top-16 lg:bottom-0 lg:z-50 lg:flex lg:w-64 lg:flex-col ">
+        <div className="hidden lg:fixed lg:bottom-0 lg:top-16 lg:z-50 lg:flex lg:w-64 lg:flex-col ">
           <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r px-6">
-            <ProfileDropdown profile={profile} />
-            <NewIssueButton {...{ users, labels, projects }} />
+            {/* <NewIssueButton {...{ users, labels, projects }} /> */}
+            <Button
+              asChild
+              className="-mx-2 justify-start gap-x-2"
+              size="sm"
+              variant="outline"
+            >
+              <Link href="/new-issue">
+                <PencilSquareIcon
+                  aria-hidden="true"
+                  className="-ml-0.5 size-4"
+                />
+                New Issue
+              </Link>
+            </Button>
+
             <nav className="flex flex-1 flex-col">
               <ul className="flex flex-1 flex-col gap-y-7">
                 <li>
@@ -116,11 +133,9 @@ export default async function DashboardLayout({
             </ul>
           </nav>
         </SidebarMobile>
-        <MobileHeader />
+        <MobileHeader profile={profile} />
       </Sidebar>
-        <main className="mx-auto  bg-white lg:pl-64">
-          {children}
-        </main>
+      <main className="mx-auto  bg-white lg:pl-64">{children}</main>
     </>
   )
 }

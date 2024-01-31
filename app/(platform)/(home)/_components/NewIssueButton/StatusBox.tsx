@@ -25,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { FormField, FormItem, FormControl } from "@/components/ui/form"
 
-export default function StatusBox() {
+export function StatusBox() {
   const { control, setValue } = useFormContext()
 
   const statuses: Status[] = [
@@ -80,9 +80,8 @@ export default function StatusBox() {
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
-                  className="h-7 items-center justify-start text-xs"
-                  size="sm"
-                  variant="outline"
+                  className="p-0 h-auto"
+                  variant="link"
                 >
                   {selected ? (
                     <>

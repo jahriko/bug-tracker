@@ -71,12 +71,15 @@ export default function NewIssueButton({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button
-          className="-mx-2 justify-start gap-x-2 bg-gray-50 px-2.5 text-sm text-black shadow-sm"
+          asChild
+          className="-mx-2 justify-start gap-x-2"
           size="sm"
-          type="button"
           variant="outline"
         >
-          <PencilSquareIcon aria-hidden="true" className="-ml-0.5 size-5" />
+          <PencilSquareIcon
+            aria-hidden="true"
+            className="-ml-0.5 size-4"
+          />
           New Issue
         </Button>
       </DialogTrigger>

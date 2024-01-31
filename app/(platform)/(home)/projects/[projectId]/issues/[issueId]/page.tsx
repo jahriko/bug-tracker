@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator"
 import { getIssue } from "@/server/data/get-issue"
 import { getUsers } from "@/server/data/get-users"
 import { getIssueLabels } from "@/server/data/get-issue-labels"
-import { getProjects } from "@/server/data/get-project"
+import { getProjects } from "@/server/data/get-projects"
 import IssueActivityFeed from "./_components/ActivityFeed"
 import {
   AssigneeBox,
