@@ -27,7 +27,7 @@ import {
   FormControl,
 } from "../../../../../components/ui/form"
 
-export default function AssigneeBox({ assignees }: { assignees: Users[] }) {
+export function AssigneeBox({ assignees }: { assignees: Users[] }) {
   const { control, setValue } = useFormContext()
   const [open, setOpen] = useState(false)
 

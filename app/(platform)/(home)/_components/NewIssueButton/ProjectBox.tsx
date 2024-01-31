@@ -22,7 +22,7 @@ import {
   FormControl,
 } from "../../../../../components/ui/form"
 
-export default function ProjectBox({
+export function ProjectBox({
   projects,
 }: {
   projects: ProjectIdAndTitle[]

@@ -28,7 +28,7 @@ import {
 import { Badge } from "../../../../../components/ui/badge"
 import { Separator } from "../../../../../components/ui/separator"
 
-export default function LabelBox({ labels }: { labels: Labels[] }) {
+export function LabelBox({ labels }: { labels: Labels[] }) {
   const { control, setValue } = useFormContext()
   // const [background, setBackground] = useState("#B4D455")
 
