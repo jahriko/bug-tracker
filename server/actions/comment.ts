@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from "zod"
-import { revalidatePath } from "next/dist/server/web/spec-extension/revalidate-path"
+import { revalidatePath} from "next/cache"
 import prisma from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/get-current-user"
 
