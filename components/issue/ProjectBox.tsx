@@ -18,11 +18,7 @@ import { ProjectIdAndTitle } from "@/app/(platform)/(home)/layout"
 import { Button } from "@/components/ui/button"
 import { FormField, FormItem, FormControl } from "@/components/ui/form"
 
-export function ProjectBox({
-  projects,
-}: {
-  projects: ProjectIdAndTitle[]
-}) {
+export function ProjectBox({ projects }: { projects: ProjectIdAndTitle[] }) {
   const { control, setValue } = useFormContext()
   const [open, setOpen] = useState(false)
 
@@ -37,10 +33,7 @@ export function ProjectBox({
           <Popover onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button
-                  className="p-0 h-auto"
-                  variant="link"
-                >
+                <Button className="h-auto p-0" variant="link">
                   {field.value ? (
                     <>
                       <span className="mr-2 flex size-5 shrink-0 items-center justify-center rounded-lg border bg-gray-50 text-[0.625rem] font-medium">
