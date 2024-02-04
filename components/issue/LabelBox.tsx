@@ -107,24 +107,16 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
                             const index = labels.find(
                               (label) => label.name.toLowerCase() === value,
                             )
-
-                            console.log("index", index)
-
-                            console.log("before selectedValues", selectedValues)
                             const newSelectedValues = toggle(
                               selectedValues ?? [],
                               index,
                             )
-                            console.log("newselectedValues", newSelectedValues)
-
                             setSelectedValues(
                               newSelectedValues.filter(
                                 (value): value is Labels => value !== undefined,
                               ),
                             )
                             setValue("labels", newSelectedValues)
-                            // setSelectedValues([])
-                            // console.log("hehehe", newSelectedValues)
                           }}
                           value={l.name.toLowerCase()}
                         >
