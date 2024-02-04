@@ -26,13 +26,16 @@ export default async function IssueId({
 }: {
   params: { issueId: string }
 }) {
-  const [issue, issueLabels, users, projects, status] = await Promise.all([
-    getIssue(Number(params.issueId)),
-    getIssueLabels(Number(params.issueId)),
-    getUsers(),
-    getProjects(),
-    getStatus(Number(params.issueId)),
-  ])
+  const [issue, issueLabels, users, projects, status, priority, labels] =
+    await Promise.all([
+      getIssue(Number(params.issueId)),
+      getIssueLabels(Number(params.issueId)),
+      getUsers(),
+      getProjects(),
+      getStatus(Number(params.issueId)),
+      getPriority(Number(params.issueId)),
+      getLabels(),
+    ])
 
   return (
     <div className="mx-auto max-w-[1300px] py-8 xl:py-10 ">
@@ -45,12 +48,6 @@ export default async function IssueId({
                   <h1 className="text-xl font-medium text-gray-900">
                     {issue.title}
                   </h1>
-                  <p className="mt-2 text-sm text-gray-500">
-                    #{issue.id} opened by{" "}
-                    <a className="font-medium text-gray-900" href="#">
-                      {issue.user.name}
-                    </a>
-                  </p>
                 </div>
               </div>
               <aside className="mt-8 xl:hidden">
@@ -140,7 +137,7 @@ export default async function IssueId({
               </aside>
               <div className="py-3 xl:pb-0 xl:pt-6">
                 <h2 className="sr-only">Description</h2>
-                <div className="prose max-w-none lg:prose-sm">
+                <div className="prose max-w-none text-sm lg:prose-sm">
                   {issue.description}
                 </div>
               </div>
@@ -177,42 +174,37 @@ export default async function IssueId({
         </div>
         <aside className="xl:pl-8">
           <div className="space-y-6">
-            <div className="flex items-center sm:grid sm:grid-cols-3">
+            <div className="flex-row items-center space-y-4">
               <h2 className="text-sm font-medium text-gray-500">Status</h2>
-              <div className="flex items-center space-x-2 sm:col-span-2">
-                <UpdateStatusBox
-                  issueId={params.issueId}
-                  status={status}
-                />
-              </div>
+              <UpdateStatusBox issueId={params.issueId} status={status} />
             </div>
 
-            <div className="flex items-center sm:grid sm:grid-cols-3">
+            <div className="flex-row items-center space-y-4">
               <h2 className="text-sm font-medium text-gray-500">Priority</h2>
-              <div className="flex items-center space-x-2 sm:col-span-2">
-                <PriorityBox priority={issue.priority} />
-              </div>
+              <UpdatePriorityBox priority={priority} issueId={params.issueId} />
             </div>
 
-            <div className="flex items-center sm:grid sm:grid-cols-3">
+            <div className="flex-row items-center space-y-4">
               <h2 className="text-sm font-medium text-gray-500">Assignee</h2>
-              <div className="flex items-center space-x-2 sm:col-span-2">
-                <AssigneeBox assigneeId={issue.assigneeId} assignees={users} />
-              </div>
+              <UpdateAssigneeBox
+                assignees={users}
+                assigneeId={issue.assigneeId}
+                issueId={params.issueId}
+              />
             </div>
 
-            <div className="flex items-center sm:grid sm:grid-cols-3">
+            <div className="flex-row items-center space-y-4">
               <h2 className="text-sm font-medium text-gray-500">Labels</h2>
-              <ul className="space-x-3 sm:col-span-2" role="list">
-                <LabelBox issueLabels={issueLabels} />
-              </ul>
+              <UpdateLabelBox issueLabels={issueLabels} issueId={Number(params.issueId)} labels={labels} />
             </div>
 
-            <div className="flex items-center sm:grid sm:grid-cols-3">
+            <div className="flex-row items-center space-y-4">
               <h2 className="text-sm font-medium text-gray-500">Project</h2>
-              <div className="flex items-center space-x-2 sm:col-span-2">
-                <ProjectBox projectId={issue.projectId} projects={projects} />
-              </div>
+              {/*<ProjectBox projectId={issue.projectId} projects={projects} />*/}
+              <UpdateProjectBox
+                projects={projects}
+                projectId={issue.projectId}
+              />
             </div>
           </div>
         </aside>
