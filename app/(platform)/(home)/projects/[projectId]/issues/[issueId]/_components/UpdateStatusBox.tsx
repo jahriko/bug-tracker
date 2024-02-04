@@ -151,10 +151,7 @@ export function UpdateStatusBox({
               <Popover onOpenChange={setOpen} open={open}>
                 <PopoverTrigger asChild>
                   <FormControl>
-                    <Button
-                      className="-ml-2.5 w-[10rem] justify-start"
-                      variant="ghost"
-                    >
+                    <Button className="h-auto p-0" variant="link">
                       {status ? (
                         <>
                           <StatusIcon status={status} />
