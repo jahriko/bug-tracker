@@ -34,7 +34,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
-import { StatusData } from "@/server/data/get-status";
+import { StatusData } from "@/server/data/get-status"
 
 interface Status {
   value: string
@@ -160,9 +160,8 @@ export function UpdateStatusBox({
                       ) : (
                         <>
                           <Plus className="mr-2 size-4" />
-                          Add Status
+                          Set Status
                         </>
-
                       )}
                     </Button>
                   </FormControl>
