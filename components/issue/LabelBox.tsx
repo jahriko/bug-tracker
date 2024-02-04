@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { IssueLabelsData } from "@/server/data/many/get-issue-labels"
 
-export function LabelBox({ labels }: { labels: Labels[] }) {
+export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
   const { control, setValue } = useFormContext()
   // const [background, setBackground] = useState("#B4D455")
 
@@ -40,10 +40,7 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button
-                  className="p-0 h-auto"
-                  variant="link"
-                >
+                <Button className="h-auto p-0" variant="link">
                   <Tag className="size-4" />
                   {selectedValues.length > 0 && (
                     <>
@@ -63,7 +60,7 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
                             {selectedValues.length}
                           </Badge>
                         ) : (
-                          labels
+                          issueLabels
                             .filter((label) =>
                               selectedValues.find(
                                 (value) =>
@@ -93,7 +90,7 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
                 <CommandList>
                   <CommandEmpty>No results found.</CommandEmpty>
                   <CommandGroup>
-                    {labels.map((l) => {
+                    {issueLabels.map((l) => {
                       const isSelected = selectedValues.find(
                         (label) =>
                           label.name.toLowerCase() === l.name.toLowerCase(),
@@ -102,13 +99,11 @@ export function LabelBox({ labels }: { labels: Labels[] }) {
                         <CommandItem
                           key={l.name.toLowerCase()}
                           onSelect={(value: string) => {
-                            console.log(value)
-                            // const newSelectedValues = selectedValues
-                            const index = labels.find(
+                            const index = issueLabels.find(
                               (label) => label.name.toLowerCase() === value,
                             )
                             const newSelectedValues = toggle(
-                              selectedValues ?? [],
+                              selectedValues,
                               index,
                             )
                             setSelectedValues(
