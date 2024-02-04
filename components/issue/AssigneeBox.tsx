@@ -38,10 +38,7 @@ export function AssigneeBox({ assignees }: { assignees: Users[] }) {
             <Popover onOpenChange={setOpen} open={open}>
               <PopoverTrigger asChild>
                 <FormControl>
-                  <Button
-                    className="p-0 h-auto"
-                    variant="link"
-                  >
+                  <Button className="h-auto p-0" variant="link">
                     {field.value && getAssignee ? (
                       <>
                         <Avatar className="mr-1.5 h-4 w-4">
