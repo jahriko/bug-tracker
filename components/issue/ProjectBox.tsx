@@ -15,12 +15,8 @@ import {
   Command,
 } from "@/components/ui/command"
 import { ProjectIdAndTitle } from "@/app/(platform)/(home)/layout"
-import { Button } from "../../../../../components/ui/button"
-import {
-  FormField,
-  FormItem,
-  FormControl,
-} from "../../../../../components/ui/form"
+import { Button } from "@/components/ui/button"
+import { FormField, FormItem, FormControl } from "@/components/ui/form"
 
 export function ProjectBox({
   projects,

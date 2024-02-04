@@ -5,19 +5,21 @@ import {
 } from "@heroicons/react/16/solid"
 import { Separator } from "@/components/ui/separator"
 import { getIssue } from "@/server/data/get-issue"
-import { getUsers } from "@/server/data/get-users"
-import { getIssueLabels } from "@/server/data/get-issue-labels"
-import { getProjects } from "@/server/data/get-projects"
+import { getUsers } from "@/server/data/many/get-users"
+import { getIssueLabels } from "@/server/data/many/get-issue-labels"
+import { getProjects } from "@/server/data/many/get-projects"
 import IssueActivityFeed from "./_components/ActivityFeed"
-import {
-  AssigneeBox,
-  LabelBox,
-  ProjectBox,
-} from "./_components/Details"
+import { AssigneeBox, LabelBox } from "./_components/Details"
 import { UpdateStatusBox } from "./_components/UpdateStatusBox"
-import { PriorityBox } from "./_components/PriorityBox"
+import { UpdatePriorityBox } from "./_components/UpdatePriorityBox"
 import IssueComment from "./_components/Comment"
-import { getStatus } from "@/server/data/get-status";
+import { getStatus } from "@/server/data/get-status"
+import { getPriority } from "@/server/data/get-priority"
+import { UpdateAssigneeBox } from "@/app/(platform)/(home)/projects/[projectId]/issues/[issueId]/_components/UpdateAssigneeBox"
+import { UpdateLabelBox } from "@/app/(platform)/(home)/projects/[projectId]/issues/[issueId]/_components/UpdateLabelBox"
+import { UpdateProjectBox } from "@/app/(platform)/(home)/projects/[projectId]/issues/[issueId]/_components/UpdateProjectBox"
+import TestBox from "@/components/testbox"
+import { getLabels } from "@/server/data/many/get-labels"
 
 export default async function IssueId({
   params,

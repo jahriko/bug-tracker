@@ -9,10 +9,15 @@ import {
   XCircle,
 } from "lucide-react"
 import { z } from "zod"
-import { useForm } from "react-hook-form"
+import {
+  FieldValues,
+  SubmitErrorHandler,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { useEffect, useState } from "react"
+import { BaseSyntheticEvent, useEffect, useState } from "react"
 import { updateStatus } from "@/server/actions/update-issue-status"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import {

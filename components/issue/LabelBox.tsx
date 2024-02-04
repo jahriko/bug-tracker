@@ -19,14 +19,11 @@ import {
 } from "@/components/ui/command"
 import { Labels } from "@/app/(platform)/(home)/layout"
 import { cn } from "@/lib/utils"
-import { Button } from "../../../../../components/ui/button"
-import {
-  FormField,
-  FormItem,
-  FormControl,
-} from "../../../../../components/ui/form"
-import { Badge } from "../../../../../components/ui/badge"
-import { Separator } from "../../../../../components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { FormField, FormItem, FormControl } from "@/components/ui/form"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { IssueLabelsData } from "@/server/data/many/get-issue-labels"
 
 export function LabelBox({ labels }: { labels: Labels[] }) {
   const { control, setValue } = useFormContext()

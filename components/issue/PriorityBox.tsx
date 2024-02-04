@@ -21,12 +21,8 @@ import {
   CommandItem,
   Command,
 } from "@/components/ui/command"
-import { Button } from "../../../../../components/ui/button"
-import {
-  FormField,
-  FormItem,
-  FormControl,
-} from "../../../../../components/ui/form"
+import { Button } from "@/components/ui/button"
+import { FormField, FormItem, FormControl } from "@/components/ui/form"
 
 export function PriorityBox() {
   const { setValue, control } = useFormContext()

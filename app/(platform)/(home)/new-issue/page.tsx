@@ -1,8 +1,8 @@
-import NewIssueForm from "@/app/(platform)/(home)/new-issue/NewIssueForm";
+import NewIssueForm from "@/components/issue/NewIssueForm"
 
-import { getProjects } from "@/server/data/get-projects";
-import { getUsers } from "@/server/data/get-users";
-import { getLabels } from "@/server/data/get-labels";
+import { getProjects } from "@/server/data/many/get-projects"
+import { getUsers } from "@/server/data/many/get-users"
+import { getLabels } from "@/server/data/many/get-labels"
 
 export default async function NewIssuePage() {
 
