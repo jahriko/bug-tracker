@@ -70,10 +70,7 @@ export function PriorityBox() {
           <Popover onOpenChange={setOpen} open={open}>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button
-                  className="p-0 h-auto"
-                  variant="link"
-                >
+                <Button className="h-auto p-0" variant="link">
                   {selected ? (
                     <>
                       <selected.icon className="mr-2 h-4 w-4 shrink-0" />
