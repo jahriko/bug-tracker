@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from "react-hook-form"
+import { useTransition } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -14,8 +15,10 @@ import {
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { createUser } from "@/server/actions/user"
 import { RegisterSchema } from "@/types"
+import { register } from "@/server/actions/register"
+import { toast } from "sonner"
+import { Icons } from "@/components/icons"
 
 const RegisterForm = () => {
   const form = useForm<RegisterSchema>({
@@ -28,15 +31,24 @@ const RegisterForm = () => {
     },
   })
 
-  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
-  const onSubmit = async (data: RegisterSchema) => {
-    try {
-      await createUser(data)
-      router.push("/login")
-    } catch (error) {
-      console.log(error)
-    }
+  const onSubmit = async (values: RegisterSchema) => {
+    startTransition(() => {
+      register(values)
+        .then((data) => {
+          if (data.error) {
+            return toast(data.error)
+          }
+
+          if (data.success) {
+            return toast(data.success)
+          }
+        })
+        .catch(() => {
+          toast("Something went wrong")
+        })
+    })
   }
 
   return (
@@ -114,7 +126,11 @@ const RegisterForm = () => {
                 )}
               />
             </div>
-            <Button className="mt-6 w-full" type="submit">
+            <Button className="mt-6 w-full" disabled={isPending} type="submit">
+              {isPending ? (
+                // eslint-disable-next-line react/jsx-pascal-case
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Sign up
             </Button>
           </form>
