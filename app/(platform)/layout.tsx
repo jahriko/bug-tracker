@@ -1,15 +1,18 @@
+import React from "react"
+import { SessionProvider } from "next-auth/react"
 import { Toaster } from "@/components/ui/sonner"
-import NextAuthSessionProvider from "@/lib/nextauth-provider"
+import { auth } from "@/auth"
 
-export default function PlatformLayout({
+export default async function PlatformLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth()
   return (
-      <NextAuthSessionProvider>
+    <SessionProvider session={session}>
         {children}
         <Toaster />
-      </NextAuthSessionProvider>
+    </SessionProvider>
   )
 }
