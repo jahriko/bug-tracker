@@ -1,16 +1,16 @@
-/** @type {import('next').NextConfig} */
+/** @type {import("next").NextConfig} */
 const nextConfig = {
   typescript: {
     // !! WARN !! Remove this in the future
-    ignoreBuildErrors: true
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true
+    ignoreDuringBuilds: true,
   },
   logging: {
     fetches: {
       fullUrl: true,
-    }
+    },
   },
 };
 module.exports = nextConfig;
