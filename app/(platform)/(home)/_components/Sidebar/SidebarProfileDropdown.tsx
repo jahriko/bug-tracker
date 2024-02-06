@@ -1,6 +1,4 @@
 "use client"
-
-import { signOut } from "next-auth/react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,16 +8,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import React from "react"
+import { logout } from "@/server/actions/logout"
 
 export default function ProfileDropdown({
   profile,
+  children,
 }: {
   profile: {
     name: string | undefined
     email: string | undefined
     image: string | undefined
   }
+  children: React.ReactNode
 }) {
+  const onClick = () => {
+    logout()
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,9 +41,7 @@ export default function ProfileDropdown({
           <DropdownMenuItem>Profile</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
-          Log out
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onClick}>Log Out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
