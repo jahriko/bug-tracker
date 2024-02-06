@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/sonner"
 import NextAuthSessionProvider from "@/lib/nextauth-provider"
-import TanstackProvider from "@/lib/tanstack-provider"
 
 export default function PlatformLayout({
   children,
@@ -8,11 +7,9 @@ export default function PlatformLayout({
   children: React.ReactNode
 }) {
   return (
-    <TanstackProvider>
       <NextAuthSessionProvider>
         {children}
         <Toaster />
       </NextAuthSessionProvider>
-    </TanstackProvider>
   )
 }
