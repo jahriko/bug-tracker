@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache"
 import prisma from "@/lib/prisma"
 import { columns } from "../_components/DataTable/columns"
 import { DataTable } from "../_components/DataTable/data-table"
+import { getCurrentUser } from "@/lib/get-current-user"
 
 const getCachedIssueList = unstable_cache(async () => {
   const issueList = await prisma.issue.findMany({
@@ -24,10 +25,13 @@ const getCachedIssueList = unstable_cache(async () => {
 
 export default async function InboxPage() {
   const issueList = await getCachedIssueList()
+  // const session = await auth()
+  const user = await getCurrentUser()
 
   return (
     <div className="py-6">
       <main>
+        {JSON.stringify(user)}
         <div>
           <DataTable columns={columns} data={issueList} />
         </div>

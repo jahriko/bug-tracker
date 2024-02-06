@@ -1,17 +1,16 @@
 import { notFound } from "next/navigation"
 import { Prisma } from "@prisma/client"
 import { PencilSquareIcon } from "@heroicons/react/24/outline"
+import Link from "next/link"
 import prisma from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/get-current-user"
-import NewIssueButton from "@/app/(platform)/(home)/_components/NewIssueButton/NewIssueButton"
 import { Button } from "@/components/ui/button"
 import Sidebar from "./_components/Sidebar/Sidebar"
 import SidebarMobile from "./_components/Sidebar/SidebarMobile"
 import MobileHeader from "./_components/Sidebar/SidebarMobileHeader"
-import ProfileDropdown from "./_components/Sidebar/SidebarProfileDropdown"
 import SidebarNavigationLinks from "./_components/Sidebar/SidebarNavigationLinks"
 import ProjectList from "./_components/Sidebar/SidebarProjectList"
-import Link from "next/link"
+import React from "react"
 
 const projectIdAndTitleSelect = {
   id: true,
