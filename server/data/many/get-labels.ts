@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { PromiseReturnType } from "@prisma/client"
 import prisma from "@/lib/prisma"
 
 const labelSelect = {
@@ -18,3 +18,5 @@ export async function getLabels() {
 
   return labels
 }
+
+export type LabelsData = PromiseReturnType<typeof getLabels>
