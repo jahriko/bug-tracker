@@ -9,15 +9,10 @@ import {
   XCircle,
 } from "lucide-react"
 import { z } from "zod"
-import {
-  FieldValues,
-  SubmitErrorHandler,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { BaseSyntheticEvent, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { updateStatus } from "@/server/actions/update-issue-status"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import {
@@ -34,7 +29,6 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
-import { StatusData } from "@/server/data/get-status"
 
 interface Status {
   value: string
@@ -78,7 +72,7 @@ export function UpdateStatusBox({
   status,
   issueId,
 }: {
-  status: StatusData
+  status: string
   issueId: string
 }) {
   const { handleSubmit, watch, ...form } = useForm<
