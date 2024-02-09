@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { createComment } from "@/server/actions/comment"
 
 const FormSchema = z.object({
@@ -30,20 +30,11 @@ export default function IssueComment({ issueId }: { issueId: string }) {
     const result = await createComment(Number(issueId), data)
 
     if (result.code === "error") {
-      toast({
-        title: "Error",
-        description: result.message,
-        variant: "destructive",
-      })
+      return toast("Something went wrong. Please try again.")
     }
 
     form.reset()
-
-    return toast({
-      title: "Success",
-      description: result.message,
-      variant: "default",
-    })
+    return toast("Comment added") 
   }
 
   return (
