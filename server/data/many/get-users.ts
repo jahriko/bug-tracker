@@ -1,7 +1,7 @@
 import { PromiseReturnType } from "@prisma/client"
 import prisma from "@/lib/prisma"
 
-export async function getUsers() {
+export const getUsers = async () => {
   const users = await prisma.user.findMany({
     select: {
       id: true,
@@ -10,7 +10,9 @@ export async function getUsers() {
     },
   })
 
+  console.log("fetching users")
+
   return users
-}
+)
 
   export type UsersData = PromiseReturnType<typeof getUsers>
