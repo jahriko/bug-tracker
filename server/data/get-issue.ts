@@ -1,28 +1,22 @@
 import { Prisma } from "@prisma/client"
 import prisma from "@/lib/prisma"
+import { unstable_cache } from "next/cache"
 
-export async function getIssue(issueId: number) {
-  const issue = await prisma.issue.findUnique({
-    where: {
-      id: issueId,
-    },
-    include: {
-      project: {
-        select: {
-          title: true,
-          id: true,
-        },
+export const getIssue = unstable_cache(
+  async (issueId: number) => {
+    const issue = await prisma.issue.findUnique({
+      where: {
+        id: issueId,
       },
-      labels: {
-        select: {
-          id: true,
-          name: true,
-          color: true,
-        },
-      },
-      user: {
-        select: {
-          name: true,
+      select: {
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        assignee: {
+          select: {
+            id: true,
+          },
         },
       },
       assignee: {
@@ -39,6 +33,12 @@ export async function getIssue(issueId: number) {
     throw new Error("Error fetching issue")
   }
 
-  return issue
-}
+    return issue
+  },
+  ["issue"],
+  {
+    tags: ["issue"],
+  },
+)
+
 export type IssueData = Prisma.PromiseReturnType<typeof getIssue>
