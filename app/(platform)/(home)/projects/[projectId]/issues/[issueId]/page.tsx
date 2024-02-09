@@ -16,16 +16,8 @@ export default async function IssueId({
 }: {
   params: { issueId: string }
 }) {
-  const [issue, issueLabels, users, projects, status, priority, labels] =
-    await Promise.all([
-      getIssue(Number(params.issueId)),
-      getIssueLabels(Number(params.issueId)),
-      getUsers(),
-      getProjects(),
-      getStatus(Number(params.issueId)),
-      getPriority(Number(params.issueId)),
-      getLabels(),
-    ])
+  const currentUser = await getCurrentUser()
+  const issue = await getIssue(Number(params.issueId))
 
   return (
     <div className="mx-auto max-w-[1300px] py-8 xl:py-10 ">
