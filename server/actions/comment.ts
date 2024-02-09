@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from "zod"
-import { revalidatePath} from "next/cache"
+import { revalidateTag } from "next/cache"
 import prisma from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/get-current-user"
 
@@ -26,7 +26,7 @@ export async function createComment(
       },
     })
 
-    revalidatePath(`/issue/${issueId}`)
+    revalidateTag("comments")
 
     return {
       code: "success",
