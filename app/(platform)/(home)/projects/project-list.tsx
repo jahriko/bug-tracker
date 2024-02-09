@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link"
-import { CreateProject } from "@/app/(platform)/(home)/_components/NewProject"
+import { CreateProject} from "@/components/NewProject"
 import { Separator } from "@/components/ui/separator"
 
 export default function ProjectList({

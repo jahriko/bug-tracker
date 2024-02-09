@@ -2,9 +2,8 @@ import { promises as fs } from "fs"
 import path from "path"
 import { z } from "zod"
 import prisma from "@/lib/prisma"
-import { columns } from "../../../_components/DataTable/columns"
-import { DataTable } from "../../../_components/DataTable/data-table"
-import { taskSchema } from "../../../_data/schema"
+import { columns } from "@/components/DataTable/columns"
+import { DataTable } from "@/components/DataTable/data-table"
 
 async function getIssues(projectId: string) {
   const issues = await prisma.issue.findMany({

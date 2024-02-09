@@ -41,9 +41,7 @@ import { UsersData } from "@/server/data/many/get-users"
 import { ProjectsData } from "@/server/data/many/get-projects"
 import { updateStatus } from "@/server/actions/update-issue-status"
 import { FormField, Form, FormControl, FormItem } from "@/components/ui/form"
-import { Issue, IssueLabel } from "../page"
-
-
+import { Issue, IssueLabel } from "../app/(platform)/(home)/projects/[projectId]/issues/[issueId]/page"
 
 export function LabelBox({ issueLabels }: { issueLabels: IssueLabel[] }) {
   const getLabels = issueLabels.map((label) => {

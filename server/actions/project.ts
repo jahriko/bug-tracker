@@ -1,5 +1,5 @@
 import { revalidatePath } from "next/cache"
-import { ProjectSchema } from "@/types"
+import { ProjectSchema } from "@/lib/validations"
 import prisma from "@/lib/prisma"
 
 export async function createProject(formData: FormData) {

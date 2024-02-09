@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { Bars3Icon } from "@heroicons/react/24/outline"
 import { useSidebar } from "./Sidebar"
-import ProfileDropdown from "@/app/(platform)/(home)/_components/Sidebar/SidebarProfileDropdown";
+import ProfileDropdown from "@/components/Sidebar/SidebarProfileDropdown"
 
 export default function MobileHeader({
   profile,
