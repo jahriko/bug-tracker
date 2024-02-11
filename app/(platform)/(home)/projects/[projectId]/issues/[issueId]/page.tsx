@@ -120,7 +120,13 @@ export default async function IssueId({
               <div className="py-3 xl:pb-0 xl:pt-6">
                 <h2 className="sr-only">Description</h2>
                 <div className="prose max-w-none text-sm lg:prose-sm">
-                  {issue.description}
+                  {/*{issue.description}*/}
+                  <Textarea
+                    className="overflow-y-hidden border-none p-0"
+                    spellCheck={false}
+                  >
+                    {issue.description}
+                  </Textarea>
                 </div>
               </div>
             </div>
