@@ -34,19 +34,20 @@ model Session {
 }
 
 model User {
-    id             String       @id() @default(cuid())
-    name           String
-    email          String?      @unique()
-    emailVerified  DateTime?
-    image          String?
-    hashedPassword String
-    accounts       Account[]
-    sessions       Session[]
-    issues         Issue[]
-    ProjectLead    Project[]    @relation("ProjectLead")
-    Activities     Activities[]
-    Comment        Comment[]
-    assignedIssues Issue[]      @relation("Assignee")
+  id             String         @id() @default(cuid())
+  name           String
+  email          String?        @unique()
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String
+  accounts       Account[]
+  sessions       Session[]
+  issues         Issue[]
+  ProjectLead    Project[]      @relation("ProjectLead")
+  Comment        IssueComment[]
+  assignedIssues Issue[]        @relation("Assignee")
+
+  IssueActivity IssueActivity[]
 }
 
 model VerificationToken {
@@ -68,24 +69,23 @@ model Project {
 }
 
 model Issue {
-    id          Int          @id() @default(autoincrement())
-    title       String
-    status      String
-    priority    String
-    description String
-    label       String[]
-    labels      Label[]
-    assignee    User?        @relation(fields: [assigneeId], references: [id], name: "Assignee")
-    assigneeId  String?
-    createdAt   DateTime     @default(now())
-    updatedAt   DateTime     @updatedAt()
-    user        User         @relation(fields: [userId], references: [id])
-    userId      String
-    project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId   String
-    activities  Activities[]
-    comment     Comment[]
-    issueLabels  IssueLabel[]
+  id          Int            @id() @default(autoincrement())
+  title       String
+  status      String
+  priority    String
+  description String
+  label       String[]
+  labels      Label[]
+  assignee    User?          @relation(fields: [assigneeId], references: [id], name: "Assignee")
+  assigneeId  String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt()
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  comment     IssueComment[]
+  issueLabels IssueLabel[]
 }
 
 model Label {
@@ -107,24 +107,23 @@ model IssueLabel {
     @@id([issueId, labelId])
 }
 
-model Activities {
-    id        Int      @id() @default(autoincrement())
-    type      String
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
-    Issue     Issue?   @relation(fields: [issueId], references: [id])
-    issueId   Int?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt()
+model IssueComment {
+  id         Int             @id() @default(autoincrement())
+  text       String
+  user       User            @relation(fields: [userId], references: [id])
+  userId     String
+  issue      Issue           @relation(fields: [issueId], references: [id])
+  issueId    Int
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt()
 }
 
-model Comment {
-    id        Int      @id() @default(autoincrement())
-    text      String
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
-    issue     Issue    @relation(fields: [issueId], references: [id])
-    issueId   Int
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt()
+model IssueActivity {
+  id             Int           @id() @default(autoincrement())
+  issueId        Int
+  type           String
+  data           Json
+  changedBy      User          @relation(fields: [changedById], references: [id])
+  changedById    String
+  timestamp      DateTime      @default(now())
 }
