@@ -3,16 +3,8 @@ import { revalidatePath } from "next/cache"
 import { ProjectSchema } from "@/lib/validations"
 import prisma from "@/lib/prisma"
 
-export async function createProject(formData: FormData) {
-  const parse = ProjectSchema.safeParse({
-    title: formData.get("title"),
-  })
-
-  if (!parse.success) {
-    return { error: "Something went wrong.", project: null }
-  }
-
-  const data = parse.data
+export async function createProject(data: ProjectSchema) {
+  const { title } = ProjectSchema.parse(data)
 
   try {
     await prisma.project.create({
