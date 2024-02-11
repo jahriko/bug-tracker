@@ -13,7 +13,7 @@ export async function updateStatus(issueId: number, newStatus: string) {
       },
     })
 
-    revalidateTag("issue-status")
+    revalidateTag("issue")
 
     return { code: "success", message: "Issue updated successfully." }
   } catch (e) {
