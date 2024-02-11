@@ -23,7 +23,7 @@ export default function ProjectList({
               path === project.id
                 ? "bg-gray-50 text-indigo-600"
                 : "text-gray-700 hover:bg-gray-50 hover:text-indigo-600",
-              "group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6",
+              "group flex items-center gap-x-3 rounded-md p-2 text-sm font-medium leading-4",
             )}
             href={`/projects/${project.id}/issues`}
           >
@@ -32,12 +32,12 @@ export default function ProjectList({
                 path === project.id
                   ? "border-indigo-600 text-indigo-600"
                   : "border-gray-200 text-gray-400 group-hover:border-indigo-600 group-hover:text-indigo-600",
-                "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-gray-50 text-[0.625rem] font-medium",
+                "flex size-6  shrink-0 items-center justify-center rounded-full border bg-gray-50 text-[0.625rem] font-medium",
               )}
             >
               {project.title.charAt(0).toUpperCase()}
             </span>
-            <span className="truncate">{project.title}</span>
+            <span className="truncate capitalize">{project.title}</span>
           </Link>
         </li>
       ))}
