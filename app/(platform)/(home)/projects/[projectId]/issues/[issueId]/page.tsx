@@ -137,7 +137,7 @@ export default async function IssueId({
                 <Separator />
                 <div className="pt-6">
                   <div className="flow-root">
-                    <IssueActivityFeed />
+                    <IssueActivityFeed issueId={params.issueId} />
                   </div>
                   <div className="mt-6">
                     <div className="flex space-x-3">
