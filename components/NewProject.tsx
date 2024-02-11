@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
 
 const projectNameSchema = z.object({
   title: z.string().min(2, { message: "Project name is required." }).max(40),
@@ -37,6 +38,19 @@ export function CreateProject() {
     },
   })
 
+  async function onSubmit(data: projectNameSchema) {
+    const result = await createProject(data)
+
+    if (result.code === "error") {
+      return toast("Error creating project")
+    }
+
+    form.reset()
+    setOpen(false)
+
+    return toast("Project Created")
+  }
+
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
@@ -44,15 +58,7 @@ export function CreateProject() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <Form {...form}>
-          <form
-            action={async (formData: FormData) => {
-              const valid = await form.trigger()
-              if (!valid) return
-              setOpen(false)
-              return createProject(formData)
-            }}
-            id="createProjectFormId"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} id="createProjectFormId">
             <FormField
               control={form.control}
               name="title"
