@@ -10,6 +10,7 @@ import MobileHeader from "@/components/Sidebar/SidebarMobileHeader"
 import SidebarNavigationLinks from "@/components/Sidebar/SidebarNavigationLinks"
 import ProjectList from "@/components/Sidebar/SidebarProjectList"
 import Link from "next/link"
+import React from "react"
 
 const projectIdAndTitleSelect = {
   id: true,
