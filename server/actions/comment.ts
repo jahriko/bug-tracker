@@ -14,7 +14,6 @@ export async function createComment(
   data: z.infer<typeof FormSchema>,
 ) {
   const user = await getCurrentUser()
-
   const { comment } = FormSchema.parse(data)
 
   try {

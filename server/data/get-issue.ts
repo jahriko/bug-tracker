@@ -27,9 +27,9 @@ export const getIssue = unstable_cache(
       },
     })
 
-  if (!issue) {
-    throw new Error("Error fetching issue")
-  }
+    if (!issue) {
+      throw new Error("Error fetching issue")
+    }
 
     return issue
   },
