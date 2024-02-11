@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { PromiseReturnType } from "@prisma/client"
 import prisma from "@/lib/prisma"
 import { unstable_cache } from "next/cache"
 
@@ -31,4 +31,4 @@ export const getIssueLabels = unstable_cache(
   },
 )
 
-export type IssueLabelsData = Prisma.PromiseReturnType<typeof getIssueLabels>
+export type IssueLabelsData = PromiseReturnType<typeof getIssueLabels>

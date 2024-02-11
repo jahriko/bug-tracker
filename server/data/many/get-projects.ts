@@ -11,6 +11,5 @@ export async function getProjects() {
 
   return projects
 }
-export type ProjectsData = Prisma.PromiseReturnType<typeof getProjects>
 
 export type ProjectsData = PromiseReturnType<typeof getProjects>
