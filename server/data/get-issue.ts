@@ -18,16 +18,14 @@ export const getIssue = unstable_cache(
             id: true,
           },
         },
-      },
-      assignee: {
-        select: {
-          // name: true,
-          id: true,
+        project: {
+          select: {
+            id: true,
+            title: true,
+          },
         },
       },
-      comment: true,
-    },
-  })
+    })
 
   if (!issue) {
     throw new Error("Error fetching issue")
