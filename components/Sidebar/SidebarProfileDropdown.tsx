@@ -35,7 +35,7 @@ export default function ProfileDropdown({
           <DropdownMenuItem>Profile</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
+        <DropdownMenuItem   >
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
