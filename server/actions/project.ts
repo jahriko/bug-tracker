@@ -1,3 +1,4 @@
+"use server"
 import { revalidatePath } from "next/cache"
 import { ProjectSchema } from "@/lib/validations"
 import prisma from "@/lib/prisma"
@@ -14,19 +15,23 @@ export async function createProject(formData: FormData) {
   const data = parse.data
 
   try {
-    const project = await prisma.project.create({
+    await prisma.project.create({
       data: {
         title: data.title,
       },
     })
 
-    if (project) {
-      return { error: "Project already exists.", project: null }
-    }
-
     revalidatePath("/projects")
-    return { message: "Project created successfully.", project: project }
-  } catch (error) {
-    return { message: "Something went wrong.", project: null }
+
+    return {
+      code: "success",
+      message: "Project created successfully",
+    }
+  } catch (error: unknown) {
+    console.error("Error creating project: ", error)
+    return {
+      code: "error",
+      message: "Error creating project",
+    }
   }
 }
