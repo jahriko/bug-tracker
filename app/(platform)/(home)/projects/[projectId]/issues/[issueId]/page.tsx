@@ -142,11 +142,11 @@ export default async function IssueId({
                   <div className="mt-6">
                     <div className="flex space-x-3">
                       <div className="flex-shrink-0">
-                        <div className="relative">
+                        <div className="relative ml-2">
                           <img
                             alt=""
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-400 ring-8 ring-white"
-                            src="https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
+                            className="flex size-6 items-center justify-center rounded-full bg-gray-400 ring-8 ring-white"
+                            src={currentUser?.image ?? undefined}
                           />
                         </div>
                       </div>
