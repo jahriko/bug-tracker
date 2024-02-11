@@ -9,7 +9,7 @@ export async function createProject(data: ProjectSchema) {
   try {
     await prisma.project.create({
       data: {
-        title: data.title,
+        title,
       },
     })
 
