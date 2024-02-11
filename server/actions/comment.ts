@@ -18,10 +18,10 @@ export async function createComment(
   const { comment } = FormSchema.parse(data)
 
   try {
-    await prisma.comment.create({
+    await prisma.issueComment.create({
       data: {
         text: comment,
-        userId: user.userId,
+        userId: user?.userId,
         issueId,
       },
     })
@@ -30,13 +30,11 @@ export async function createComment(
 
     return {
       code: "success",
-      message: "Comment created successfully",
     }
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return {
       code: "error",
-      message: "Error creating comment",
     }
   }
 }
