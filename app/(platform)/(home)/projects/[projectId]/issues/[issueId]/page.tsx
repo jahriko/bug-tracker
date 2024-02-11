@@ -160,42 +160,9 @@ export default async function IssueId({
             </div>
           </section>
         </div>
-        <aside className="xl:pl-8">
-          <div className="space-y-6">
-            <div className="flex-row items-center space-y-4">
-              <h2 className="text-sm font-medium text-gray-500">Status</h2>
-              <UpdateStatusBox issueId={params.issueId} status={status} />
-            </div>
 
-            <div className="flex-row items-center space-y-4">
-              <h2 className="text-sm font-medium text-gray-500">Priority</h2>
-              <UpdatePriorityBox priority={priority} issueId={params.issueId} />
-            </div>
-
-            <div className="flex-row items-center space-y-4">
-              <h2 className="text-sm font-medium text-gray-500">Assignee</h2>
-              <UpdateAssigneeBox
-                assignees={users}
-                assigneeId={issue.assigneeId}
-                issueId={params.issueId}
-              />
-            </div>
-
-            <div className="flex-row items-center space-y-4">
-              <h2 className="text-sm font-medium text-gray-500">Labels</h2>
-              <UpdateLabelBox issueLabels={issueLabels} issueId={Number(params.issueId)} labels={labels} />
-            </div>
-
-            <div className="flex-row items-center space-y-4">
-              <h2 className="text-sm font-medium text-gray-500">Project</h2>
-              {/*<ProjectBox projectId={issue.projectId} projects={projects} />*/}
-              <UpdateProjectBox
-                projects={projects}
-                projectId={issue.projectId}
-              />
-            </div>
-          </div>
-        </aside>
+        {/* Issue Details */}
+        <IssueFields issueId={params.issueId} />
       </div>
     </div>
   )
