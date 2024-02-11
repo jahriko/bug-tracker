@@ -70,11 +70,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const currentUser = await getCurrentUser()
-
-  if (!currentUser) {
-    return notFound()
-  }
+  const currentUser = getCurrentUser()
 
   const [profile, users, projects, labels] = await Promise.all([
     currentUser,
