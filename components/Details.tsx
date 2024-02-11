@@ -71,10 +71,6 @@ export function LabelBox({ issueLabels }: { issueLabels: IssueLabel[] }) {
   return renderLabels
 }
 
-
-
-
-
 export function AssigneeBox({
   assignees,
   assigneeId,
@@ -141,80 +137,6 @@ export function AssigneeBox({
                     </AvatarFallback>
                   </Avatar>
                   <span>{assignee.name}</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-export function ProjectBox({
-  projects,
-  projectId,
-}: {
-  projects: ProjectsData
-  projectId: string
-}) {
-  const [selected, setSelected] = useState<ProjectsData[number] | null>(null)
-  const [open, setOpen] = useState(false)
-
-  const hasProject =
-    projects.find((project) => project.id === projectId) ?? undefined
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        {hasProject ? (
-          <Button
-            className="-ml-2.5 w-[10rem] justify-start space-x-2"
-            variant="ghost"
-          >
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-gray-50 text-[0.625rem] font-medium uppercase">
-              {hasProject.title.charAt(0)}
-            </span>
-            <span>{hasProject.title}</span>
-          </Button>
-        ) : selected ? (
-          <Button
-            className="-ml-2.5 w-[10rem] justify-start space-x-2"
-            variant="ghost"
-          >
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border bg-gray-50 text-[0.625rem] font-medium uppercase">
-              {selected.title.charAt(0)}
-            </span>
-            <span>{selected.title}</span>
-          </Button>
-        ) : (
-          <Button
-            className="-ml-2.5 w-[10rem] justify-start space-x-2"
-            variant="ghost"
-          >
-            <Plus className="mr-2 size-4" />
-            Add Project
-          </Button>
-        )}
-      </PopoverTrigger>
-      <PopoverContent align="start" className="p-0" side="bottom">
-        <Command>
-          <CommandInput placeholder="Change priority..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              {projects.map((project) => (
-                <CommandItem
-                  key={project.id}
-                  onSelect={() => {
-                    setOpen(false)
-                  }}
-                  value={project.title}
-                >
-                  <span className="mr-2 flex size-5 shrink-0 items-center justify-center rounded-lg border bg-gray-50 text-[0.625rem] font-medium uppercase">
-                    {projects[0]?.title.charAt(0)}
-                  </span>
-                  <span className="capitalize">{project.title}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
