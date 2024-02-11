@@ -1,19 +1,13 @@
 import { PromiseReturnType } from "@prisma/client"
 import prisma from "@/lib/prisma"
 
-const labelSelect = {
-  id: true,
-  name: true,
-  color: true,
-} satisfies Prisma.LabelSelect
-
-export type Label = Prisma.LabelGetPayload<{
-  select: typeof labelSelect
-}>
-
-export async function getLabels() {
+export const getLabels = async () => {
   const labels = await prisma.label.findMany({
-    select: labelSelect,
+    select: {
+      id: true,
+      name: true,
+      color: true,
+    },
   })
 
   return labels
