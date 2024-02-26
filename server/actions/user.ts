@@ -2,7 +2,7 @@
 
 import { hash } from "bcrypt"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/lib/auth"
+import { auth } from "@/auth"
 import prisma from "@/lib/prisma"
 import { ProjectSchema, RegisterSchema } from "@/types"
 
@@ -33,4 +33,3 @@ export async function createUser(data: RegisterSchema) {
     console.error(error)
   }
 }
-

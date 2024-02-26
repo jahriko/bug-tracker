@@ -3,9 +3,9 @@ import { hash } from "bcrypt"
 import prisma from "@/lib/prisma"
 
 async function main() {
-  await prisma.project.deleteMany()
+  // await prisma.project.deleteMany()
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     const firstName = faker.person.firstName()
     const lastName = faker.person.lastName()
     const hashedPassword = await hash("12345678", 13)
@@ -27,7 +27,12 @@ async function main() {
             data: Array.from({ length: 5 }).map(() => ({
               title: faker.hacker.phrase(),
               description: faker.lorem.paragraph(4),
-              priority: faker.helpers.arrayElement(["Low", "Medium", "High"]),
+              priority: faker.helpers.arrayElement([
+                "Low",
+                "Medium",
+                "High",
+                "No Priority",
+              ]),
               status: faker.helpers.arrayElement([
                 "Open",
                 "Closed",
@@ -38,8 +43,7 @@ async function main() {
                   "Bug",
                   "Feature",
                   "Documentation",
-                  "Enhancement",
-                  "Wontfix",
+                  "Improvement",
                   "Duplicate",
                 ]),
               ],
@@ -51,6 +55,7 @@ async function main() {
     })
   }
 }
+
 console.log("Projects Created")
 
 main()
