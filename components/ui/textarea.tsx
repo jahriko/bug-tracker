@@ -1,8 +1,8 @@
 "use client"
 import * as React from "react"
-import { cn } from "@/lib/utils"
 import { useRef, useEffect } from "react"
 import { mergeRefs } from "react-merge-refs"
+import { cn } from "@/lib/utils"
 
 export type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
@@ -11,18 +11,18 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const texteAreaRef = useRef<HTMLTextAreaElement>(null)
 
     useEffect(() => {
-      const ref = texteAreaRef?.current
+      const ref = texteAreaRef.current
 
       const updateTextareaHeight = () => {
         if (ref) {
           ref.style.height = "auto"
-          ref.style.height = ref?.scrollHeight + "px"
+          ref.style.height = ref.scrollHeight + "px"
         }
       }
 
       updateTextareaHeight()
       ref?.addEventListener("input", updateTextareaHeight)
-  
+
       return () => ref?.removeEventListener("input", updateTextareaHeight)
     }, [])
 

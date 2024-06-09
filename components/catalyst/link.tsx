@@ -6,16 +6,18 @@ Remix, and Inertia.js in the Catalyst documentation:
 https://catalyst.tailwindui.com/docs#client-side-router-integration
 */
 
-import * as Headless from '@headlessui/react'
-import React from 'react'
+import * as Headless from "@headlessui/react"
+import React from "react"
+import NextLink, { type LinkProps } from "next/link"
 
 export const Link = React.forwardRef(function Link(
-  props: { href: string } & React.ComponentPropsWithoutRef<'a'>,
-  ref: React.ForwardedRef<HTMLAnchorElement>
+  props: LinkProps & React.ComponentPropsWithoutRef<"a">,
+  ref: React.ForwardedRef<HTMLAnchorElement>,
 ) {
   return (
     <Headless.DataInteractive>
-      <a {...props} ref={ref} />
+      {/* <a {...props} ref={ref} /> */}
+      <NextLink {...props} ref={ref} />
     </Headless.DataInteractive>
   )
 })

@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth"
 import { PromiseReturnType } from "@prisma/client"
+import { auth } from "@/auth"
 
 export async function getCurrentUser() {
   const session = await auth()
