@@ -1,10 +1,19 @@
-import { PromiseReturnType } from "@prisma/client"
 import { auth } from "@/auth"
+import { Prisma } from "@prisma/client"
 
 export async function getCurrentUser() {
-  const session = await auth()
+  try {
+    const session = await auth()
 
-  return session?.user
+    if (!session) {
+      throw new Error("No session found")
+    }
+
+    return session.user
+
+  } catch (error) {
+    throw new Error("Error getting current user")
+  }
 }
 
-export type User = PromiseReturnType<typeof getCurrentUser>
+export type User = Prisma.PromiseReturnType<typeof getCurrentUser>

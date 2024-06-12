@@ -1,56 +1,84 @@
 "use server"
-import { revalidateTag } from "next/cache"
-import prisma from "@/lib/prisma"
 import { getCurrentUser } from "@/lib/get-current-user"
+import prisma from "@/lib/prisma"
+import { action } from "@/lib/safe-action"
 import { IssueSchema } from "@/lib/validations"
+import { revalidateTag } from "next/cache"
+import { z } from "zod"
 
-export async function createIssue(data: IssueSchema) {
-  const {
+const schema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+  status: z.string(),
+  priority: z.string().optional(),
+  assigneeId: z.string().optional(),
+  labels: z.array(
+    z.object({ id: z.number(), name: z.string(), color: z.string() }),
+  ).optional(),
+  projectName: z.string(),
+})
+
+export const createIssue = action(
+  schema,
+  async ({
     title,
     description,
     status,
     priority,
     labels,
-    projectId,
+    projectName,
     assigneeId,
-  } = IssueSchema.parse(data)
+  }) => {
+    try {
+      const userId = await getCurrentUser().then((user) => user.userId) 
 
-  try {
-    const user = await getCurrentUser()
+      if (!userId) {
+        return {
+          error: {
+            message: "You must be logged in to create an issue",
+          },
+        }
+      }
 
-    if (!user) {
-      throw new Error("User not authenticated.")
-    }
-
-    await prisma.issue.create({
-      data: {
-        title,
-        description,
-        status,
-        priority,
-        assigneeId: assigneeId || null,
-        projectId,
-        userId: user.userId,
-        issueLabels: {
-          create: [...labels.map((label) => ({ labelId: label.id }))],
+      const { id: projectId } = await prisma.project.findFirstOrThrow({
+        where: {
+          title: projectName,
         },
-      },
-    })
+        select: {
+          id: true,
+        },
+      })
 
-    revalidateTag("issue-list")
+      await prisma.issue.create({
+        data: {
+          title,
+          description,
+          status,
+          priority: priority || "no-priority",
+          assigneeId: assigneeId === undefined ? null : assigneeId,
+          projectId,
+          userId,
+          issueLabels: {
+            create: (labels || []).map((label) => ({ labelId: label.id })),
+          },
+        },
+      })
 
-    return {
-      code: "success",
-      message: "Issue created successfully",
+      revalidateTag("issue-list")
+
+      return {
+        success: true,
+      }
+    } catch (error: unknown) {
+      console.error("Error creating an issue: ", error)
+      return {
+        error: {
+          message: "Something went wrong. Please try again.",
+        },
+      }
     }
-  } catch (error: unknown) {
-    console.error("Error creating Issue: ", error)
-    return {
-      code: "error",
-      message: "Error creating an issue",
-    }
-  }
-}
+  },
+)
 
 export async function deleteIssue(id: number) {
   try {

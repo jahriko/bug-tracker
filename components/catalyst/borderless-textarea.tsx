@@ -54,7 +54,7 @@ export const BorderlessTextarea = forwardRef(function Textarea(
           // Background color
           "bg-transparent dark:bg-transparent",
           // Hide default focus styles, border, and outline
-          "border-none	 focus:outline-none focus:ring-0",
+          "border-none focus:outline-none focus:ring-0",
           // Invalid state (consider alternative indicators)
           "data-[invalid]:text-red-500 dark:data-[invalid]:text-red-400",
           // Disabled state
