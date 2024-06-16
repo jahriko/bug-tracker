@@ -9,13 +9,14 @@
     "plugin:@typescript-eslint/stylistic",
     "plugin:@typescript-eslint/stylistic-type-checked",
     "plugin:import/typescript",
-    "plugin:import/errors"
+    "plugin:import/errors",
+    "plugin:oxlint/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "plugins": ["react", "prettier", "import", "oxlint"],
+  "plugins": ["react", "prettier", "import"],
   "rules": {
     "semi": "off",
     "quotes": "off",
@@ -118,6 +119,7 @@
     "no-array-constructor": "warn",
     "no-bitwise": "warn",
     "no-lonely-if": "error",
+    "@typescript-eslint/no-unsafe-member-access": "warn",
     "no-multi-assign": "warn",
     "no-nested-ternary": "warn",
     "no-new-object": "warn",
@@ -185,19 +187,19 @@
     "import/no-self-import": "error",
     "import/no-named-default": "error",
     "import/no-useless-path-segments": ["error"],
-    "import/order": [
-      "warn",
-      {
-        "groups": [
-          "builtin", // Node.js built-in modules
-          "external", // Packages
-          "internal", // Aliased modules
-          "parent", // Relative parent
-          "sibling", // Relative sibling
-          "index" // Relative index
-        ],
-        "newlines-between": "never"
-      }
-    ]
+    // "import/order": [
+    //   "warn",
+    //   {
+    //     "groups": [
+    //       "builtin", // Node.js built-in modules
+    //       "external", // Packages
+    //       "internal", // Aliased modules
+    //       "parent", // Relative parent
+    //       "sibling", // Relative sibling
+    //       "index" // Relative index
+    //     ],
+    //     "newlines-between": "never"
+    //   }
+    // ]
   }
 }
