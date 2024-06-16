@@ -1,4 +1,3 @@
-"use client"
 import * as Headless from "@headlessui/react"
 import {
   Combobox,
@@ -11,7 +10,9 @@ import {
 } from "@headlessui/react"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
 import clsx from "clsx"
+import { Tag } from "lucide-react"
 import React, { Fragment, forwardRef } from "react"
+import { Badge } from "./catalyst/badge"
 import { InputGroup } from "./catalyst/input"
 
 const MyCustomButton = forwardRef(function (props, ref) {
@@ -40,22 +41,31 @@ const MyCustomButton = forwardRef(function (props, ref) {
 
 MyCustomButton.displayName = "MyCustomButton"
 
+interface MultiSelectComboBoxProps<T, V extends boolean | undefined>
+  extends Headless.ComboboxProps<T, V> {
+  className?: string
+  placeholder?: React.ReactNode
+  autoFocus?: boolean
+  filteredOptions?: T[]
+  query?: string
+  "aria-label"?: string
+  onQueryChange: (query: string) => void
+  children?: React.ReactNode
+}
+
+export const MultiSelectComboboxOptions = ComboboxOptions
+
 export default function MultiSelectComboBox<T, V extends boolean | undefined>({
   className,
   placeholder,
   autoFocus,
+  filteredOptions,
+  query,
   "aria-label": ariaLabel,
   children: options,
   onQueryChange,
   ...props
-}: {
-  className?: string
-  placeholder?: React.ReactNode
-  autoFocus?: boolean
-  "aria-label"?: string
-  onQueryChange: (query: string) => void
-  children?: React.ReactNode
-} & Headless.ComboboxProps<T, V>) {
+}: MultiSelectComboBoxProps<T, V>) {
   return (
     <Popover className="relative">
       <PopoverButton
@@ -84,17 +94,31 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
           ])}
         >
           {Array.isArray(props.value) && props.value.length > 0 ? (
-            <ul>
-              {props.value.map((option) => (
-                <li key={option.id}>{option.name}</li>
-              ))}
-            </ul>
+            <div className="flex items-center gap-x-2">
+              <Tag className="flex size-4 items-center" />
+              <ul>
+                {props.value.length > 1 ? (
+                  <li>
+                    <Badge>{props.value.length} labels </Badge>
+                  </li>
+                ) : (
+                  <>
+                    {props.value.map((option) => (
+                      <li key={option.id}>
+                        <Badge color={option.color}>{option.name}</Badge>
+                      </li>
+                    ))}
+                  </>
+                )}
+              </ul>
+            </div>
           ) : (
             <span className="block truncate text-zinc-500">{placeholder}</span>
           )}
         </span>
       </PopoverButton>
       <PopoverPanel
+        focus
         anchor="bottom start"
         className={clsx(
           // Anchor positioning
@@ -119,86 +143,15 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
             />
             <ComboboxInput
               as={CustomMultiSelectInput}
-              autoFocus
-              onBlur={() => {
-                onQueryChange("")
-              }}
+              // onBlur={() => {
+              //   onQueryChange("")
+              // }}
               onChange={(event) => {
                 onQueryChange(event.target.value)
               }}
             />
           </InputGroup>
-
-          {/* {(query === "" || filteredOptions.length > 0) && ( */}
-          <ComboboxOptions hold static>
-            <div className="p-1">
-              {options}
-              {/* {(query === "" ? people : filteredPeople).map((person) => (
-                      <ComboboxOption
-                        as={Fragment}
-                        key={person.id}
-                        value={person}
-                      >
-                        {({ selected }) => (
-                          <div
-                            className={clsx(
-                              // Basic layout
-                              "group/option grid cursor-default grid-cols-[theme(spacing.5),1fr] items-baseline gap-x-2 rounded-lg py-2.5 pl-2 pr-3.5 sm:grid-cols-[theme(spacing.4),1fr] sm:py-1.5 sm:pl-1.5 sm:pr-3",
-                              // Typography
-                              "text-base/6 text-zinc-950 dark:text-white sm:text-sm/6 forced-colors:text-[CanvasText]",
-                              // Focus
-                              "outline-none data-[focus]:bg-blue-500 data-[focus]:text-white",
-                              // Forced colors mode
-                              "forced-color-adjust-none forced-colors:data-[focus]:bg-[Highlight] forced-colors:data-[focus]:text-[HighlightText]",
-                              // Disabled
-                              "data-[disabled]:opacity-50",
-                            )}
-                          >
-                            <svg
-                              aria-hidden="true"
-                              className={clsx(
-                                "relative col-start-1 size-5 self-center stroke-current sm:size-4",
-                                selected
-                                  ? "inline"
-                                  : "hidden group-data-[selected]/option:inline",
-                              )}
-                              fill="none"
-                              viewBox="0 0 16 16"
-                            >
-                              <path
-                                d="M4 8.5l3 3L12 4"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1.5}
-                              />
-                            </svg>
-                            <span
-                              className={clsx(sharedClasses, "col-start-2")}
-                            >
-                              {person.name}
-                            </span>
-                          </div>
-                        )}
-                      </ComboboxOption>
-                    ))} */}
-            </div>
-          </ComboboxOptions>
-          {/* )} */}
-
-          {/* {query !== "" && filteredPeople.length === 0 && (
-                <div className="px-6 py-14 text-center text-sm">
-                  <UsersIcon
-                    aria-hidden="true"
-                    className="mx-auto h-6 w-6 text-gray-400"
-                  />
-                  <p className="mt-4 font-semibold text-gray-900">
-                    No people found
-                  </p>
-                  <p className="mt-2 text-gray-500">
-                    We couldn’t find anything with that term. Please try again.
-                  </p>
-                </div>
-              )} */}
+          {options}
         </Combobox>
       </PopoverPanel>
     </Popover>

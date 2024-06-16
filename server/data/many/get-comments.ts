@@ -1,9 +1,8 @@
-import { Prisma, PromiseReturnType } from "@prisma/client"
+import { Prisma } from "@prisma/client"
 import prisma from "@/lib/prisma"
-import { unstable_cache } from "next/cache"
 
 export const getComments = async (issueId: number) => {
-  const comments = await prisma.issueComment.findMany({
+  const comments = await prisma.comment.findMany({
     where: {
       issueId,
     },
@@ -20,9 +19,7 @@ export const getComments = async (issueId: number) => {
     },
   })
 
-  console.log("fetching comments")
-
   return comments
 }
 
-export type IssueLabelsData = PromiseReturnType<typeof getComments>
+export type IssueLabelsData = Prisma.PromiseReturnType<typeof getComments>

@@ -1,4 +1,4 @@
-import { PromiseReturnType } from "@prisma/client"
+import { Prisma } from "@prisma/client"
 import prisma from "@/lib/prisma"
 
 export async function getProjects() {
@@ -6,10 +6,13 @@ export async function getProjects() {
     select: {
       id: true,
       title: true,
+      _count: {
+        select: { issues: true },
+      },
     },
   })
 
   return projects
 }
 
-export type ProjectsData = PromiseReturnType<typeof getProjects>
+export type ProjectsData = Prisma.PromiseReturnType<typeof getProjects>

@@ -1,3 +1,4 @@
+import { Providers } from "@/components/providers"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -15,8 +16,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html className="h-full " lang="en">
-      <body className={`${inter.className} h-full `}>{children}</body>
+    <html className="h-full" lang="en">
+      <body className={`${inter.className} h-full`}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

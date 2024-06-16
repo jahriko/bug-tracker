@@ -23,11 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { IssuesData } from "@/server/data/many/get-issues"
 import { DataTablePagination } from "./data-table-pagination"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: any
+  data: IssuesData[number] extends TData ? IssuesData : never
 }
 
 export function DataTable<TData, TValue>({

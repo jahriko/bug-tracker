@@ -17,7 +17,7 @@ export async function IssueFields({ issueId }: { issueId: string }) {
     getProjects(),
     getLabels(),
   ])
-  
+
   return (
     <aside className="xl:pl-8">
       <div className="space-y-6">

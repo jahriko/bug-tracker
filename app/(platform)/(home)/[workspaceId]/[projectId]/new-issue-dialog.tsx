@@ -5,20 +5,20 @@ import { BorderlessTextarea } from "@/components/catalyst/borderless-textarea"
 import { Button } from "@/components/catalyst/button"
 import { Dialog, DialogActions, DialogBody } from "@/components/catalyst/dialog"
 import { Field } from "@/components/catalyst/fieldset"
-import {
-  Listbox,
-  ListboxLabel,
-  ListboxOption,
-} from "@/components/catalyst/listbox"
+import { Listbox, ListboxLabel, ListboxOption } from "@/components/catalyst/listbox"
 import MultiSelectComboBox, {
   MultiSelectComboBoxLabel,
   MultiSelectComboBoxOption,
+  MultiSelectComboboxOptions,
 } from "@/components/combobox-multi-select"
+import { LabelColorSelectionDialog } from "@/components/label-color-selection-dialog"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { IssueSchema } from "@/lib/validations"
 import { createIssue } from "@/server/actions/issue"
 import { LabelsData } from "@/server/data/many/get-labels"
 import { UsersData } from "@/server/data/many/get-users"
+import { PlusIcon } from "@heroicons/react/16/solid"
+import { atom, useAtom } from "jotai"
 import {
   Ban,
   CheckCircle2,
@@ -43,11 +43,7 @@ interface NewIssueDialogProps {
   labels: LabelsData
 }
 
-export default function NewIssueDialog({
-  assignees,
-  labels,
-}: NewIssueDialogProps) {
-  const [query, setQuery] = useState("")
+export default function NewIssueDialog({ assignees, labels }: NewIssueDialogProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const projectName = pathname.split("/")[2] || ""
@@ -61,34 +57,23 @@ export default function NewIssueDialog({
     },
   })
 
-  const handleQueryChange = (newQuery: string) => {
-    setQuery(newQuery)
-  }
-
-  const filteredOptions =
-    query === ""
-      ? labels
-      : labels.filter((label) => {
-          return label.name.toLowerCase().includes(query.toLowerCase().trim())
-        })
-
   async function onSubmit(data: IssueSchema) {
     const res = await createIssue(data)
 
     const { data: resData, validationErrors, serverError } = res
 
-    if (validationErrors) {
-      const firstError = Object.entries(validationErrors).find(
-        ([_, errors]) => errors.length > 0,
-      )
+    // if (validationErrors) {
+    //   const firstError = Object.entries(validationErrors).find(
+    //     ([_, errors]) => errors.length > 0,
+    //   )
 
-      if (firstError) {
-        const [key, [errorMessage]] = firstError
-        return toast.error(`${errorMessage}`, {
-          description: `Enter a ${key} before submitting an issue`,
-        })
-      }
-    }
+    //   if (firstError) {
+    //     const [key, [errorMessage]] = firstError
+    //     return toast.error(`${errorMessage}`, {
+    //       description: `Enter a ${key} before submitting an issue`,
+    //     })
+    //   }
+    // }
 
     if (serverError) {
       return toast.error(serverError)
@@ -277,14 +262,10 @@ export default function NewIssueDialog({
                                 }
                               >
                                 {assignees.map((assignee) => (
-                                  <ListboxOption
-                                    key={assignee.id}
-                                    value={assignee.id}
-                                  >
+                                  <ListboxOption key={assignee.id} value={assignee.id}>
                                     <Avatar
                                       alt=""
                                       src={assignee.image}
-                                      // initials={assignee.initial}
                                       className="bg-purple-500 text-white"
                                     />
                                     <ListboxLabel>{assignee.name}</ListboxLabel>
@@ -308,31 +289,7 @@ export default function NewIssueDialog({
                         return (
                           <FormItem>
                             <FormControl>
-                              <MultiSelectComboBox
-                                {...rest}
-                                name="labels"
-                                multiple
-                                onQueryChange={handleQueryChange}
-                                placeholder={
-                                  <div className="flex items-center gap-x-2">
-                                    <Tag className="flex size-4 items-center" />
-                                    Labels
-                                  </div>
-                                }
-                              >
-                                {(query === "" ? labels : filteredOptions).map(
-                                  (label) => (
-                                    <MultiSelectComboBoxOption
-                                      key={label.id}
-                                      value={label}
-                                    >
-                                      <MultiSelectComboBoxLabel>
-                                        {label.name}
-                                      </MultiSelectComboBoxLabel>
-                                    </MultiSelectComboBoxOption>
-                                  ),
-                                )}
-                              </MultiSelectComboBox>
+                              <LabelSelector {...rest} labels={labels} />
                             </FormControl>
                           </FormItem>
                         )
@@ -359,5 +316,75 @@ export default function NewIssueDialog({
         </DialogActions>
       </Dialog>
     </>
+  )
+}
+
+// `useState` doesn't update the data immediately after creating a label.
+// TOOD: Experiment with useState again to see if it's possible to update the data immediately.
+export const labelAtom = atom<LabelsData>([])
+// I got paranoid and atomized the rest lol
+export const queryAtom = atom<string>("")
+export const labelDialogAtom = atom<boolean>(false)
+
+function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
+  const [query, setQuery] = useAtom(queryAtom)
+  const [_, setCreateLabelDialogOpen] = useAtom(labelDialogAtom)
+  const [labelsData, setLabelsData] = useAtom(labelAtom)
+  setLabelsData(labels)
+
+  const filteredOptions =
+    query === ""
+      ? labelsData
+      : labelsData.filter((label) => {
+          return label.name.toLowerCase().includes(query.toLowerCase().trim())
+        })
+
+  const handleMouseDown = (event: any) => {
+    event.preventDefault()
+  }
+
+  return (
+    <MultiSelectComboBox
+      {...rest}
+      name="labels"
+      multiple
+      onQueryChange={setQuery}
+      placeholder={
+        <div className="flex items-center gap-x-2">
+          <Tag className="flex size-4 items-center" />
+          Labels
+        </div>
+      }
+    >
+      <MultiSelectComboboxOptions hold static>
+        <div className="p-1">
+          {(query === "" ? labelsData : filteredOptions).map((label) => (
+            <MultiSelectComboBoxOption key={label.id} value={label}>
+              <MultiSelectComboBoxLabel>{label.name}</MultiSelectComboBoxLabel>
+            </MultiSelectComboBoxOption>
+          ))}
+
+          {filteredOptions.length === 0 && (
+            <>
+              <Button
+                plain
+                onMouseDown={handleMouseDown}
+                className="relative w-full"
+                onClick={() => {
+                  setCreateLabelDialogOpen(true)
+                }}
+              >
+                <PlusIcon />
+
+                <span className="font-medium">Create new label</span>
+                <span className="font-normal text-zinc-500">{query}</span>
+              </Button>
+
+              <LabelColorSelectionDialog labelName={query} />
+            </>
+          )}
+        </div>
+      </MultiSelectComboboxOptions>
+    </MultiSelectComboBox>
   )
 }

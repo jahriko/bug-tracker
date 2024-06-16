@@ -4,20 +4,21 @@ import { ProjectSchema } from "@/lib/validations"
 import prisma from "@/lib/prisma"
 
 export async function createProject(data: ProjectSchema) {
-  const { title } = ProjectSchema.parse(data)
+  const { workspaceId, title } = ProjectSchema.parse(data)
 
   try {
     await prisma.project.create({
       data: {
+        workspaceId,
         title,
       },
     })
 
-    revalidatePath("/projects")
+    revalidatePath("/workspace")
 
     return {
       code: "success",
-      message: "Project created successfully",
+      message: `Project ${title} created.`,
     }
   } catch (error: unknown) {
     console.error("Error creating project: ", error)
