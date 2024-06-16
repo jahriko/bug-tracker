@@ -1,7 +1,6 @@
 "use client"
 import { UsersData } from "@/server/data/many/get-users"
 import { useEffect, useState } from "react"
-import { Users } from "@/app/(platform)/(home)/layout"
 import {
   Popover,
   PopoverContent,
@@ -9,7 +8,7 @@ import {
 } from "@/components/ui/popover"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Plus, User } from "lucide-react"
+import { User } from "lucide-react"
 import {
   Command,
   CommandEmpty,

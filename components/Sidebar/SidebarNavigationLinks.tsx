@@ -1,17 +1,17 @@
 "use client"
 
-import { InboxIcon, PuzzlePieceIcon } from "@heroicons/react/24/outline"
+import { InboxIcon, } from "@heroicons/react/24/outline"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 const navigation = [
-  { name: "All Issues", href: "/inbox", icon: InboxIcon, current: true },
-  {
-    name: "Projects",
-    href: "/projects",
-    icon: PuzzlePieceIcon,
-    current: false,
-  },
+  { name: "All Issues", href: "/all-issues", icon: InboxIcon, current: true },
+  // {
+  //   name: "Projects",
+  //   href: "/projects",
+  //   icon: PuzzlePieceIcon,
+  //   current: false,
+  // },
 ]
 
 function classNames(...classes: string[]) {
@@ -21,7 +21,7 @@ function classNames(...classes: string[]) {
 export default function SidebarNavigationLinks() {
   const path = usePathname()
   return (
-    <ul className="-mx-2 space-y-0.5">
+    <ul className="-mx-2 space-y-1">
       {navigation.map((item) => (
         <li key={item.name}>
           <Link

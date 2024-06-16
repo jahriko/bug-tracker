@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { useTransition } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import {
   Form,
   FormControl,
@@ -15,10 +15,9 @@ import {
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { RegisterSchema } from "@/types"
 import { register } from "@/server/actions/register"
-import { toast } from "sonner"
 import { Icons } from "@/components/icons"
+import { RegisterSchema } from "@/lib/validations"
 
 const RegisterForm = () => {
   const form = useForm<RegisterSchema>({

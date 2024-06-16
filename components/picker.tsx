@@ -1,8 +1,7 @@
 "use client"
 
 import { Paintbrush } from "lucide-react"
-import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import Circle from "@uiw/react-color-circle"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +10,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
 export function Picker({
@@ -60,7 +58,6 @@ export function Picker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-64">
-
         <div className="mt-0 flex w-full flex-wrap gap-1">
           <Circle
             color={hex}

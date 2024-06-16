@@ -1,8 +1,8 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner"
 import { createComment } from "@/server/actions/comment"
 
 const FormSchema = z.object({
@@ -32,12 +31,12 @@ export default function IssueComment({ issueId }: { issueId: string }) {
     }
 
     form.reset()
-    return toast("Comment added") 
+    return toast("Comment added")
   }
 
   return (
     <Form {...form}>
-      <form className="space-y-3 ml-1" onSubmit={form.handleSubmit(onSubmit)}>
+      <form className="ml-1 space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="comment"

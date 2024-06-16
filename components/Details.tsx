@@ -2,25 +2,10 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable @next/next/no-img-element */
 import {
-  ArrowUpCircle,
-  CheckCircle2,
-  Circle,
-  HelpCircle,
-  LucideIcon,
-  MinusCircle,
-  SignalLow,
-  SignalMedium,
-  SignalHigh,
-  XCircle,
   Plus,
 } from "lucide-react"
-import { useEffect, useState } from "react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import {
   Popover,
@@ -35,13 +20,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command"
-import { ProjectIdAndTitle, Users } from "@/app/(platform)/(home)/layout"
+import { Users } from "@/app/(platform)/(home)/layout"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { UsersData } from "@/server/data/many/get-users"
-import { ProjectsData } from "@/server/data/many/get-projects"
-import { updateStatus } from "@/server/actions/update-issue-status"
-import { FormField, Form, FormControl, FormItem } from "@/components/ui/form"
-import { Issue, IssueLabel } from "../app/(platform)/(home)/projects/[projectId]/issues/[issueId]/page"
+import {
+  IssueLabel,
+} from "../app/(platform)/(home)/projects/[projectId]/issues/[issueId]/page"
 
 export function LabelBox({ issueLabels }: { issueLabels: IssueLabel[] }) {
   const getLabels = issueLabels.map((label) => {

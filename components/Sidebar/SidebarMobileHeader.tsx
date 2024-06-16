@@ -12,7 +12,8 @@ export default function MobileHeader({
     name: string | undefined
     email: string | undefined
     image: string | undefined
-  }}) {
+  }
+}) {
   const { setSidebarOpen } = useSidebar()
   return (
     <div className="sticky top-0 z-40 flex items-center gap-x-6 border-b border-gray-200 bg-white p-4">

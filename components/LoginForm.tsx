@@ -2,6 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 import {
   Form,
   FormField,
@@ -9,18 +13,17 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form"
-import { useSearchParams } from "next/navigation"
-import { useTransition } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { type LoginSchema as LoginSchemaType, LoginSchema } from "@/types"
+import {
+  type LoginSchema as LoginSchemaType,
+  LoginSchema,
+} from "@/lib/validations"
 import { login } from "@/server/actions/login"
 
-const LoginForm = () => {
+export default function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl")
   const [isPending, startTransition] = useTransition()
@@ -147,5 +150,3 @@ const LoginForm = () => {
     </div>
   )
 }
-
-export default LoginForm

@@ -8,14 +8,10 @@ import { Command, CommandGroup, CommandItem } from "@/components/ui/command"
 import { Command as CommandPrimitive } from "cmdk"
 import { Labels } from "@/app/(platform)/(home)/layout"
 import { IssueLabelsData } from "@/server/data/many/get-issue-labels"
-import { toggle } from "radash"
 import {
   addIssueLabel,
   deleteIssueLabel,
-  updateIssueLabel,
 } from "@/server/actions/issue-label"
-import { diff } from "radash"
-import { useEffect } from "react"
 import { toast } from "sonner"
 
 interface IssueLabel {
@@ -44,8 +40,6 @@ export function UpdateLabelBox({
     if (result.code === "error") {
       console.error(result.message)
     }
-
-
   }, [])
 
   const handleKeyDown = React.useCallback(
@@ -68,7 +62,7 @@ export function UpdateLabelBox({
     },
     [],
   )
-  
+
   return (
     <Command
       onKeyDown={handleKeyDown}
