@@ -12,9 +12,9 @@ const schema = z.object({
   status: z.string(),
   priority: z.string().optional(),
   assigneeId: z.string().optional(),
-  labels: z.array(
-    z.object({ id: z.number(), name: z.string(), color: z.string() }),
-  ).optional(),
+  labels: z
+    .array(z.object({ id: z.number(), name: z.string(), color: z.string() }))
+    .optional(),
   projectName: z.string(),
 })
 
@@ -30,7 +30,7 @@ export const createIssue = action(
     assigneeId,
   }) => {
     try {
-      const userId = await getCurrentUser().then((user) => user.userId) 
+      const userId = await getCurrentUser().then((user) => user.userId)
 
       if (!userId) {
         return {

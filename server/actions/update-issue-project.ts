@@ -1,6 +1,6 @@
 "use server"
 import prisma from "@/lib/prisma"
-import { revalidatePath, revalidateTag } from "next/cache"
+import { revalidateTag } from "next/cache"
 
 export async function updateIssueProject(issueId: number, projectId: string) {
   try {
@@ -26,5 +26,4 @@ export async function updateIssueProject(issueId: number, projectId: string) {
       message: "Error updating project",
     }
   }
-
 }

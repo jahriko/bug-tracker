@@ -1,6 +1,7 @@
-import { PromiseReturnType } from "@prisma/client"
-import prisma from "@/lib/prisma"
+// eslint-disable-next-line camelcase
 import { unstable_cache } from "next/cache"
+import { Prisma } from "@prisma/client"
+import prisma from "@/lib/prisma"
 
 export const getIssueLabels = unstable_cache(
   async (issueId: number) => {
@@ -31,4 +32,4 @@ export const getIssueLabels = unstable_cache(
   },
 )
 
-export type IssueLabelsData = PromiseReturnType<typeof getIssueLabels>
+export type IssueLabelsData = Prisma.PromiseReturnType<typeof getIssueLabels>

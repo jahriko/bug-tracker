@@ -5,7 +5,7 @@ import { Table } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import CreateIssue from "@/components/create-issue"
-import { priorities, statuses } from "../_data/data"
+import { statuses } from "../_data/data"
 import { DataTableViewOptions } from "./data-table-view-options"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 

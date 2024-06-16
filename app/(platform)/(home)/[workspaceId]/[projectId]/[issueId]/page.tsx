@@ -3,6 +3,7 @@ import {
   CalendarIcon,
   ChatBubbleLeftEllipsisIcon,
 } from "@heroicons/react/16/solid"
+import { DateTime } from "luxon"
 import { Separator } from "@/components/ui/separator"
 import { getIssue } from "@/server/data/get-issue"
 import IssueActivityFeed from "@/components/ActivityFeed"
@@ -18,6 +19,7 @@ export default async function IssueId({
 }) {
   const currentUser = await getCurrentUser()
   const issue = await getIssue(Number(params.issueId))
+  const issueDate = DateTime.fromJSDate(issue.createdAt).toRelative()
 
   return (
     <div className="mx-auto max-w-[1300px] py-8 xl:py-10 ">
@@ -50,7 +52,7 @@ export default async function IssueId({
                       className="h-5 w-5 text-gray-400"
                     />
                     <span className="text-sm font-medium text-gray-900">
-                      Created on <time dateTime="2020-12-02">Dec 2, 2020</time>
+                      Created on <time>{issueDate}</time>
                     </span>
                   </div>
                 </div>
@@ -70,7 +72,7 @@ export default async function IssueId({
                             />
                           </div>
                           <div className="text-sm font-medium text-gray-900">
-                            {getIssue.assignee?.name ?? "No assignee"}
+                            {issue.assignee?.id ?? "No assignee"}
                           </div>
                         </a>
                       </li>

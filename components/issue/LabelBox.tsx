@@ -24,12 +24,13 @@ import { FormField, FormItem, FormControl } from "@/components/ui/form"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { IssueLabelsData } from "@/server/data/many/get-issue-labels"
+import { LabelsData } from "@/server/data/many/get-labels"
 
 export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
   const { control, setValue } = useFormContext()
   // const [background, setBackground] = useState("#B4D455")
 
-  const [selectedValues, setSelectedValues] = useState<Labels[]>([])
+  const [selectedValues, setSelectedValues] = useState<LabelsData>([])
 
   return (
     <FormField

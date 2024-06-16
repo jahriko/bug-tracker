@@ -11,8 +11,8 @@ export default async function PlatformLayout({
   const session = await auth()
   return (
     <SessionProvider session={session}>
-        {children}
-        <Toaster />
+      {children}
+      <Toaster />
     </SessionProvider>
   )
 }

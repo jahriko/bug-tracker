@@ -17,13 +17,17 @@ export async function createComment(
   const { comment } = FormSchema.parse(data)
 
   try {
-    await prisma.issueComment.create({
+    await prisma.comment.create({
       data: {
         text: comment,
         userId: user?.userId,
         issueId,
       },
     })
+
+    // I think it would be better to fake display the comment
+    // then revalidate the comments cache when the user
+    // navigates to another page.
 
     revalidateTag("comments")
 

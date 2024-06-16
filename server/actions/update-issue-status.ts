@@ -1,7 +1,7 @@
 "use server"
 
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
-import { revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache"
 import prisma from "@/lib/prisma"
 
 export async function updateStatus(issueId: number, newStatus: string) {

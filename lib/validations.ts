@@ -4,17 +4,18 @@ export const IssueSchema = z.object({
   title: z.string().min(1, { message: "Title cannot be empty" }),
   description: z.string().min(1, { message: "Description cannot be empty" }),
   status: z.string(),
-  priority: z.string(),
-  assigneeId: z.string(),
+  priority: z.string().optional(),
+  assigneeId: z.string().optional(),
   labels: z.array(
     z.object({ id: z.number(), name: z.string(), color: z.string() }),
   ),
-  projectId: z.string(),
+  projectName: z.string(),
 })
 
 export type IssueSchema = z.infer<typeof IssueSchema>
 
 export const ProjectSchema = z.object({
+  workspaceId: z.number(),
   title: z.string().min(1).max(50),
 })
 
@@ -38,11 +39,14 @@ export const RegisterSchema = z
 export type RegisterSchema = z.infer<typeof RegisterSchema>
 
 export const LoginSchema = z.object({
-  email: z.string().email("Invalid email!"),
-  password: z
-    .string()
-    .min(1, "Password is required!")
-    .min(8, "Password must have than 8 characters!"),
+  email: z.string().email("Email is required"),
+  password: z.string().min(1, "Password is required"),
 })
 
 export type LoginSchema = z.infer<typeof LoginSchema>
+
+export const WorkspaceSchema = z.object({
+  name: z.string().min(2, { message: "Workspace name is required." }),
+})
+
+export type WorkspaceSchema = z.infer<typeof WorkspaceSchema>

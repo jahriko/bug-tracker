@@ -1,6 +1,4 @@
 "use client"
-import React, { useState } from "react"
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -12,7 +10,6 @@ import {
   ProjectIdAndTitle,
   Users,
 } from "@/app/(platform)/(home)/layout"
-import { createIssue } from "@/server/actions/issue"
 import {
   Form,
   FormControl,
@@ -26,6 +23,7 @@ import { LabelBox } from "@/components/issue/LabelBox"
 import { Button } from "@/components/ui/button"
 import { AssigneeBox } from "@/components/issue/AssigneeBox"
 import { ProjectBox } from "@/components/issue/ProjectBox"
+import { createIssue } from "@/server/actions/issue"
 
 export default function NewIssueForm({
   users,
@@ -36,7 +34,6 @@ export default function NewIssueForm({
   projects: ProjectIdAndTitle[]
   labels: Labels[]
 }) {
-  const [open, setOpen] = useState(false)
   const form = useForm<IssueSchema>({
     resolver: zodResolver(IssueSchema),
     defaultValues: {
@@ -68,8 +65,8 @@ export default function NewIssueForm({
     <div className="mx-auto max-w-[1300px] py-8 xl:py-10">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
           className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 xl:grid xl:grid-cols-3"
+          onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="xl:col-span-2 xl:border-r xl:border-gray-200 xl:pr-8">
             <div className="space-y-2">
