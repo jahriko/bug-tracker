@@ -34,20 +34,24 @@ model Session {
 }
 
 model User {
-  id             String         @id() @default(cuid())
+  id             String     @id() @default(cuid())
   name           String
-  email          String?        @unique()
+  email          String     @unique()
   emailVerified  DateTime?
   image          String?
   hashedPassword String
+  lastWorkspace  String?
   accounts       Account[]
   sessions       Session[]
   issues         Issue[]
-  ProjectLead    Project[]      @relation("ProjectLead")
-  Comment        IssueComment[]
-  assignedIssues Issue[]        @relation("Assignee")
-
-  IssueActivity IssueActivity[]
+  projectLead    Project[]  @relation("ProjectLead")
+  comments       Comment[]
+  assignedIssues Issue[]    @relation("Assignee")
+  logs           IssueLog[]
+  Workspace      Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId    Int?
+  Team           Team?      @relation(fields: [teamId], references: [id])
+  teamId         Int?
 }
 
 model VerificationToken {
@@ -59,33 +63,62 @@ model VerificationToken {
 }
 
 model Project {
-  id            String   @id() @default(cuid())
+  id            String     @id() @default(cuid())
   title         String
-  issues        Issue[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt()
-  projectLead   User?    @relation(fields: [projectLeadId], references: [id], name: "ProjectLead")
+  updatedAt     DateTime   @updatedAt()
+  createdAt     DateTime   @default(now())
+  projectLead   User?      @relation(fields: [projectLeadId], references: [id], name: "ProjectLead")
   projectLeadId String?
+  issues        Issue[]
+  Workspace     Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId   Int?
+  Team          Team?      @relation(fields: [teamId], references: [id])
+  teamId        Int?
+}
+
+model Workspace {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String? // Optional description of the workspace
+  createdAt   DateTime  @default(now())
+  members     User[] // Relationship to users in the workspace
+  projects    Project[] // Relationship to projects within the workspace
 }
 
 model Issue {
-  id          Int            @id() @default(autoincrement())
+  id          Int          @id() @default(autoincrement())
   title       String
   status      String
   priority    String
   description String
   label       String[]
   labels      Label[]
-  assignee    User?          @relation(fields: [assigneeId], references: [id], name: "Assignee")
+  assignee    User?        @relation(fields: [assigneeId], references: [id], name: "Assignee")
   assigneeId  String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt()
-  user        User           @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+  user        User         @relation(fields: [userId], references: [id])
   userId      String
-  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   String
-  comment     IssueComment[]
+  comments    Comment[]
   issueLabels IssueLabel[]
+  logs        IssueLog[]
+}
+
+model Comment {
+  id        Int      @id() @default(autoincrement())
+  text      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  issueId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+
+  parent   Comment?  @relation("ChildComments", fields: [parentId], references: [id])
+  parentId Int?
+  children Comment[] @relation("ChildComments")
 }
 
 model Label {
@@ -93,9 +126,9 @@ model Label {
   name  String
   color String
 
+  issueLabels IssueLabel[]
   Issue       Issue?       @relation(fields: [issueId], references: [id])
   issueId     Int?
-  issueLabels IssueLabel[]
 }
 
 model IssueLabel {
@@ -107,23 +140,25 @@ model IssueLabel {
   @@id([issueId, labelId])
 }
 
-model IssueComment {
-  id         Int             @id() @default(autoincrement())
-  text       String
-  user       User            @relation(fields: [userId], references: [id])
-  userId     String
-  issue      Issue           @relation(fields: [issueId], references: [id])
-  issueId    Int
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt()
+model IssueLog {
+  id        Int      @id @default(autoincrement())
+  action    String // e.g., "status_updated", "priority_updated", etc.
+  oldValue  String? // The old value before the update
+  newValue  String? // The new value after the update
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  issue     Issue    @relation(fields: [issueId], references: [id])
+  issueId   Int
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
 }
 
-model IssueActivity {
-  id             Int           @id() @default(autoincrement())
-  issueId        Int
-  type           String
-  data           Json
-  changedBy      User          @relation(fields: [changedById], references: [id])
-  changedById    String
-  timestamp      DateTime      @default(now())
+model Team {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  members     User[]
+  projects    Project[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt()
 }
