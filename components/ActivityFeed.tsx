@@ -4,10 +4,10 @@ import {
   TagIcon,
   UserCircleIcon as UserCircleIconMini,
 } from "@heroicons/react/16/solid"
-import { getComments } from "@/server/data/many/get-comments"
 import { DateTime } from "luxon"
+import { getComments } from "@/server/data/many/get-comments"
 
-const activity = [
+const _activity = [
   {
     id: 1,
     type: "comment",
@@ -68,9 +68,9 @@ function CommentType(item: Comment) {
           <div className="text-sm">
             <a className="font-medium text-gray-900">{item.user.name}</a>
           </div>
-          <p className="mt-0.5 text-xs text-gray-500">{item.date}</p>
+          <p className="mt-0.5 text-gray-500 text-xs">{item.date}</p>
         </div>
-        <div className="mt-2 text-sm text-gray-700 ">
+        <div className="mt-2 text-gray-700 text-sm ">
           <p>{item.text}</p>
         </div>
       </div>
@@ -99,7 +99,7 @@ function AssignmentType(item: Assignment) {
         </div>
       </div>
       <div className="min-w-0 flex-1 py-1.5">
-        <div className="text-sm text-gray-500">
+        <div className="text-gray-500 text-sm">
           <a className="font-medium text-gray-900" href={item.person.href}>
             {item.person.name}
           </a>{" "}
@@ -132,7 +132,7 @@ function TagType(item: Tag) {
         </div>
       </div>
       <div className="min-w-0 flex-1 py-0">
-        <div className="text-sm leading-8 text-gray-500">
+        <div className="text-gray-500 text-sm leading-8">
           <span className="mr-0.5">
             <a className="font-medium text-gray-900" href={item.person.href}>
               {item.person.name}
@@ -140,8 +140,7 @@ function TagType(item: Tag) {
             added tags
           </span>{" "}
           <span className="mr-0.5">
-            <span
-              className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+            <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 font-medium text-gray-900 text-xs ring-1 ring-gray-200 ring-inset">
               <svg
                 aria-hidden="true"
                 className="h-1.5 w-1.5 fill-red-500"
@@ -151,8 +150,7 @@ function TagType(item: Tag) {
               </svg>
               Badge
             </span>
-            <span
-              className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+            <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 font-medium text-gray-900 text-xs ring-1 ring-gray-200 ring-inset">
               <svg
                 aria-hidden="true"
                 className="h-1.5 w-1.5 fill-yellow-500"
@@ -171,8 +169,8 @@ function TagType(item: Tag) {
 }
 
 export default async function IssueActivityFeed({
-                                                  issueId,
-                                                }: {
+  issueId,
+}: {
   issueId: string
 }) {
   const comments = await getComments(Number(issueId))
@@ -198,12 +196,12 @@ export default async function IssueActivityFeed({
                         {comment.user.name}
                       </a>
                     </div>
-                    <span className="text-xs text-gray-400">•</span>
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <span className="text-gray-400 text-xs">•</span>
+                    <p className="mt-0.5 text-gray-500 text-xs">
                       {DateTime.fromJSDate(comment.createdAt).toRelative()}
                     </p>
                   </div>
-                  <div className="mt-2 text-sm text-gray-700 ">
+                  <div className="mt-2 text-gray-700 text-sm ">
                     <p>{comment.text}</p>
                   </div>
                 </div>
