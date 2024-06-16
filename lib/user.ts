@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 
 export async function getUserByEmail(email: string) {
   try {
-    return await prisma.user.findUniqueOrThrow({
+    return await prisma.user.findFirst({
       where: { email },
     })
   } catch (error) {

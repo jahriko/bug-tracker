@@ -1,9 +1,21 @@
 /* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import type { NextAuthConfig } from "next-auth"
+import type { DefaultSession } from "next-auth"
 import NextAuth from "next-auth"
+import { type AuthConfig } from "@auth/core"
 import { authConfig } from "@/auth.config"
 import prisma from "./lib/prisma"
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      userId: string | null | undefined
+      name: string | null | undefined
+      email: string
+      lastWorkspace: string
+    } & DefaultSession["user"]
+  }
+}
 
 const getUserById = async (id: string) => {
   try {
@@ -14,7 +26,6 @@ const getUserById = async (id: string) => {
 }
 
 export const config = {
-  ...authConfig,
   pages: {
     signIn: "/login",
   },
@@ -26,37 +37,6 @@ export const config = {
   debug: process.env.NODE_ENV === "development",
   adapter: PrismaAdapter(prisma),
   callbacks: {
-    // This is the culprit why the user can't navigate to other pages and stuck in inbox page
-    // Lmao this is why you should read the documentation and not rely on tutorials you dumb ass
-    // This part of code assumes that /inbox is the only main entry point of the app.
-    // Probably be useful in the future.
-    // authorized({ auth, request: { nextUrl } }) {
-    //   const isLoggedIn = !!auth?.user
-    //   const isOnInbox = nextUrl.pathname.startsWith("/inbox")
-    //   if (isOnInbox) {
-    //     if (isLoggedIn) return true
-    //     return false
-    //   } else if (isLoggedIn) {
-    //     return Response.redirect(new URL("/inbox", nextUrl))
-    //   }
-    //   return true
-    // },
-    async jwt({ token }) {
-      // if (account) {
-      //   token.id = profile?.sub
-      // }
-      // return token
-      if (!token.sub) return token
-
-      const existingUser = await getUserById(token.sub)
-
-      if (!existingUser) return token
-
-      token.name = existingUser.name
-      token.email = existingUser.email
-
-      return token
-    },
     session({ session, token }) {
       if (token.sub && session.user) {
         session.user.userId = token.sub
@@ -65,12 +45,27 @@ export const config = {
       if (session.user) {
         session.user.name = token.name
         session.user.email = token.email
+        session.user.lastWorkspace = token.lastWorkspace
       }
 
       return session
     },
+    async jwt({ token }) {
+      if (!token.sub) return token
+
+      const existingUser = await getUserById(token.sub)
+
+      if (!existingUser) return token
+
+      token.lastWorkspace = existingUser.lastWorkspace
+      token.name = existingUser.name
+      token.email = existingUser.email
+
+      return token
+    },
   },
-} satisfies NextAuthConfig
+  ...authConfig,
+} satisfies AuthConfig
 
 export const {
   handlers: { GET, POST },

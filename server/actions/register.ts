@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs"
 import {
   type RegisterSchema as RegisterSchemaType,
   RegisterSchema,
-} from "@/types"
+} from "@/lib/validations"
 import { getUserByEmail } from "@/lib/user"
 import prisma from "@/lib/prisma"
 import { faker } from "@faker-js/faker"

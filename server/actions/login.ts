@@ -1,7 +1,7 @@
 "use server"
 import { z } from "zod"
 import { AuthError } from "next-auth"
-import { LoginSchema } from "@/types"
+import { LoginSchema } from "@/lib/validations"
 import { getUserByEmail } from "@/lib/user"
 import { signIn } from "@/auth"
 
@@ -19,7 +19,7 @@ export async function login(
 
   const existingUser = await getUserByEmail(email)
 
-  if (!existingUser || !existingUser.email || !existingUser.hashedPassword) {
+  if (!existingUser.email || !existingUser.hashedPassword) {
     return { error: "Email does not exist!" }
   }
 
@@ -27,6 +27,7 @@ export async function login(
     await signIn("credentials", {
       email,
       password,
+      // TODO: Change /inbox to workspaceId
       redirectTo: callbackUrl ?? "/inbox",
     })
   } catch (error) {

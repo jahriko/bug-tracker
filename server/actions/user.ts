@@ -2,9 +2,8 @@
 
 import { hash } from "bcrypt"
 import { revalidatePath } from "next/cache"
-import { auth } from "@/auth"
 import prisma from "@/lib/prisma"
-import { ProjectSchema, RegisterSchema } from "@/types"
+import { RegisterSchema } from "@/types"
 
 export async function createUser(data: RegisterSchema) {
   try {

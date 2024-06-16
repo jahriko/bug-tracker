@@ -1,31 +1,38 @@
-import NextAuth from "next-auth"
 import { authConfig } from "@/auth.config"
-import { NextResponse } from "next/server"
+import { apiAuthPrefix, authRoutes, publicRoutes } from "@/routes"
+import NextAuth from "next-auth"
 
 const { auth } = NextAuth(authConfig)
 
-const authRoutes = ["/login", "/register", "/forgot-password", "/"]
-
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
+  const user = req.auth?.user
 
-  if (isLoggedIn && authRoutes.includes(nextUrl.pathname)) {
-    return NextResponse.redirect(new URL("/inbox", nextUrl))
-  }
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
+  const lastWorkspaceUsed = user?.lastWorkspace
+  console.log("lastWorkspaceUsed: ", lastWorkspaceUsed)
+  console.log("isLoggedIn: ", isLoggedIn)
 
-  if (!isLoggedIn && nextUrl.pathname.startsWith("/inbox")) {
-    let callbackUrl = nextUrl.pathname
-    if (nextUrl.search) {
-      callbackUrl += nextUrl.search
-    }
+  // if (isApiAuthRoute) {
+  //   return null
+  // }
 
-    const encodedCallbackUrl = encodeURIComponent(callbackUrl)
+  // if (isAuthRoute) {
+  // if (isLoggedIn) {
+  // // return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+  // return Response.redirect(new URL(lastWorkspaceUsed, nextUrl))
+  // }
+  // return null
+  // }
 
-    return Response.redirect(
-      new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl),
-    )
-  }
+  // if (!isLoggedIn) {
+  // return NextResponse.redirect(new URL("/login", nextUrl))
+  // return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
+  // }
+
   return null
 })
 
