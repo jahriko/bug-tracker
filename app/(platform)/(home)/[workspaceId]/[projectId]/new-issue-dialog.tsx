@@ -397,10 +397,6 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
     event.preventDefault()
   }
 
-  useEffect(() => {
-    console.log("Optimistic state updated")
-  }, [optimisticState.labels])
-
   return (
     <MultiSelectComboBox
       {...rest}
