@@ -12,73 +12,64 @@ const schema = z.object({
   status: z.string(),
   priority: z.string().optional(),
   assigneeId: z.string().optional(),
-  labels: z
-    .array(z.object({ id: z.number(), name: z.string(), color: z.string() }))
-    .optional(),
+  labels: z.array(z.object({ id: z.number(), name: z.string(), color: z.string() })).optional(),
   projectName: z.string(),
 })
 
-export const createIssue = action(
-  schema,
-  async ({
-    title,
-    description,
-    status,
-    priority,
-    labels,
-    projectName,
-    assigneeId,
-  }) => {
-    try {
-      const userId = await getCurrentUser().then((user) => user.userId)
+export const createIssue = action
+  .schema(schema)
+  .action(
+    async ({ parsedInput: { title, description, status, priority, assigneeId, labels, projectName } }) => {
+      try {
+        const userId = await getCurrentUser().then((user) => user.userId)
 
-      if (!userId) {
+        if (!userId) {
+          return {
+            error: {
+              message: "You must be logged in to create an issue",
+            },
+          }
+        }
+
+        const { id: projectId } = await prisma.project.findFirstOrThrow({
+          where: {
+            title: projectName,
+          },
+          select: {
+            id: true,
+          },
+        })
+
+        await prisma.issue.create({
+          data: {
+            title,
+            description,
+            status,
+            priority: priority || "no-priority",
+            assigneeId: assigneeId === undefined ? null : assigneeId,
+            projectId,
+            userId,
+            issueLabels: {
+              create: (labels || []).map((label) => ({ labelId: label.id })),
+            },
+          },
+        })
+
+        revalidateTag("issue-list")
+
+        return {
+          success: true,
+        }
+      } catch (error: unknown) {
+        console.error("Error creating an issue: ", error)
         return {
           error: {
-            message: "You must be logged in to create an issue",
+            message: "Something went wrong. Please try again.",
           },
         }
       }
-
-      const { id: projectId } = await prisma.project.findFirstOrThrow({
-        where: {
-          title: projectName,
-        },
-        select: {
-          id: true,
-        },
-      })
-
-      await prisma.issue.create({
-        data: {
-          title,
-          description,
-          status,
-          priority: priority || "no-priority",
-          assigneeId: assigneeId === undefined ? null : assigneeId,
-          projectId,
-          userId,
-          issueLabels: {
-            create: (labels || []).map((label) => ({ labelId: label.id })),
-          },
-        },
-      })
-
-      revalidateTag("issue-list")
-
-      return {
-        success: true,
-      }
-    } catch (error: unknown) {
-      console.error("Error creating an issue: ", error)
-      return {
-        error: {
-          message: "Something went wrong. Please try again.",
-        },
-      }
-    }
-  },
-)
+    },
+  )
 
 export async function deleteIssue(id: number) {
   try {
