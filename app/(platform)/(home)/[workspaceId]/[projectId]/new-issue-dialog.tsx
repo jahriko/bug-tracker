@@ -11,14 +11,13 @@ import MultiSelectComboBox, {
   MultiSelectComboBoxOption,
   MultiSelectComboboxOptions,
 } from "@/components/combobox-multi-select"
-import { LabelColorSelectionDialog } from "@/components/label-color-selection-dialog"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { IssueSchema } from "@/lib/validations"
 import { createIssue } from "@/server/actions/issue"
 import { LabelsData } from "@/server/data/many/get-labels"
 import { UsersData } from "@/server/data/many/get-users"
 import { PlusIcon } from "@heroicons/react/16/solid"
-import { atom, useAtom } from "jotai"
+import { atom } from "jotai"
 import {
   Ban,
   CheckCircle2,
@@ -34,9 +33,15 @@ import {
   User2,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+
+import { createLabel } from "@/app/(platform)/(home)/[workspaceId]/[projectId]/action"
+import { BadgeProps, colors } from "@/components/catalyst/badge"
+import { Divider } from "@/components/catalyst/divider"
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react"
+import { useOptimisticAction } from "next-safe-action/hooks"
 
 interface NewIssueDialogProps {
   assignees: UsersData
@@ -326,22 +331,75 @@ export const labelAtom = atom<LabelsData>([])
 export const queryAtom = atom<string>("")
 export const labelDialogAtom = atom<boolean>(false)
 
-function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
-  const [query, setQuery] = useAtom(queryAtom)
-  const [_, setCreateLabelDialogOpen] = useAtom(labelDialogAtom)
-  const [labelsData, setLabelsData] = useAtom(labelAtom)
-  setLabelsData(labels)
+function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(" ")
+}
 
-  const filteredOptions =
+function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
+  const [query, setQuery] = useState("")
+  const [colorQuery, setColorQuery] = useState("")
+  const [isCreateLabelDialogOpen, setCreateLabelDialogOpen] = useState(false)
+
+  const { execute, result, optimisticState } = useOptimisticAction(createLabel, {
+    currentState: { labels },
+    updateFn: (state, newLabel) => ({
+      labels: [...state.labels, { ...newLabel, available: true }],
+    }),
+    onSuccess({ data, input }) {
+      console.log("HELLO FROM ONSUCCESS", data, input)
+    },
+    onError({ error, input }) {
+      console.log("OH NO FROM ONERROR", error, input)
+    },
+    onExecute({ input }) {
+      console.log("EXECUTING", input)
+      setQuery(" ")
+      // JFC, The reason why dialog keeps opening when querying a label
+      // that doesn't exist yet is that I haven't properly closed the dialog before creation
+      setCreateLabelDialogOpen(false)
+      toast.success("Label created", { description: input.name })
+    },
+  })
+
+  const form = useForm<{ color: string }>({
+    defaultValues: {
+      color: "",
+    },
+  })
+
+  const filteredColors = (colorQuery: string): BadgeProps["color"][] => {
+    const validColors: BadgeProps["color"][] = Object.keys(colors) as BadgeProps["color"][]
+
+    if (colorQuery === "") {
+      return validColors
+    }
+
+    return validColors.filter((color) => color && color.toLowerCase().includes(colorQuery.toLowerCase()))
+  }
+
+  const filteredLabels =
     query === ""
-      ? labelsData
-      : labelsData.filter((label) => {
+      ? optimisticState.labels
+      : optimisticState.labels.filter((label) => {
           return label.name.toLowerCase().includes(query.toLowerCase().trim())
         })
+
+  async function onSubmit({ color }: { color: string }) {
+    execute({ id: Math.random(), name: query, color })
+
+    if (result.serverError) {
+      console.error("Error creating label: ", result.serverError)
+      return
+    }
+  }
 
   const handleMouseDown = (event: any) => {
     event.preventDefault()
   }
+
+  useEffect(() => {
+    console.log("Optimistic state updated")
+  }, [optimisticState.labels])
 
   return (
     <MultiSelectComboBox
@@ -358,13 +416,13 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
     >
       <MultiSelectComboboxOptions hold static>
         <div className="p-1">
-          {(query === "" ? labelsData : filteredOptions).map((label) => (
-            <MultiSelectComboBoxOption key={label.id} value={label}>
+          {(query === "" ? optimisticState.labels : filteredLabels).map((label) => (
+            <MultiSelectComboBoxOption key={label.id} value={label} disabled={label.available}>
               <MultiSelectComboBoxLabel>{label.name}</MultiSelectComboBoxLabel>
             </MultiSelectComboBoxOption>
           ))}
 
-          {filteredOptions.length === 0 && (
+          {filteredLabels.length === 0 && (
             <>
               <Button
                 plain
@@ -380,7 +438,80 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
                 <span className="font-normal text-zinc-500">{query}</span>
               </Button>
 
-              <LabelColorSelectionDialog labelName={query} />
+              <Dialog open={isCreateLabelDialogOpen} onClose={() => {}} className="!p-4">
+                <DialogBody className="!mt-0">
+                  <Form {...form}>
+                    <FormField
+                      control={form.control}
+                      name="color"
+                      render={({ field }) => {
+                        const { ref, ...rest } = field
+                        return (
+                          <FormItem>
+                            <FormControl>
+                              <Combobox {...rest} as="div">
+                                <ComboboxInput
+                                  autoFocus
+                                  className="w-full border-0 px-4 py-2.5 text-gray-900 focus:ring-0 sm:text-sm"
+                                  placeholder="Select a color for your label"
+                                  onChange={(event) => setColorQuery(event.target.value)}
+                                  // Clear query when input gets out of focus
+                                  onBlur={() => setColorQuery("")}
+                                  as={BorderlessInput}
+                                />
+
+                                <Divider />
+
+                                {Object.keys(colors).length > 0 && (
+                                  <ComboboxOptions
+                                    static
+                                    className="-mb-2 max-h-72 scroll-py-6 overflow-y-auto py-2 text-sm text-gray-800"
+                                  >
+                                    {(colorQuery === ""
+                                      ? Object.keys(colors)
+                                      : Object.keys(filteredColors(colorQuery))
+                                    ).map((color) => (
+                                      <ComboboxOption
+                                        key={color}
+                                        value={color}
+                                        onClick={() => {
+                                          form.handleSubmit(onSubmit)()
+                                        }}
+                                        className={({ focus }) =>
+                                          classNames(
+                                            "flex cursor-default select-none items-center gap-x-3 rounded-md px-4 py-3",
+                                            focus ? "bg-gray-100" : "",
+                                          )
+                                        }
+                                      >
+                                        <div
+                                          className={classNames(
+                                            colors[(color as BadgeProps["color"]) || "zinc"],
+                                            "flex-none rounded-full p-1",
+                                          )}
+                                        >
+                                          <div className="size-2.5 rounded-full bg-current" />
+                                        </div>
+                                        {color.charAt(0).toUpperCase() + color.slice(1)}
+                                      </ComboboxOption>
+                                    ))}
+                                  </ComboboxOptions>
+                                )}
+
+                                {colorQuery !== "" && filteredColors.length === 0 && (
+                                  <div className="px-4 py-14 text-center sm:px-14">
+                                    <p className="mt-4 text-sm text-gray-900">No color found.</p>
+                                  </div>
+                                )}
+                              </Combobox>
+                            </FormControl>
+                          </FormItem>
+                        )
+                      }}
+                    />
+                  </Form>
+                </DialogBody>
+              </Dialog>
             </>
           )}
         </div>
