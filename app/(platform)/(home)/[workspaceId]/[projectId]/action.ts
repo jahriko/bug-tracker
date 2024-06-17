@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { action } from "@/lib/safe-action"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { z } from "zod"
 const schema = z.object({
   id: z.number(), // This is only for optimistic update
@@ -21,6 +21,9 @@ export const createLabel = action
         },
       })
 
+      // Introduce a delay of 3 seconds
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+
       return {
         success: true,
       }
@@ -32,6 +35,7 @@ export const createLabel = action
         },
       }
     } finally {
+      console.log("revalidating labels...")
       // revalidateTag("labels")
       revalidatePath("/(platform)/(home)/[workspaceId]/[projectId]", "page")
 
