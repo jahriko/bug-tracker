@@ -347,14 +347,10 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
     updateFn: (state, newLabel) => ({
       labels: [...state.labels, { ...newLabel, available: true }],
     }),
-    onSuccess({ data, input }) {
-      console.log("HELLO FROM ONSUCCESS", data, input)
-    },
     onError({ error, input }) {
-      console.log("OH NO FROM ONERROR", error, input)
+      console.log("[Action Error]: ", error, input)
     },
     onExecute({ input }) {
-      console.log("EXECUTING", input)
       setQuery(" ")
       // JFC, The reason why dialog keeps opening when querying a label
       // that doesn't exist yet is that I haven't properly closed the dialog before creation
@@ -370,13 +366,17 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
   })
 
   const filteredColors = (colorQuery: string): BadgeProps["color"][] => {
-    const validColors: BadgeProps["color"][] = Object.keys(colors) as BadgeProps["color"][]
+    const validColors: BadgeProps["color"][] = Object.keys(
+      colors,
+    ) as BadgeProps["color"][]
 
     if (colorQuery === "") {
       return validColors
     }
 
-    return validColors.filter((color) => color && color.toLowerCase().includes(colorQuery.toLowerCase()))
+    return validColors.filter(
+      (color) => color && color.toLowerCase().includes(colorQuery.toLowerCase()),
+    )
   }
 
   const filteredLabels =
@@ -385,19 +385,6 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
       : optimisticState.labels.filter((label) => {
           return label.name.toLowerCase().includes(query.toLowerCase().trim())
         })
-
-  async function onSubmit({ color }: { color: string }) {
-    execute({ id: Math.random(), name: query, color })
-
-    if (result.serverError) {
-      console.error("Error creating label: ", result.serverError)
-      return
-    }
-  }
-
-  const handleMouseDown = (event: any) => {
-    event.preventDefault()
-  }
 
   return (
     <MultiSelectComboBox
@@ -415,7 +402,11 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
       <MultiSelectComboboxOptions hold static>
         <div className="p-1">
           {(query === "" ? optimisticState.labels : filteredLabels).map((label) => (
-            <MultiSelectComboBoxOption key={label.id} value={label} disabled={label.available}>
+            <MultiSelectComboBoxOption
+              key={label.id}
+              value={label}
+              disabled={label.available}
+            >
               <MultiSelectComboBoxLabel>{label.name}</MultiSelectComboBoxLabel>
             </MultiSelectComboBoxOption>
           ))}
@@ -424,7 +415,7 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
             <>
               <Button
                 plain
-                onMouseDown={handleMouseDown}
+                onMouseDown={(event: any) => event.preventDefault()}
                 className="relative w-full"
                 onClick={() => {
                   setCreateLabelDialogOpen(true)
@@ -473,7 +464,23 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
                                         key={color}
                                         value={color}
                                         onClick={() => {
-                                          form.handleSubmit(onSubmit)()
+                                          form.handleSubmit(
+                                            ({ color }: { color: string }) => {
+                                              execute({
+                                                id: Math.random(),
+                                                name: query,
+                                                color,
+                                              })
+
+                                              if (result.serverError) {
+                                                console.error(
+                                                  "Error creating label: ",
+                                                  result.serverError,
+                                                )
+                                                return
+                                              }
+                                            },
+                                          )()
                                         }}
                                         className={({ focus }) =>
                                           classNames(
@@ -484,7 +491,9 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
                                       >
                                         <div
                                           className={classNames(
-                                            colors[(color as BadgeProps["color"]) || "zinc"],
+                                            colors[
+                                              (color as BadgeProps["color"]) || "zinc"
+                                            ],
                                             "flex-none rounded-full p-1",
                                           )}
                                         >
@@ -498,7 +507,9 @@ function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
 
                                 {colorQuery !== "" && filteredColors.length === 0 && (
                                   <div className="px-4 py-14 text-center sm:px-14">
-                                    <p className="mt-4 text-sm text-gray-900">No color found.</p>
+                                    <p className="mt-4 text-sm text-gray-900">
+                                      No color found.
+                                    </p>
                                   </div>
                                 )}
                               </Combobox>
