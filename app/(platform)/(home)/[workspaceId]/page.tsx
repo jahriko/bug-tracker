@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-import { notFound, redirect } from "next/navigation"
-import Link from "next/link"
+import { auth } from "@/auth"
 import CreateProject from "@/components/CreateProject"
+import { Heading } from "@/components/catalyst/heading"
 import { getSession } from "@/lib/get-current-user"
 import prisma from "@/lib/prisma"
 import { classNames } from "@/lib/utils"
-import { auth } from "@/auth"
-import { Heading } from "@/components/catalyst/heading"
+import Link from "next/link"
+import { notFound, redirect } from "next/navigation"
 
 async function getWorkspace(workspaceId: string) {
   try {
@@ -36,23 +36,14 @@ export default async function WorkspacePage({
 }) {
   const session = await getSession()
 
-  const lastWorkspace = session?.user.lastWorkspace
+  const lastWorkspace = session.lastWorkspace
 
-  // console.log(
-  //   `Last workspace: ${lastWorkspace} \nParams Workspace: ${params.workspaceId}`,
-  // )
-
-  const updateLastWorkspace = async () => {
-    if (session && lastWorkspace !== params.workspaceId) {
-      // console.log("Updating last workspace")
-      await prisma.user.update({
-        where: { id: session.user.userId },
-        data: { lastWorkspace: params.workspaceId },
-      })
-    }
+  if (session && lastWorkspace !== params.workspaceId) {
+    await prisma.user.update({
+      where: { id: session.userId },
+      data: { lastWorkspace: params.workspaceId },
+    })
   }
-
-  await updateLastWorkspace()
 
   const workspaceCount = await prisma.workspace.count()
 
