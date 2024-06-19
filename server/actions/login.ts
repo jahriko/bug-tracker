@@ -1,46 +1,39 @@
 "use server"
-import { z } from "zod"
-import { AuthError } from "next-auth"
-import { LoginSchema } from "@/lib/validations"
-import { getUserByEmail } from "@/lib/user"
 import { signIn } from "@/auth"
+import { actionClient } from "@/lib/safe-action"
+import { getUserByEmail } from "@/lib/user"
+import { AuthError } from "next-auth"
+import { z } from "zod"
 
-export async function login(
-  values: z.infer<typeof LoginSchema>,
-  callbackUrl?: string | null,
-) {
-  const validatedFields = LoginSchema.safeParse(values)
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6).max(50),
+})
 
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" }
-  }
+export const login = actionClient
+  .schema(schema)
+  .action(async ({ parsedInput: { email, password } }) => {
+    try {
+      const getUser = await getUserByEmail(email)
+      const lastWorkspaceUsed = getUser?.lastWorkspace ?? "create-workspace" 
+      // console.log("Last workspace used: ", lastWorkspaceUsed)
 
-  const { email, password } = validatedFields.data
+      await signIn("credentials", {
+        email,
+        password,
+        redirectTo: "/",
+      })
 
-  const existingUser = await getUserByEmail(email)
-
-  if (!existingUser.email || !existingUser.hashedPassword) {
-    return { error: "Email does not exist!" }
-  }
-
-  try {
-    await signIn("credentials", {
-      email,
-      password,
-      // TODO: Change /inbox to workspaceId
-      redirectTo: callbackUrl ?? "/inbox",
-    })
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "Invalid credentials!" }
-        default:
-          return { error: "Something went wrong!" }
+      return { success: true }
+    } catch (error) {
+      if (error instanceof AuthError) {
+        switch (error.type) {
+          case "CredentialsSignin":
+            return { error: "Invalid credentials!" }
+          default:
+            return { error: "Something went wrong." }
+        }
       }
+      throw error
     }
-    throw error
-  }
-
-  return { success: "Login Successful" }
-}
+  })

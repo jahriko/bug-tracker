@@ -4,7 +4,7 @@ import NextAuth from "next-auth"
 
 const { auth } = NextAuth(authConfig)
 
-export default auth(async (req) => {
+export default auth((req) => {
   const { nextUrl } = req
   const isLoggedIn = !!req.auth
   const user = req.auth?.user
@@ -13,27 +13,30 @@ export default auth(async (req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)
   const lastWorkspaceUsed = user?.lastWorkspace
-  console.log("lastWorkspaceUsed: ", lastWorkspaceUsed)
-  console.log("isLoggedIn: ", isLoggedIn)
 
-  // if (isApiAuthRoute) {
-  //   return null
-  // }
+  if (isApiAuthRoute) {
+    return
+  }
 
-  // if (isAuthRoute) {
-  // if (isLoggedIn) {
-  // // return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
-  // return Response.redirect(new URL(lastWorkspaceUsed, nextUrl))
-  // }
-  // return null
-  // }
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+      // Redirect to create workspace if lastWorkspaceUsed is undefined
+      const redirectUrl = !lastWorkspaceUsed
+        ? new URL("/create-workspace", nextUrl)
+        : new URL(`/${lastWorkspaceUsed}`, nextUrl)
 
-  // if (!isLoggedIn) {
-  // return NextResponse.redirect(new URL("/login", nextUrl))
-  // return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
-  // }
+      return Response.redirect(redirectUrl)
+    }
 
-  return null
+    // Allow access to authentication routes for unauthenticated users
+    return
+  }
+
+  if (!isLoggedIn && !isPublicRoute) {
+    return Response.redirect(new URL("/login", nextUrl))
+  }
+
+  return
 })
 
 export const config = {
