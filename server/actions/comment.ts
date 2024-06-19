@@ -1,6 +1,7 @@
 "use server"
 
 import { getSession } from "@/lib/get-current-user"
+import prisma from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { z } from "zod"
 import prisma from "@/lib/prisma"

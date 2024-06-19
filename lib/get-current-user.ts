@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { Prisma } from "@prisma/client"
+import { redirect } from "next/navigation"
 
 export async function getSession() {
   try {
@@ -7,6 +8,7 @@ export async function getSession() {
 
     if (!session) {
       throw new Error("No session found")
+      return redirect("/login")
     }
 
     return session.user

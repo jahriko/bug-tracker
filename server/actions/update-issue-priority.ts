@@ -1,6 +1,7 @@
 "use server"
 
 import { getSession } from "@/lib/get-current-user"
+import prisma from "@/lib/prisma"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { revalidateTag } from "next/cache"
 import prisma from "@/lib/prisma"

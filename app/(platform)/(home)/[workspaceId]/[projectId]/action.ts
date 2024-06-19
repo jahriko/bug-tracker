@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { actionClient } from "@/lib/safe-action"
-import { revalidatePath, revalidateTag } from "next/cache"
+import { revalidatePath } from "next/cache"
 import { z } from "zod"
 const schema = z.object({
   id: z.number(), // This is only for optimistic update

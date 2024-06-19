@@ -1,5 +1,6 @@
 "use client"
 import { Avatar } from "@/components/catalyst/avatar"
+import { classNames } from "@/lib/utils"
 import { BorderlessInput } from "@/components/catalyst/borderless-input"
 import { BorderlessTextarea } from "@/components/catalyst/borderless-textarea"
 import { Button } from "@/components/catalyst/button"
@@ -33,7 +34,7 @@ import {
   User2,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -335,10 +336,6 @@ export const labelAtom = atom<LabelsData>([])
 // I got paranoid and atomized the rest lol
 export const queryAtom = atom<string>("")
 export const labelDialogAtom = atom<boolean>(false)
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ")
-}
 
 function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
   const [query, setQuery] = useState("")
