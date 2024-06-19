@@ -1,24 +1,41 @@
 "use server"
 import prisma from "@/lib/prisma"
+import { authActionClient } from "@/lib/safe-action"
+import { z } from "zod"
 
-export async function createWorkspace(workspaceName: string) {
-  try {
-    const createdWorkspace = await prisma.workspace.create({
-      data: {
-        name: workspaceName,
-      },
-    })
+const schema = z.object({
+  name: z.string().min(2, { message: "Workspace name is required." }),
+})
 
-    return {
-      workspaceId: createdWorkspace.id,
-      code: "success",
-      message: "Workspace created",
+export const createWorkspace = authActionClient
+  .schema(schema)
+  .action(async ({ parsedInput: { name }, ctx: { userId } }) => {
+    try {
+      const createdWorkspace = await prisma.workspace.create({
+        data: {
+          name,
+        },
+      })
+
+      await prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          lastWorkspace: createdWorkspace.name,
+        },
+      })
+
+      return {
+        workspaceName: createdWorkspace.name,
+        code: "success",
+        message: "Workspace created",
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        code: "error",
+        message: "Error creating workspace",
+      }
     }
-  } catch (error) {
-    console.error(error)
-    return {
-      code: "error",
-      message: "Error creating workspace",
-    }
-  }
-}
+  })
