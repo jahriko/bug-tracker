@@ -1,42 +1,45 @@
 "use client"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
-import { WorkspaceSchema } from "@/lib/validations"
+import { Button } from "@/components/catalyst/button"
+import { Input } from "@/components/catalyst/input"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { createWorkspace } from "@/server/actions/create-workspace"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useAction } from "next-safe-action/hooks"
+import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { z } from "zod"
+import { Icons } from "./icons"
+
+const schema = z.object({
+  name: z.string().min(2, { message: "Workspace name is required." }),
+})
 
 export function CreateWorkspace() {
-  const [open, setOpen] = useState(false)
   const router = useRouter()
+  const { execute, result, isExecuting } = useAction(createWorkspace)
 
-  const form = useForm<WorkspaceSchema>({
-    resolver: zodResolver(WorkspaceSchema),
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
     },
   })
 
-  async function onSubmit(data: WorkspaceSchema) {
-    const parsedData = WorkspaceSchema.parse(data)
+  async function onSubmit(data: z.infer<typeof schema>) {
+    execute(data)
 
-    const result = await createWorkspace(parsedData.name)
+    const { serverError } = result
 
-    if (result.code === "error") {
-      return toast("Error creating workspace")
+    if (serverError) {
+      return toast.error(serverError)
     }
 
     form.reset()
 
-    window.localStorage.setItem("workspace", result.workspaceId?.toString())
+    router.push(`${result?.data?.workspaceName}`)
 
-    router.push("/issues")
-
-    return toast(result.message)
+    return toast.success("Workspace created")
   }
 
   return (
@@ -61,15 +64,12 @@ export function CreateWorkspace() {
             Create a workspace
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Create a dedicated workspace where your team can collaborate and
-            track progress together.
+            Create a dedicated workspace where your team can collaborate and track
+            progress together.
           </p>
         </div>
         <Form {...form}>
-          <form
-            className="mt-6 flex items-center"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
+          <form className="mt-6 flex items-center" onSubmit={form.handleSubmit(onSubmit)}>
             <label className="sr-only" htmlFor="email">
               Email address
             </label>
@@ -82,18 +82,23 @@ export function CreateWorkspace() {
                     <FormControl>
                       <Input
                         {...field}
-                        className="placeholder:text-gray-400"
                         id="workspace"
                         name="workspace"
                         placeholder="Workspace name"
                       />
+                      <FormMessage />
                     </FormControl>
                   </FormItem>
                 )
               }}
             />
 
-            <Button className="ml-4 flex-shrink-0 px-3 py-2" type="submit">
+            <Button
+              className="ml-4 flex-shrink-0 px-3 py-2"
+              type="submit"
+              disabled={isExecuting}
+            >
+              {isExecuting ? <Icons.spinner className="size-4 animate-spin" /> : null}
               Create
             </Button>
           </form>
