@@ -1,9 +1,9 @@
 "use server"
 
+import { getSession } from "@/lib/get-current-user"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { revalidateTag } from "next/cache"
 import prisma from "@/lib/prisma"
-import { getCurrentUser } from "@/lib/get-current-user"
 
 export async function updatePriority(
   issueId: number,
@@ -20,7 +20,7 @@ export async function updatePriority(
 
     revalidateTag("issue")
 
-    const user = await getCurrentUser()
+    const user = await getSession()
 
     await prisma.issueActivity.create({
       data: {

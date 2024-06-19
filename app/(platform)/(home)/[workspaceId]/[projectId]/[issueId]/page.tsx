@@ -1,23 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-import {
-  CalendarIcon,
-  ChatBubbleLeftEllipsisIcon,
-} from "@heroicons/react/16/solid"
-import { DateTime } from "luxon"
-import { Separator } from "@/components/ui/separator"
-import { getIssue } from "@/server/data/get-issue"
 import IssueActivityFeed from "@/components/ActivityFeed"
 import IssueComment from "@/components/CommentBox"
 import { IssueFields } from "@/components/issue/IssueFields"
-import { getCurrentUser } from "@/lib/get-current-user"
+import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
+import { getSession } from "@/lib/get-current-user"
+import { getIssue } from "@/server/data/get-issue"
+import { CalendarIcon, ChatBubbleLeftEllipsisIcon } from "@heroicons/react/16/solid"
+import { DateTime } from "luxon"
 
-export default async function IssueId({
-  params,
-}: {
-  params: { issueId: string }
-}) {
-  const currentUser = await getCurrentUser()
+export default async function IssueId({ params }: { params: { issueId: string } }) {
+  const currentUser = await getSession()
   const issue = await getIssue(Number(params.issueId))
   const issueDate = DateTime.fromJSDate(issue.createdAt).toRelative()
 
@@ -29,9 +22,7 @@ export default async function IssueId({
             <div>
               <div className="md:flex md:items-center md:justify-between md:space-x-4">
                 <div>
-                  <h1 className="text-xl font-medium text-gray-900">
-                    {issue.title}
-                  </h1>
+                  <h1 className="text-xl font-medium text-gray-900">{issue.title}</h1>
                 </div>
               </div>
               <aside className="mt-8 xl:hidden">
@@ -42,15 +33,10 @@ export default async function IssueId({
                       aria-hidden="true"
                       className="h-5 w-5 text-gray-400"
                     />
-                    <span className="text-sm font-medium text-gray-900">
-                      4 comments
-                    </span>
+                    <span className="text-sm font-medium text-gray-900">4 comments</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CalendarIcon
-                      aria-hidden="true"
-                      className="h-5 w-5 text-gray-400"
-                    />
+                    <CalendarIcon aria-hidden="true" className="h-5 w-5 text-gray-400" />
                     <span className="text-sm font-medium text-gray-900">
                       Created on <time>{issueDate}</time>
                     </span>
@@ -58,9 +44,7 @@ export default async function IssueId({
                 </div>
                 <div className="mt-6 space-y-8 border-b border-t border-gray-200 py-6">
                   <div>
-                    <h2 className="text-sm font-medium text-gray-500">
-                      Assignees
-                    </h2>
+                    <h2 className="text-sm font-medium text-gray-500">Assignees</h2>
                     <ul className="mt-3 space-y-3" role="list">
                       <li className="flex justify-start">
                         <a className="flex items-center space-x-3" href="#">
@@ -79,9 +63,7 @@ export default async function IssueId({
                     </ul>
                   </div>
                   <div>
-                    <h2 className="text-sm font-medium text-gray-500">
-                      Labels
-                    </h2>
+                    <h2 className="text-sm font-medium text-gray-500">Labels</h2>
                     <ul className="mt-2 leading-8" role="list">
                       <li className="inline">
                         <a

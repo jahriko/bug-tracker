@@ -1,7 +1,7 @@
 import { auth } from "@/auth"
 import { Prisma } from "@prisma/client"
 
-export async function getCurrentUser() {
+export async function getSession() {
   try {
     const session = await auth()
 
@@ -16,4 +16,4 @@ export async function getCurrentUser() {
   }
 }
 
-export type User = Prisma.PromiseReturnType<typeof getCurrentUser>
+export type User = Prisma.PromiseReturnType<typeof getSession>

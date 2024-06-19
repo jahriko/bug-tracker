@@ -1,7 +1,7 @@
 "use server"
-import { getCurrentUser } from "@/lib/get-current-user"
+import { getSession } from "@/lib/get-current-user"
 import prisma from "@/lib/prisma"
-import { action } from "@/lib/safe-action"
+import { actionClient } from "@/lib/safe-action"
 import { IssueSchema } from "@/lib/validations"
 import { revalidateTag } from "next/cache"
 import { z } from "zod"
@@ -12,16 +12,28 @@ const schema = z.object({
   status: z.string(),
   priority: z.string().optional(),
   assigneeId: z.string().optional(),
-  labels: z.array(z.object({ id: z.number(), name: z.string(), color: z.string() })).optional(),
+  labels: z
+    .array(z.object({ id: z.number(), name: z.string(), color: z.string() }))
+    .optional(),
   projectName: z.string(),
 })
 
-export const createIssue = action
+export const createIssue = actionClient
   .schema(schema)
   .action(
-    async ({ parsedInput: { title, description, status, priority, assigneeId, labels, projectName } }) => {
+    async ({
+      parsedInput: {
+        title,
+        description,
+        status,
+        priority,
+        assigneeId,
+        labels,
+        projectName,
+      },
+    }) => {
       try {
-        const userId = await getCurrentUser().then((user) => user.userId)
+        const userId = await getSession().then((user) => user.userId)
 
         if (!userId) {
           return {

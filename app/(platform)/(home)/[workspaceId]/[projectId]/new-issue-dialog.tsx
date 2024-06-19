@@ -40,7 +40,12 @@ import { toast } from "sonner"
 import { createLabel } from "@/app/(platform)/(home)/[workspaceId]/[projectId]/action"
 import { BadgeProps, colors } from "@/components/catalyst/badge"
 import { Divider } from "@/components/catalyst/divider"
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react"
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from "@headlessui/react"
 import { useOptimisticAction } from "next-safe-action/hooks"
 
 interface NewIssueDialogProps {

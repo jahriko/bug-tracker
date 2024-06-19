@@ -1,7 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
-import { action } from "@/lib/safe-action"
+import { actionClient } from "@/lib/safe-action"
 import { revalidatePath, revalidateTag } from "next/cache"
 import { z } from "zod"
 const schema = z.object({
@@ -10,7 +10,7 @@ const schema = z.object({
   color: z.string(),
 })
 
-export const createLabel = action
+export const createLabel = actionClient
   .schema(schema)
   .action(async ({ parsedInput: { id, name, color } }) => {
     try {

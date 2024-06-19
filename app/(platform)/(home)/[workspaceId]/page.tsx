@@ -2,6 +2,7 @@
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import CreateProject from "@/components/CreateProject"
+import { getSession } from "@/lib/get-current-user"
 import prisma from "@/lib/prisma"
 import { classNames } from "@/lib/utils"
 import { auth } from "@/auth"
@@ -33,7 +34,7 @@ export default async function WorkspacePage({
 }: {
   params: { workspaceId: string }
 }) {
-  const session = await auth()
+  const session = await getSession()
 
   const lastWorkspace = session?.user.lastWorkspace
 
