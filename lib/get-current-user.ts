@@ -7,12 +7,11 @@ export async function getSession() {
     const session = await auth()
 
     if (!session) {
-      throw new Error("No session found")
+      console.error("No session found. Redirecting to login.")
       return redirect("/login")
     }
 
     return session.user
-
   } catch (error) {
     throw new Error("Error getting current user")
   }
