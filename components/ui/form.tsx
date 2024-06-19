@@ -11,6 +11,7 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form"
+import { toast } from "sonner"
 
 const Form = FormProvider
 
@@ -148,16 +149,18 @@ const FormMessage = React.forwardRef<
     return null
   }
 
-  return (
-    <p
-      className={cn("text-sm font-medium text-destructive", className)}
-      id={formMessageId}
-      ref={ref}
-      {...props}
-    >
-      {body}
-    </p>
-  )
+  return toast.error(body)
+
+  // return (
+  //   <p
+  //     className={cn("text-sm font-medium text-destructive", className)}
+  //     id={formMessageId}
+  //     ref={ref}
+  //     {...props}
+  //   >
+  //     {body}
+  //   </p>
+  // )
 })
 FormMessage.displayName = "FormMessage"
 
