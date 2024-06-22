@@ -1,222 +1,299 @@
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 model Account {
-    id                String  @id() @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String?
-    access_token      String?
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id() @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id() @default(cuid())
-    sessionToken String   @unique()
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id() @default(cuid())
+  sessionToken String   @unique()
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id              String          @id() @default(cuid())
-    name            String
-    email           String          @unique()
-    emailVerified   DateTime?
-    image           String?
-    hashedPassword  String
-    lastWorkspace   String?
-    accounts        Account[]
-    sessions        Session[]
-    ownedWorkspaces Workspace[]     @relation("WorkspaceOwner")
-    workspaces      UserWorkspace[]
-    UserTeam        UserTeam[]
-    teams           Team[]          @relation("TeamLead")
-    assignedIssues  Issue[]         @relation("Assignee")
-    issues          Issue[]
-    logs            IssueLog[]
-    comments        Comment[]
-    commentLogs     CommentLog[]
+  id               String            @id() @default(cuid())
+  name             String
+  email            String            @unique()
+  emailVerified    DateTime?
+  image            String?
+  hashedPassword   String
+  lastWorkspace    String?
+  accounts         Account[]
+  sessions         Session[]
+  ownedWorkspaces  Workspace[]       @relation("WorkspaceOwner")
+  workspaceMembers WorkspaceMember[]
+  projectMembers   ProjectMember[]
+  assignedIssues   Issue[]           @relation("Assignee")
+  issues           Issue[]
+  logs             IssueActivity[]
 
-    // everyone can signup, and user profile is also publicly readable
-    @@allow('create,read', true)
+  // can be created by anyone, even not logged in
+  @@allow('create', true)
 
-    // only the user can update or delete their own profile
-    @@allow('update,delete', auth() == this)
+  // can be read by users sharing any workspace
+  @@allow('read', workspaceMembers?[workspace.members?[user == auth()]])
+
+  // full access by oneself
+  @@allow('all', auth() == this)
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique()
-    expires    DateTime
+  identifier String
+  token      String   @unique()
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 model Workspace {
-    id          Int             @id @default(autoincrement())
-    name        String          @unique
-    description String? // Optional description of the workspace
-    createdAt   DateTime        @default(now())
-    members     UserWorkspace[] // Relationship to users in the workspace
-    projects    Project[] // Relationship to projects within the workspace
-    owner       User?           @relation("WorkspaceOwner", fields: [ownerId], references: [id])
-    ownerId     String?
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  description String?           // Optional description of the workspace
+  createdAt   DateTime          @default(now())
+  private     Boolean           @default(true)
+  members     WorkspaceMember[] // Relationship to users in the workspace
+  projects    Project[]         // Relationship to projects within the workspace
+
+  owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String            @default(auth().id)
+
+  //everyone can read the workspace if it's not private
+  @@allow('read', !private)
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // everyone can create a workspace
+  @@allow('create', true)
+
+  // any user in the org can read the org
+  @@allow('read', members?[user == auth()])
+
+  // workspace admin can update and delete
+  @@allow('update',  members?[user == auth() && role == 'ADMIN'])
+
+  // owner can do all operations
+  @@allow('all', owner == auth())
 }
 
-model UserWorkspace {
-    workspace   Workspace @relation(fields: [workspaceId], references: [id])
-    workspaceId Int
-    user        User      @relation(fields: [userId], references: [id])
-    userId      String
-    role        String    @default("member")
+model WorkspaceMember {
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId Int
 
-    @@id([workspaceId, userId])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  role        Role      @default(MEMBER)
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // owner/admin can create/update/delete
+  @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
+
+  // user can read members of a workspace if they're a member of it
+  @@allow('read', workspace.members?[user == auth()])
+
+  @@id([workspaceId, userId])
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  MEMBER
 }
 
 model Project {
-    id          String     @id() @default(cuid())
-    title       String
-    updatedAt   DateTime   @updatedAt()
-    createdAt   DateTime   @default(now())
-    deletedAt   DateTime?  @default(now())
-    issues      Issue[]
+  id          String          @id() @default(cuid())
+  title       String
+  updatedAt   DateTime        @updatedAt()
+  createdAt   DateTime        @default(now())
+  archivedAt  DateTime?
+  members     ProjectMember[]
+  issues      Issue[]
 
-    // Project is associated with a workspace
-    Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
-    workspaceId Int?
+  workspace   Workspace?      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId Int?
 
-    // Project is associated with a team 
-    team        Team?      @relation(fields: [teamId], references: [id])
-    teamId      Int?
+  // require login
+  @@deny('all', auth() == null)
 
-    @@index([deletedAt])
+  // can be read by members of the workspace or everyone if it's not private 
+  @@allow('read', workspace.members?[user == auth()] || !workspace.private)
+
+  // project manager can create/update a project
+  @@allow('create,update', workspace.members?[user == auth() && role == 'PROJECT_MANAGER'])
+
+  // Owner and admin can use all operations on a project 
+  @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && (role == 'ADMIN')])
+
+
+  @@index([archivedAt])
 }
 
-model Team {
-    id        Int        @id @default(autoincrement())
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt()
-    members   UserTeam[]
+model ProjectMember {
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
 
-    projects  Project[]
-    projectId String?
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
 
-    lead      User?      @relation("TeamLead", fields: [leadId], references: [id])
-    leadId    String?
-}
 
-model UserTeam {
-    team   Team   @relation(fields: [teamId], references: [id])
-    teamId Int
-    user   User   @relation(fields: [userId], references: [id])
-    userId String
+  // role      Role    @default(MEMBER)
 
-    @@id([teamId, userId])
+  // require login
+  @@deny('all', auth() == null)
+
+  // members can be modified by the manager, owner, or admin
+  @@allow('all', project.workspace.owner == auth() || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+
+  // can be read by members within the project or everyone if it's not private
+  @@allow('read', project.members?[user == auth()] || !project.workspace.private)
+
+
+  @@id([projectId, userId])
 }
 
 model Issue {
-    id          Int          @id() @default(autoincrement())
-    title       String
-    status      String
-    priority    String
-    description String
-    isHidden    Boolean      @default(false)
+  id           Int             @id() @default(autoincrement())
+  title        String
+  status       String
+  priority     String
+  description  String
+  assignee     User?           @relation(fields: [assigneeId], references: [id], name: "Assignee")
+  assigneeId   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt()
+  archivedAt   DateTime?
+  owner        User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  ownerId      String?         @default(auth().id)
+  project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  labels      IssueLabel[]
+  activityLogs IssueActivity[]
 
-    label       String[]
-    labels      Label[]
-    assignee    User?        @relation(fields: [assigneeId], references: [id], name: "Assignee")
-    assigneeId  String?
-    createdAt   DateTime     @default(now())
-    updatedAt   DateTime     @updatedAt()
-    deletedAt   DateTime?    @default(now())
-    user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId      String
-    project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId   String
-    comments    Comment[]
-    issueLabels IssueLabel[]
-    logs        IssueLog[]
+  // can be read by members of the project or everyone if it's not private 
+  @@allow('read', project.members?[user == auth()] || !project.workspace.private)
 
-    @@index([deletedAt, userId])
+  // can be created by the member who created the issue, admin, and project manager
+  @@allow('read,create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')] )
+
+  // update cannot change owner
+  @@deny('update', future().owner != owner)
+
+  @@index([archivedAt, ownerId])
 }
 
 model Label {
-    id          Int          @id() @default(autoincrement())
-    name        String
-    color       String
+  id          Int          @id() @default(autoincrement())
+  name        String
+  color       String
 
-    issueLabels IssueLabel[]
-    Issue       Issue?       @relation(fields: [issueId], references: [id])
-    issueId     Int?
+  issues IssueLabel[]
+
+  // can be read by everyone
+  @@allow('read', true)
+
+  // require login
+  @@deny('all', auth() == null)
 }
 
 model IssueLabel {
-    issueId Int
-    labelId Int
-    issue   Issue @relation(fields: [issueId], references: [id])
-    label   Label @relation(fields: [labelId], references: [id])
+  issueId              Int
+  labelId              Int
+  issue                Issue           @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label                Label           @relation(fields: [labelId], references: [id])
 
-    @@id([issueId, labelId])
+  @@id([issueId, labelId])
 }
 
-model IssueLog {
-    id        Int          @id @default(autoincrement())
-    action    String // e.g., "status_updated", "priority_updated", etc.
-    value     String?
-    createdAt DateTime     @default(now())
-    updatedAt DateTime     @updatedAt
+model IssueActivity {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-    // All comments related to the activity
-    comments  CommentLog[]
+  // The issue that the activity is related to
+  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId       Int
 
-    // The issue that the activity is related to
-    issue     Issue        @relation(fields: [issueId], references: [id])
-    issueId   Int
+  // The user who performed the activity
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String   @default(auth().id)
 
-    // The user who performed the activity
-    user      User         @relation(fields: [userId], references: [id])
-    userId    String
+  issueActivity String
+
+  @@delegate(issueActivity)
+
+  // can be read by everyone
+  @@allow('read', true)
 }
 
-model Comment {
-    id        Int       @id() @default(autoincrement())
-    text      String
-    user      User      @relation(fields: [userId], references: [id])
-    userId    String
-    issue     Issue     @relation(fields: [issueId], references: [id])
-    issueId   Int
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt()
 
-    parent    Comment?  @relation("ChildComments", fields: [parentId], references: [id])
-    parentId  Int?
+model StatusActivity extends IssueActivity {
+  name String
 
-    children  Comment[] @relation("ChildComments")
+  //temporary
+  @@allow('all', true) 
 }
 
-model CommentLog {
-    id         Int      @id @default(autoincrement())
-    text       String
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt()
-    issueLog   IssueLog @relation(fields: [issueLogId], references: [id])
-    issueLogId Int
-    user       User     @relation(fields: [userId], references: [id])
-    userId     String
+model PriorityActivity extends IssueActivity {
+  name String
 }
+
+model TitleActivity extends IssueActivity {
+  title String
+}
+
+model AssigneeActivity extends IssueActivity {
+  assignedUser String
+}
+
+model LabelActivity extends IssueActivity {
+  labelId Int
+}
+
+model Comment extends IssueActivity {
+  text      String
+  deletedAt DateTime?
+
+  parent    Comment?  @relation("ChildComments", fields: [parentId], references: [id], onDelete: Cascade)
+  parentId  Int?
+
+  children  Comment[] @relation("ChildComments")
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // can be read by everyone if the project is not private
+  @@allow('read', true && !issue.project.workspace.private)
+
+  // can be created by the user within the workspace
+  @@allow('create', issue.project.workspace.members?[user == auth()])
+
+  // can be updated by the user who created the comment or admin
+  @@allow('update', auth() == user || issue.project.workspace.members?[user == auth() && role == 'ADMIN'])
+}
+
