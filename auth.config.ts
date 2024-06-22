@@ -65,13 +65,11 @@ export const authConfig = {
   providers: [
     Credentials({
       async authorize(credentials) {
-        console.log("I'm at authorize function!")
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials)
 
         if (!parsedCredentials.success) {
-          console.log("Invalid credentials")
           return null
         }
         const { email, password } = parsedCredentials.data
