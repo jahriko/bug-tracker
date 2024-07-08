@@ -12,6 +12,20 @@ generator client {
     provider = "prisma-client-js"
 }
 
+enum Status {
+    BACKLOG
+    IN_PROGRESS
+    DONE
+    CANCELLED
+}
+
+enum Priority {
+    NO_PRIORITY
+    HIGH
+    MEDIUM
+    LOW
+}
+
 enum Role {
     ADMIN
     PROJECT_MANAGER
@@ -54,15 +68,16 @@ model User {
     emailVerified DateTime?
     image String?
     hashedPassword String
-    lastWorkspace String?
+    lastWorkspaceUrl String?
     accounts Account[]
     sessions Session[]
     ownedWorkspaces Workspace[] @relation("WorkspaceOwner")
     workspaceMembers WorkspaceMember[]
     projectMembers ProjectMember[]
-    assignedIssues Issue[] @relation("Assignee")
+    assignedIssues Issue[] @relation("AssignedUser")
     issues Issue[]
     logs IssueActivity[]
+    comments Comment[]
 }
 
 model VerificationToken {
@@ -85,6 +100,7 @@ model Workspace {
     description String?
     createdAt DateTime @default(now())
     private Boolean @default(true)
+    url String @unique()
     members WorkspaceMember[]
     projects Project[]
     owner User @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -105,11 +121,11 @@ model WorkspaceMember {
 }
 
 /// @@deny('all', auth() == null)
-/// @@allow('read', workspace.members?[user == auth()] || !workspace.private)
+/// @@allow('read', members?[user == auth()] || !workspace.private)
 /// @@allow('create,update', workspace.members?[user == auth() && role == 'PROJECT_MANAGER'])
 /// @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
 model Project {
-    id String @id() @default(cuid())
+    id String @id() @unique()
     title String
     updatedAt DateTime @updatedAt()
     createdAt DateTime @default(now())
@@ -126,36 +142,12 @@ model Project {
 /// @@allow('all', project.workspace.owner == auth() || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
 /// @@allow('read', project.members?[user == auth()] || !project.workspace.private)
 model ProjectMember {
-    project Project @relation(fields: [projectId], references: [id])
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId String
-    user User @relation(fields: [userId], references: [id])
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
 
     @@id([projectId, userId])
-}
-
-/// @@allow('read', project.members?[user == auth()] || !project.workspace.private)
-/// @@allow('read,create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
-/// @@deny('update', future().owner != owner)
-model Issue {
-    id Int @id() @default(autoincrement())
-    title String
-    status String
-    priority String
-    description String
-    assignee User? @relation(fields: [assigneeId], references: [id], name: "Assignee")
-    assigneeId String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt()
-    archivedAt DateTime?
-    owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-    ownerId String?
-    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId String
-    labels IssueLabel[]
-    activityLogs IssueActivity[]
-
-    @@index([archivedAt, ownerId])
 }
 
 /// @@allow('read', true)
@@ -167,6 +159,7 @@ model Label {
     issues IssueLabel[]
 }
 
+/// @@allow('read', !issue.project.workspace.private)
 model IssueLabel {
     issueId Int
     labelId Int
@@ -176,8 +169,53 @@ model IssueLabel {
     @@id([issueId, labelId])
 }
 
+/// @@allow('read', project.members?[user == auth()] || !project.workspace.private)
+/// @@allow('read,create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+/// @@deny('update', future().owner != owner)
+model Issue {
+    id Int @id() @default(autoincrement())
+    title String
+    status Status @default(BACKLOG)
+    priority Priority @default(NO_PRIORITY)
+    description String
+    assignedUser User? @relation(fields: [assignedUserId], references: [id], name: "AssignedUser")
+    assignedUserId String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
+    deletedAt DateTime?
+    archivedAt DateTime?
+    owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+    ownerId String?
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId String
+    labels IssueLabel[]
+    activityLogs IssueActivity[]
+    comments Comment[]
+
+    @@index([projectId, assignedUserId])
+    @@index([archivedAt])
+}
+
+/// @@allow('all', true)
+model Comment {
+    id Int @id() @default(autoincrement())
+    content String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
+    deletedAt DateTime?
+    author User @relation(fields: [authorId], references: [id])
+    authorId String
+    issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+    issueId Int
+    parent Comment? @relation("ChildComments", fields: [parentId], references: [id])
+    parentId Int?
+    children Comment[] @relation("ChildComments")
+
+    @@index([issueId])
+}
+
 /// @@delegate(issueActivity)
-/// @@allow('read', true)
+/// @@allow('all', true)
 model IssueActivity {
     id Int @id() @default(autoincrement())
     createdAt DateTime @default(now())
@@ -190,12 +228,14 @@ model IssueActivity {
     delegate_aux_statusActivity StatusActivity?
     delegate_aux_priorityActivity PriorityActivity?
     delegate_aux_titleActivity TitleActivity?
-    delegate_aux_assigneeActivity AssigneeActivity?
+    delegate_aux_descriptionActivity DescriptionActivity?
+    delegate_aux_assignedActivity AssignedActivity?
     delegate_aux_labelActivity LabelActivity?
-    delegate_aux_comment Comment?
+    delegate_aux_commentActivity CommentActivity?
+
+    @@index([issueId, createdAt])
 }
 
-/// @@allow('read', true)
 /// @@allow('all', true)
 model StatusActivity {
     id Int @id()
@@ -203,45 +243,50 @@ model StatusActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read', true)
+/// @@allow('all', true)
 model PriorityActivity {
     id Int @id()
     name String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read', true)
+/// @@allow('all', true)
 model TitleActivity {
     id Int @id()
     title String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read', true)
-model AssigneeActivity {
+/// @@allow('all', true)
+model DescriptionActivity {
     id Int @id()
-    assignedUser String
+    body String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read', true)
+/// @@allow('all', true)
+model AssignedActivity {
+    id Int @id()
+    assignedUsername String
+    assignedUserImage String
+    delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+/// @@allow('all', true)
 model LabelActivity {
     id Int @id()
-    labelId Int
+    labelName String
+    labelColor String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read', true)
+/// @@allow('all', true)
 /// @@deny('all', auth() == null)
 /// @@allow('read', true && !issue.project.workspace.private)
 /// @@allow('create', issue.project.workspace.members?[user == auth()])
 /// @@allow('update', auth() == user || issue.project.workspace.members?[user == auth() && role == 'ADMIN'])
-model Comment {
+model CommentActivity {
     id Int @id()
-    text String
-    deletedAt DateTime?
-    parent Comment? @relation("ChildComments", fields: [parentId], references: [id], onDelete: Cascade)
-    parentId Int?
-    children Comment[] @relation("ChildComments")
+    commentId Int
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

@@ -1,18 +1,16 @@
 "use server"
 
-import { getSession } from "@/lib/get-current-user"
+import { getCurrentUser } from "@/lib/get-current-user"
 import prisma from "@/lib/prisma"
 import { revalidateTag } from "next/cache"
 import { z } from "zod"
-import prisma from "@/lib/prisma"
-import { getCurrentUser } from "@/lib/get-current-user"
 
 const FormSchema = z.object({
   comment: z.string(),
 })
 
 export async function createComment(issueId: number, data: z.infer<typeof FormSchema>) {
-  const user = await getSession()
+  const user = await getCurrentUser()
   const { comment } = FormSchema.parse(data)
 
   try {

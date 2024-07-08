@@ -1,33 +1,57 @@
-// import { auth } from "@/auth"
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable guard-for-in */
 import prisma from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
 import { enhance } from "@zenstackhq/runtime"
+import "server-only"
 
-// const session = await auth()
+const enhanced = enhance(prisma)
 
-const extendedPrisma = prisma.$extends({
+export const db = enhanced.$extends({
   query: {
     issue: {
-      async update({ args, query }) {
-        const context = Prisma.getExtensionContext(this)
-        const modelName = context.$name
-        const modelFields = Prisma.dmmf.datamodel.models.find(
-          (model) => model.name === modelName,
-        )?.fields
+      async update({ args }) {
+        await prisma.$transaction(async () => {
+          const updateIssue = await enhanced.issue.update(args)
 
-        console.log(`Model: ${modelName}`)
-        console.log("Fields:", modelFields)
-
-        return query(args)
+          for (const field in args.data) {
+            switch (field) {
+              case "title":
+                await enhanced.titleActivity.create({
+                  data: {
+                    userId: args.data.ownerId as string,
+                    issueId: args.where.id!,
+                    title: args.data[field] as string,
+                  },
+                })
+                break
+              case "description":
+                console.log("Description updated:", args.data[field])
+                break
+              case "priority":
+                await enhanced.priorityActivity.create({
+                  data: {
+                    userId: args.data.ownerId as string,
+                    issueId: args.where.id!,
+                    name: args.data[field] as string,
+                  },
+                })
+                break
+              case "status":
+                await enhanced.statusActivity.create({
+                  data: {
+                    userId: args.data.ownerId as string,
+                    issueId: args.where.id!,
+                    name: args.data[field] as string,
+                  },
+                })
+                break
+              default:
+                break
+            }
+          }
+          return updateIssue
+        })
       },
     },
   },
 })
-
-// type SessionUser = User & { userId: string; lastWorkspace: string }
-
-export const db = enhance(
-  extendedPrisma,
-  {},
-  { logPrismaQuery: true },
-)

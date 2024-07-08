@@ -1,3 +1,4 @@
+"use client"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import * as LabelPrimitive from "@radix-ui/react-label"
@@ -12,6 +13,7 @@ import {
   useFormContext,
 } from "react-hook-form"
 import { toast } from "sonner"
+import { ErrorMessage } from "../catalyst/fieldset"
 
 const Form = FormProvider
 
@@ -149,18 +151,15 @@ const FormMessage = React.forwardRef<
     return null
   }
 
-  return toast.error(body)
-
-  // return (
-  //   <p
-  //     className={cn("text-sm font-medium text-destructive", className)}
-  //     id={formMessageId}
-  //     ref={ref}
-  //     {...props}
-  //   >
-  //     {body}
-  //   </p>
-  // )
+  return (
+    <ErrorMessage
+      id={formMessageId}
+      // ref={ref}
+      {...props}
+    >
+      {body}
+    </ErrorMessage>
+  )
 })
 FormMessage.displayName = "FormMessage"
 
