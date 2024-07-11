@@ -1,5 +1,4 @@
 "use client"
-import { createWorkspace } from "@/app/(platform)/create-workspace/create-workspace"
 import { Button } from "@/components/catalyst/button"
 import { Field, FieldGroup, Fieldset } from "@/components/catalyst/fieldset"
 import { Input } from "@/components/catalyst/input"
@@ -13,6 +12,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { createWorkspace } from "./_actions/create-workspace"
 
 const schema = z.object({
   name: z.string().min(2, { message: "Workspace name is required." }),
@@ -71,7 +71,7 @@ export default function CreateWorkspacePage() {
 
     form.reset()
 
-    router.push(`${result?.data?.workspaceName}`)
+    router.push(`${result.data?.workspaceName}`)
 
     return toast.success("Workspace created")
   }
@@ -116,8 +116,8 @@ export default function CreateWorkspacePage() {
                           <FormControl>
                             <Headless.Field className="relative">
                               <label
-                                htmlFor="workspace-name"
                                 className="absolute -top-2 left-2 z-10 inline-block bg-white px-1 text-xs font-medium text-gray-900"
+                                htmlFor="workspace-name"
                               >
                                 Workspace Name
                               </label>
@@ -125,7 +125,6 @@ export default function CreateWorkspacePage() {
                                 {...field}
                                 id="workspace-name"
                                 name="workspace-name"
-                                onChange={handleNameChange}
                                 onBlur={(e) => {
                                   e.preventDefault()
                                   form.setValue(
@@ -135,6 +134,7 @@ export default function CreateWorkspacePage() {
                                       : workspaceUrlValue,
                                   )
                                 }}
+                                onChange={handleNameChange}
                               />
                             </Headless.Field>
                           </FormControl>
@@ -154,8 +154,8 @@ export default function CreateWorkspacePage() {
                           <FormControl>
                             <Headless.Field className="relative">
                               <label
-                                htmlFor="workspace-url"
                                 className="absolute -top-2 left-2 z-10 inline-block bg-white px-1 text-xs font-medium text-gray-900"
+                                htmlFor="workspace-url"
                               >
                                 Workspace URL
                               </label>
@@ -163,10 +163,10 @@ export default function CreateWorkspacePage() {
                                 {...field}
                                 id="url"
                                 name="url"
-                                onChange={handleUrlChange}
                                 onBlur={(e) => {
                                   form.setValue("url", e.target.value.replace(/-+$/, ""))
                                 }}
+                                onChange={handleUrlChange}
                               />
                             </Headless.Field>
                           </FormControl>
@@ -178,7 +178,7 @@ export default function CreateWorkspacePage() {
               </FieldGroup>
             </Fieldset>
 
-            <Button className="mt-8 w-full" type="submit" disabled={isExecuting}>
+            <Button className="mt-8 w-full" disabled={isExecuting} type="submit">
               {isExecuting ? <Icons.spinner className="size-4 animate-spin" /> : null}
               Create workspace
             </Button>
