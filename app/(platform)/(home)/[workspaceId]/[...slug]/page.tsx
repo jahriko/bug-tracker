@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import Editor from "@/components/RichTextEditor/text-editor"
+// import Editor from "@/components/RichTextEditor/text-editor"
 import { Avatar } from "@/components/catalyst/avatar"
 import { Badge } from "@/components/catalyst/badge"
 import { Button } from "@/components/catalyst/button"
@@ -23,7 +23,10 @@ import {
 } from "./_components/issue-details"
 import { getActivities, getIssueByProject } from "./_data/issue"
 import { checkAndRedirect, parseIssueCode } from "./helpers"
-import { checkAndRedirect, parseIssueCode, validateSlug } from "./helpers"
+import dynamic from "next/dynamic";
+
+const Editor = dynamic(() => import("./_components/editor"), { ssr: false })
+
 
 export default async function IssuePage({
   params,
@@ -46,6 +49,8 @@ export default async function IssuePage({
   const [projectIdentifier, title] = slug
   const [projectId, issueId] = parseIssueCode(projectIdentifier)
 
+  console.log("ProjectID:", projectId)
+  console.log("IssueID:", issueId)
   const issue = await getIssueByProject(session, projectId, issueId)
   if (!issue) {
     notFound()

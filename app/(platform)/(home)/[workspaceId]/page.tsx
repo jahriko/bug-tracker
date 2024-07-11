@@ -37,7 +37,7 @@ export default async function WorkspacePage({
   searchParams: Record<string, string | string[] | undefined>
 }) {
   const session = await getCurrentUser()
-  const workspaceData = await getPrisma(session.userId).workspace.findUnique({
+  const workspaceData = await prisma.workspace.findUnique({
     where: { url: params.workspaceId },
     select: {
       _count: {
@@ -77,18 +77,31 @@ export default async function WorkspacePage({
   const { issues, totalIssues } = await getIssuesData(projectIds, page, pageSize)
   const paginationData = getPaginationData(page, totalIssues, pageSize)
 
+
+    // <main className="flex flex-1 flex-col pb-2 lg:px-2">
+    //   <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
+    //     <div className="mx-auto max-w-6xl">{children}</div>
+    //   </div>
+    // </main>
+
   return (
-    <div className="py-6">
-      <main className="container">
-        <div>
-          <div className="flex items-center gap-x-6">
-            <NewIssueDialog assignees={projectMembers} labels={labels} />
+    <main className="flex flex-1 flex-col pb-2 lg:px-2">
+      <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
+        <div className="mx-auto max-w-6xl">
+          <div className="py-6">
+            <main className="container">
+              <div>
+                <div className="flex items-center gap-x-6">
+                  <NewIssueDialog assignees={projectMembers} labels={labels} />
+                </div>
+                <IssueTable issues={issues} workspaceId={params.workspaceId} />
+                <TablePagination {...paginationData} />
+              </div>
+            </main>
           </div>
-          <IssueTable issues={issues} workspaceId={params.workspaceId} />
-          <TablePagination {...paginationData} />
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   )
 }
 
@@ -243,8 +256,6 @@ function renderStatus(status: string) {
   switch (status) {
     case "backlog":
       return <CircleDashed className="size-[1.10rem] text-zinc-500 hover:text-black" />
-    case "todo":
-      return <CircleDot className="size-[1.10rem] text-green-700 hover:text-black" />
     case "in-progress":
       return <Loader2 className="size-[1.10rem] text-yellow-700 hover:text-black" />
     case "done":

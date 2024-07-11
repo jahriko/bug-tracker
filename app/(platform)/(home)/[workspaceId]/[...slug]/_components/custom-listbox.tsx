@@ -52,7 +52,7 @@ export function CustomListbox<T>({
             // Typography
             "text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white sm:text-sm/6 forced-colors:text-[CanvasText]",
             // Borderless
-            "border-transparent text-zinc-950 group-data-[active]:bg-zinc-950/5 group-data-[hover]:bg-zinc-950/5 dark:text-white dark:group-data-[active]:bg-white/10 dark:group-data-[hover]:bg-white/10",
+            "border-transparent text-zinc-950 group-data-[active]:bg-zinc-950/5 group-data-[hover]:bg-zinc-950/5  dark:text-white dark:group-data-[active]:bg-white/10 dark:group-data-[hover]:bg-white/10",
             // Background color
             "bg-transparent dark:bg-white/5",
             // Invalid state

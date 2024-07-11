@@ -16,9 +16,9 @@ import {
 } from "@/components/catalyst/pagination"
 import { Table, TableBody, TableCell, TableRow } from "@/components/catalyst/table"
 import { getCurrentUser } from "@/lib/get-current-user"
+import { getPrisma } from "@/lib/getPrisma"
 import prisma from "@/lib/prisma"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import { enhance } from "@zenstackhq/runtime"
 import {
   Ban,
   CheckCircle2,
@@ -40,47 +40,63 @@ export default async function IssuePage({
   searchParams: Record<string, string | string[] | undefined>
 }) {
   const session = await getCurrentUser()
-  const authZ = enhance(prisma, { user: { id: session.userId } })
-
   await updateLastWorkspaceUrl(session, params.workspaceId)
 
   const page = Number(searchParams.page) || 1
   const pageSize = 20
 
-  const workspaceData = await getWorkspaceData(params.workspaceId)
+  const workspaceData = await getWorkspaceData(session.userId, params.workspaceId)
   if (!workspaceData) notFound()
 
   const projectIds = workspaceData.projects.map((p) => p.id)
-  const { issues, totalIssues } = await getIssuesData(projectIds, page, pageSize)
+  const { issues, totalIssues } = await getIssuesData(
+    session.userId,
+    projectIds,
+    page,
+    pageSize,
+  )
   const projectMembers = workspaceData.projects.flatMap((p) =>
     p.members.map((m) => m.user),
   )
 
   const labels = await prisma.label.findMany()
 
-  const workspaceCount = await authZ.workspace.count()
-  if (workspaceCount === 0) return redirect("/create-workspace")
+  if (totalIssues === 0) return redirect("/create-workspace")
 
   const paginationData = getPaginationData(page, totalIssues, pageSize)
 
   return (
-    <div className="py-6">
-      <main className="container">
-        <div>
-          <div className="flex items-center gap-x-2">
-            <div className="flex-grow">
-              <InputGroup className="w-full">
-                <MagnifyingGlassIcon />
-                <Input aria-label="Search" name="search" placeholder="Search&hellip;" />
-              </InputGroup>
-            </div>
-            <NewIssueDialog assignees={projectMembers} labels={labels} />
+    <main className="flex flex-1 flex-col pb-2 lg:px-2">
+      <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
+        <div className="mx-auto max-w-6xl">
+          {/* -- */}
+
+          <div className="py-6">
+            <main className="container">
+              <div>
+                <div className="flex items-center gap-x-2">
+                  <div className="flex-grow">
+                    <InputGroup className="w-full">
+                      <MagnifyingGlassIcon />
+                      <Input
+                        aria-label="Search"
+                        name="search"
+                        placeholder="Search&hellip;"
+                      />
+                    </InputGroup>
+                  </div>
+                  <NewIssueDialog assignees={projectMembers} labels={labels} />
+                </div>
+                <IssueTable issues={issues} workspaceId={params.workspaceId} />
+                <TablePagination {...paginationData} />
+              </div>
+            </main>
           </div>
-          <IssueTable issues={issues} workspaceId={params.workspaceId} />
-          <TablePagination {...paginationData} />
+
+          {/* -- */}
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   )
 }
 
@@ -195,7 +211,7 @@ async function updateLastWorkspaceUrl(
   },
   workspaceId: string,
 ) {
-  if (session && session.lastWorkspaceUrl !== workspaceId) {
+  if (session.lastWorkspaceUrl !== workspaceId) {
     await prisma.user.update({
       where: { id: session.userId },
       data: { lastWorkspaceUrl: workspaceId },
@@ -203,8 +219,8 @@ async function updateLastWorkspaceUrl(
   }
 }
 
-async function getWorkspaceData(workspaceId: string) {
-  return prisma.workspace.findUniqueOrThrow({
+async function getWorkspaceData(userId: string, workspaceId: string) {
+  return await getPrisma(userId).workspace.findUnique({
     where: { url: workspaceId },
     include: {
       projects: {
@@ -228,11 +244,16 @@ async function getWorkspaceData(workspaceId: string) {
   })
 }
 
-async function getIssuesData(projectIds: string[], page: number, pageSize: number) {
+async function getIssuesData(
+  userId: string,
+  projectIds: number[],
+  page: number,
+  pageSize: number,
+) {
   const skip = (page - 1) * pageSize
 
   const [issues, totalIssues] = await Promise.all([
-    prisma.issue.findMany({
+    getPrisma(userId).issue.findMany({
       where: { projectId: { in: projectIds } },
       skip,
       take: pageSize,
@@ -244,7 +265,7 @@ async function getIssuesData(projectIds: string[], page: number, pageSize: numbe
         owner: { select: { name: true, image: true } },
         title: true,
         status: true,
-        assignee: { select: { id: true, name: true, image: true } },
+        assignedUser: { select: { id: true, name: true, image: true } },
         priority: true,
         labels: {
           select: {
