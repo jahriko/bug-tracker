@@ -1,7 +1,15 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 "use client"
 import { Avatar } from "@/components/catalyst/avatar"
-import { Ban, CircleDot, SignalHigh, SignalLow, SignalMedium } from "lucide-react"
+import {
+  Ban,
+  CheckCircle2,
+  CircleDashed,
+  Loader2,
+  SignalHigh,
+  SignalLow,
+  SignalMedium,
+} from "lucide-react"
 import { useMemo } from "react"
 import { updatePriority } from "../_actions/update-priority"
 import { updateStatus } from "../_actions/update-status"
@@ -14,14 +22,14 @@ export type Assignee = "eduardo" | "hilary"
 
 interface PropertyProps<T> {
   issueId: number
-  value: T
+  value: string | null
   lastActivity: {
     activityType:
       | "StatusActivity"
       | "PriorityActivity"
       | "TitleActivity"
       | "DescriptionActivity"
-      | "AssigneeActivity"
+      | "AssignedActivity"
       | "LabelActivity"
       | "CommentActivity"
       | "None"
@@ -34,10 +42,10 @@ const handleServerError = (error: Error) => {
   // You could add user-facing error handling here, e.g., toast notification
 }
 
-export function StatusProperty({ issueId, value }: PropertyProps<Status>) {
+export function StatusProperty({ issueId, value, lastActivity }: PropertyProps<Status>) {
   const handleChange = async (status: Status) => {
     try {
-      const result = await updateStatus({ issueId, status })
+      const result = await updateStatus({ issueId, status, lastActivity })
       if (result.serverError) {
         handleServerError(result.serverError)
       }
@@ -50,17 +58,17 @@ export function StatusProperty({ issueId, value }: PropertyProps<Status>) {
     () => [
       {
         value: "BACKLOG",
-        icon: <CircleDot aria-hidden="true" className="size-[1.10rem] text-green-700" />,
-        label: "Todo",
+        icon: <CircleDashed className="size-[1.10rem] text-zinc-500" />,
+        label: "Backlog",
       },
       {
         value: "IN_PROGRESS",
-        icon: <CircleDot aria-hidden="true" className="size-[1.10rem] text-yellow-700" />,
+        icon: <Loader2 className="size-[1.10rem] text-yellow-700 hover:text-black" />,
         label: "In Progress",
       },
       {
         value: "DONE",
-        icon: <CircleDot aria-hidden="true" className="size-[1.10rem] text-green-700" />,
+        icon: <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />,
         label: "Done",
       },
       {

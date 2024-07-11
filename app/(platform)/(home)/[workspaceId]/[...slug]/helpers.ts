@@ -37,13 +37,6 @@ const getIssueProjectSlug = (projectId: string, issueId: string): string => {
   return `${projectId}-${issueId}`
 }
 
-export function validateSlug(slug: string[]): [string, string] {
-  if (slug.length !== 2) {
-    notFound()
-  }
-  return slug as [string, string]
-}
-
 export function parseIssueCode(issueCode: string): [string, string] {
   const [projectId, issueId] = issueCode.split("-")
   if (!projectId || !issueId) {

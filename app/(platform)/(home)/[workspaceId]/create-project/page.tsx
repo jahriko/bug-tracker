@@ -85,125 +85,137 @@ const NewProjectPage = () => {
   }
 
   return (
-    <div className="p-6 text-gray-800">
-      <div className="mx-auto max-w-xl">
-        <Heading>New Project</Heading>
-        <Text className="mb-6">
-          Personalize your project to help other users understand its purpose and scope.
-          You can update these values from the General Info tab in the project settings if
-          needed.
-        </Text>
+    <main className="flex flex-1 flex-col pb-2 lg:px-2">
+      <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
+        <div className="mx-auto max-w-6xl">
+          {/* -- */}
+          <div className="p-6 text-gray-800">
+            <div className="mx-auto max-w-xl">
+              <Heading>New Project</Heading>
+              <Text className="mb-6">
+                Personalize your project to help other users understand its purpose and
+                scope. You can update these values from the General Info tab in the
+                project settings if needed.
+              </Text>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Fieldset aria-label="Project details">
-            <FieldGroup>
-              <Field>
-                <Label>Name</Label>
-                <Controller
-                  control={control}
-                  name="name"
-                  render={({ field, fieldState: { error } }) => (
-                    <>
-                      <Input
-                        {...field}
-                        onChange={handleNameChange}
-                        placeholder="Enter a name for your project"
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Fieldset aria-label="Project details">
+                  <FieldGroup>
+                    <Field>
+                      <Label>Name</Label>
+                      <Controller
+                        control={control}
+                        name="name"
+                        render={({ field, fieldState: { error } }) => (
+                          <>
+                            <Input
+                              {...field}
+                              onChange={handleNameChange}
+                              placeholder="Enter a name for your project"
+                            />
+                            {error ? (
+                              <span className="text-sm text-red-500">
+                                {error.message}
+                              </span>
+                            ) : null}
+                          </>
+                        )}
+                        rules={{ required: "Project name is required" }}
                       />
-                      {error ? (
-                        <span className="text-sm text-red-500">{error.message}</span>
-                      ) : null}
-                    </>
-                  )}
-                  rules={{ required: "Project name is required" }}
-                />
-              </Field>
+                    </Field>
 
-              <Field>
-                <Label>Project ID</Label>
-                <Controller
-                  control={control}
-                  name="projectId"
-                  render={({ field, fieldState: { error } }) => (
-                    <>
-                      <Input
-                        {...field}
-                        onChange={handleProjectIdChange}
-                        placeholder="Enter project ID"
+                    <Field>
+                      <Label>Project ID</Label>
+                      <Controller
+                        control={control}
+                        name="projectId"
+                        render={({ field, fieldState: { error } }) => (
+                          <>
+                            <Input
+                              {...field}
+                              onChange={handleProjectIdChange}
+                              placeholder="Enter project ID"
+                            />
+                            {error ? (
+                              <span className="text-sm text-red-500">
+                                {error.message}
+                              </span>
+                            ) : null}
+                          </>
+                        )}
+                        rules={{ required: "Project ID is required" }}
                       />
-                      {error ? (
-                        <span className="text-sm text-red-500">{error.message}</span>
-                      ) : null}
-                    </>
-                  )}
-                  rules={{ required: "Project ID is required" }}
-                />
-                <Description>
-                  Used as a prefix in IDs for issues and articles that belong to this
-                  project
-                </Description>
-              </Field>
-              <div>
-                <p className="mb-1 text-xs text-gray-400">Preview</p>
-                <div className="mb-6 flex items-center gap-4 rounded bg-gray-50 p-3 shadow ring-1 ring-gray-100">
-                  <div>
-                    <div className="flex items-center gap-x-3 gap-y-4">
-                      <CircleDashed className="size-[1.10rem] text-zinc-500 hover:text-black" />
-                      <div className="text-sm font-medium">
-                        Why does Next.js use caching by default?
+                      <Description>
+                        Used as a prefix in IDs for issues and articles that belong to
+                        this project
+                      </Description>
+                    </Field>
+                    <div>
+                      <p className="mb-1 text-xs text-gray-400">Preview</p>
+                      <div className="mb-6 flex items-center gap-4 rounded bg-gray-50 p-3 shadow ring-1 ring-gray-100">
+                        <div>
+                          <div className="flex items-center gap-x-3 gap-y-4">
+                            <CircleDashed className="size-[1.10rem] text-zinc-500 hover:text-black" />
+                            <div className="text-sm font-medium">
+                              Why does Next.js use caching by default?
+                            </div>
+                          </div>
+                          <div className="text-xs text-zinc-500">
+                            <span className="hover:text-zinc-700">
+                              {projectId ? `${projectId}-1` : "ID-1"} opened 1 minute ago
+                              by John Smith
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-xs text-zinc-500">
-                      <span className="hover:text-zinc-700">
-                        {projectId ? `${projectId}-1` : "ID-1"} opened 1 minute ago by
-                        John Smith
-                      </span>
-                    </div>
-                  </div>
+
+                    <Field>
+                      <Label>Description</Label>
+                      <Controller
+                        control={control}
+                        name="description"
+                        render={({ field }) => (
+                          <Textarea
+                            {...field}
+                            placeholder="Write a short description that explains the purpose of your project (optional)"
+                          />
+                        )}
+                      />
+                    </Field>
+
+                    <Field>
+                      <Label>Workspace</Label>
+                      <Controller
+                        control={control}
+                        name="workspace"
+                        render={({ field }) => (
+                          <Select {...field}>
+                            <option value="active">Active</option>
+                            <option value="paused">Paused</option>
+                            <option value="delayed">Delayed</option>
+                            <option value="canceled">Canceled</option>
+                          </Select>
+                        )}
+                      />
+                      <Description>
+                        Groups this project with other projects under the same umbrella
+                        organization
+                      </Description>
+                    </Field>
+                  </FieldGroup>
+                </Fieldset>
+
+                <div className="mx-auto mt-6 flex justify-center">
+                  <Button className="w-full">Create Project</Button>
                 </div>
-              </div>
-
-              <Field>
-                <Label>Description</Label>
-                <Controller
-                  control={control}
-                  name="description"
-                  render={({ field }) => (
-                    <Textarea
-                      {...field}
-                      placeholder="Write a short description that explains the purpose of your project (optional)"
-                    />
-                  )}
-                />
-              </Field>
-
-              <Field>
-                <Label>Workspace</Label>
-                <Controller
-                  control={control}
-                  name="workspace"
-                  render={({ field }) => (
-                    <Select {...field}>
-                      <option value="active">Active</option>
-                      <option value="paused">Paused</option>
-                      <option value="delayed">Delayed</option>
-                      <option value="canceled">Canceled</option>
-                    </Select>
-                  )}
-                />
-                <Description>
-                  Groups this project with other projects under the same umbrella
-                  organization
-                </Description>
-              </Field>
-            </FieldGroup>
-          </Fieldset>
-
-          <div className="mx-auto mt-6 flex justify-center">
-            <Button className="w-full">Create Project</Button>
+              </form>
+            </div>
           </div>
-        </form>
+          {/* -- */}
+        </div>
       </div>
-    </div>
+    </main>
   )
 }
 

@@ -44,7 +44,6 @@ export const updatePriority = authActionClient
           },
         })
 
-        // revalidatePath(`/${issue.project.workspaceId}/${issue.project.id}-${issueId}`)
         revalidateTag(`issue-${issueId}`)
       })
     },

@@ -1,6 +1,7 @@
 "use server"
 import { getPrisma } from "@/lib/getPrisma"
 import { authActionClient } from "@/lib/safe-action"
+import { revalidateTag } from "next/cache"
 import { z } from "zod"
 
 const schema = z.object({
@@ -14,46 +15,33 @@ const schema = z.object({
 
 export const updateStatus = authActionClient
   .schema(schema)
-  .action(
-    async ({
-      parsedInput: { issueId, status, lastActivity },
-      ctx: { userId, username },
-    }) => {
-      await getPrisma(userId).$transaction(async (tx) => {
-        await tx.issue.update({
-          where: {
-            id: issueId,
-          },
-          data: {
-            status: status,
-          },
-          select: {
-            project: {
-              select: {
-                id: true,
-                workspaceId: true,
-              },
-            },
-          },
-        })
-
-        await tx.statusActivity.upsert({
-          where: {
-            id:
-              lastActivity.activityType === "StatusActivity"
-                ? lastActivity.activityId
-                : -1,
-          },
-          update: {
-            name: status,
-          },
-          create: {
-            username,
-            userId,
-            issueId,
-            name: status,
-          },
-        })
+  .action(async ({ parsedInput: { issueId, status, lastActivity }, ctx: { userId} }) => {
+    console.log("status name:", status)
+    await getPrisma(userId).$transaction(async (tx) => {
+      await tx.issue.update({
+        where: {
+          id: issueId,
+        },
+        data: {
+          status: status,
+        },
       })
-    },
-  )
+
+      await tx.statusActivity.upsert({
+        where: {
+          id:
+            lastActivity.activityType === "StatusActivity" ? lastActivity.activityId : -1,
+        },
+        update: {
+          name: status,
+        },
+        create: {
+          userId,
+          issueId,
+          name: status,
+        },
+      })
+
+      revalidateTag(`issue-${issueId}`)
+    })
+  })

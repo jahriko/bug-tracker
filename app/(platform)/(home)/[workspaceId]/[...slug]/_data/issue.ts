@@ -12,7 +12,9 @@ export const getIssueByProject = async (user: User, projectId: string, id: strin
       console.log("Calling getIssueByProject function...")
       const issue = getPrisma(user.userId).issue.findUniqueOrThrow({
         where: {
-          projectId,
+          project: {
+            identifier: projectId,
+          },
           id: Number(id),
         },
         select: {
@@ -76,6 +78,7 @@ export async function getActivities(userId, issueId) {
     include: {
       user: {
         select: {
+          name: true,
           image: true,
         },
       },
