@@ -1,8 +1,18 @@
 /* eslint-disable guard-for-in */
 import prisma from "@/lib/prisma"
 import { faker } from "@faker-js/faker"
+import { Priority, Status } from "@prisma/client"
 import { enhance } from "@zenstackhq/runtime"
 import { hash } from "bcrypt"
+
+const slugify = (str: string) => {
+  return str
+    .toLowerCase()
+    .replace(/ /g, "-") // Replace space with dash
+    .replace(/[^a-z0-9-]/g, "") // no special characters
+    .replace(/-{2,}/g, "-") // Prevent more than one dash between letters/numbers
+    .replace(/^-/, "") // Remove dash if it's the first character
+}
 
 async function main() {
   await prisma.$transaction(
@@ -27,15 +37,16 @@ async function main() {
       const labels = await tx.label.createManyAndReturn({ data: labelData })
       const labelIds = labels.map((label) => label.id)
 
-      const userData = Array.from({ length: 50 }, async () => ({
-        image: faker.image.avatar(),
-        name: `${faker.person.firstName()} ${faker.person.lastName()}`,
-        email: faker.internet.exampleEmail(),
-        hashedPassword: await hash("12345678", 13),
-      }))
-
+      // Create users
       const users = await tx.user.createManyAndReturn({
-        data: await Promise.all(userData),
+        data: await Promise.all(
+          Array.from({ length: 50 }, async () => ({
+            image: faker.image.avatar(),
+            name: `${faker.person.firstName()} ${faker.person.lastName()}`,
+            email: faker.internet.exampleEmail(),
+            hashedPassword: await hash("12345678", 13),
+          })),
+        ),
         skipDuplicates: true,
       })
 
@@ -55,16 +66,6 @@ async function main() {
         })
 
         const fakeWorkspace = faker.company.name()
-
-        const slugify = (str: string) => {
-          return str
-            .toLowerCase()
-            .replace(/ /g, "-") // Replace space with dash
-            .replace(/[^a-z0-9-]/g, "") // no special characters
-            .replace(/-{2,}/g, "-") // Prevent more than one dash between letters/numbers
-            .replace(/^-/, "") // Remove dash if it's the first character
-        }
-
         const workspace = await tx.workspace.create({
           data: {
             name: fakeWorkspace,
@@ -74,7 +75,7 @@ async function main() {
         })
 
         const userIds = users.map((user) => user.id)
-        const workspaceMembersData = Array.from({ length: 50 }, () => ({
+        const workspaceMembersData = Array.from({ length: 10 }, () => ({
           userId: faker.helpers.arrayElement(userIds),
           workspaceId: workspace.id,
         })).filter((member) => member.userId !== user.id)
@@ -116,67 +117,74 @@ async function main() {
           })
         }
 
-        // Create 5 projects for each workspace
-        for (let i = 0; i < 5; i++) {
-          const project = await tx.project.create({
-            data: {
-              title: faker.lorem.word(7),
+        const projectTitle = faker.lorem.word()
+        const projectId = projectTitle.substring(0, 3).toUpperCase()
+
+        // Create projects each workspace
+        const project = await tx.project.createManyAndReturn({
+          data: await Promise.all(
+            Array.from({ length: 5 }, async () => ({
+              title: projectTitle,
+              identifier: projectId,
               workspaceId: workspace.id,
-            },
-          })
+            })),
+          ),
+          skipDuplicates: true,
+        })
 
-          // add 10 workspace members for each project
-          const projectMembers = await tx.projectMember.createManyAndReturn({
-            data: await Promise.all(
-              Array.from({ length: 10 }, async () => ({
-                userId: faker.helpers.arrayElement(
-                  workspaceMembers.map((user) => user.userId),
-                ),
-                projectId: project.id,
-              })),
+        // Add members each project
+        const projectMembers = await tx.projectMember.createManyAndReturn({
+          data: await Promise.all(
+            Array.from({ length: 10 }, async () => ({
+              userId: faker.helpers.arrayElement(
+                workspaceMembers.map((user) => user.userId),
+              ),
+              projectId: faker.helpers.arrayElement(project.map((project) => project.id)),
+            })),
+          ),
+          skipDuplicates: true,
+        })
+
+        // Create issues each project
+        const priorities = ["LOW", "MEDIUM", "HIGH", "NO_PRIORITY"]
+        const statuses = ["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]
+
+        const issue = await tx.issue.createManyAndReturn({
+          data: await Promise.all(
+            Array.from({ length: 15 }, async () => ({
+              title: faker.hacker.phrase(),
+              description: faker.lorem.paragraph(3),
+              priority: faker.helpers.arrayElement(priorities) as Priority,
+              status: faker.helpers.arrayElement(statuses) as Status,
+              projectId: faker.helpers.arrayElement(project.map((project) => project.id)),
+              ownerId: faker.helpers.arrayElement(
+                projectMembers.map((member) => member.userId),
+              ),
+            })),
+          ),
+        })
+
+        // Assign each issues a label
+        const createIssueLabelData = (issueId, labelId) => ({
+          issueId,
+          labelId,
+        })
+
+        const numLabels = faker.number.int({
+          min: 0,
+          max: Math.min(4, labelIds.length),
+        })
+        const selectedLabelIds = faker.helpers.shuffle(labelIds).slice(0, numLabels)
+
+        if (selectedLabelIds.length > 0) {
+          await tx.issueLabel.createMany({
+            data: selectedLabelIds.map((labelId) =>
+              createIssueLabelData(
+                faker.helpers.arrayElement(issue.map((issue) => issue.id)),
+                labelId,
+              ),
             ),
-            skipDuplicates: true,
           })
-
-          // Create 15 issues for each project
-          const priorities = ["LOW", "MEDIUM", "HIGH", "NO_PRIORITY"]
-          const statuses = ["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]
-          const projectMemberIds = projectMembers.map((user) => user.userId)
-
-          const createIssueData = () => ({
-            title: faker.hacker.phrase(),
-            description: faker.lorem.paragraph(3),
-            priority: faker.helpers.arrayElement(priorities),
-            status: faker.helpers.arrayElement(statuses),
-            ownerId: faker.helpers.arrayElement(projectMemberIds),
-            projectId: project.id,
-          })
-
-          const createIssueLabelData = (issueId, labelId) => ({
-            issueId,
-            labelId,
-          })
-
-          await Promise.all(
-            Array.from({ length: 15 }, async () => {
-              const issue = await tx.issue.create({ data: createIssueData() })
-              const numLabels = faker.number.int({
-                min: 0,
-                max: Math.min(4, labelIds.length),
-              })
-              const selectedLabelIds = faker.helpers.shuffle(labelIds).slice(0, numLabels)
-
-              if (selectedLabelIds.length > 0) {
-                await tx.issueLabel.createMany({
-                  data: selectedLabelIds.map((labelId) =>
-                    createIssueLabelData(issue.id, labelId),
-                  ),
-                })
-              }
-
-              return issue
-            }),
-          )
         }
       }
     },
@@ -260,7 +268,6 @@ async function main() {
               case "status":
                 await enhanced.statusActivity.create({
                   data: {
-                    username: getProjectMember.user.name,
                     userId: getProjectMember.userId,
                     issueId: args.where.id!,
                     name: args.data[field] as string,
@@ -278,7 +285,7 @@ async function main() {
     },
   })
 
-  const issue = await prisma.issue.findFirstOrThrow({
+  const issue = await prisma.issue.findFirst({
     where: {
       projectId: getProject.id,
     },
@@ -288,7 +295,7 @@ async function main() {
     },
   })
 
-  if (issue && getProjectMember) {
+  if (issue) {
     // update issue status
     const updateStatus = await user_db.issue.update({
       select: {
@@ -315,7 +322,7 @@ async function main() {
       getProjectMember.userId,
     )
   } else {
-    console.log("No issue or project member found")
+    console.error("No issue or project member found")
   }
 }
 
