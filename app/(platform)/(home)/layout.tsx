@@ -1,6 +1,4 @@
 import LogoutButton from "@/app/(platform)/(auth)/_components/logout-button"
-// import SwitchWorkspace from "@/components/SwitchWorkspace"
-import { SolarBugBoldDuotone } from "@/components/bug-icon"
 import {
   Dropdown,
   DropdownButton,
@@ -30,8 +28,9 @@ import prisma from "@/lib/prisma"
 import { UserCircleIcon, UserIcon } from "@heroicons/react/16/solid"
 import { InboxIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid"
 import { enhance } from "@zenstackhq/runtime"
-import Link from "next/link"
 import React from "react"
+import SwitchWorkspace from "./_components/switch-workspace"
+import NavbarLinks from "./_components/NavbarLinks"
 
 const navItems = [
   { label: "Issues", url: "/issues" },
@@ -58,20 +57,10 @@ export default async function DashboardLayout({
     <StackedLayout
       navbar={
         <Navbar>
-          <Link
-            className="hidden items-center gap-2 text-lg font-semibold md:flex md:text-base"
-            href="/"
-          >
-            <SolarBugBoldDuotone className="size-8" />
-          </Link>
+          <SwitchWorkspace workspaces={workspaces} />
           <NavbarDivider className="max-lg:hidden" />
-          {/* <SwitchWorkspace workspaces={workspaces} /> */}
           <NavbarSection className="max-lg:hidden">
-            {navItems.map(({ label, url }) => (
-              <NavbarItem href={url} key={label}>
-                {label}
-              </NavbarItem>
-            ))}
+            <NavbarLinks />
           </NavbarSection>
           <NavbarSpacer />
           <NavbarSection>
