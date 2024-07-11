@@ -36,9 +36,7 @@ export const createLabel = actionClient
       }
     } finally {
       console.log("revalidating labels...")
-      // revalidateTag("labels")
       revalidatePath("/(platform)/(home)/[workspaceId]/[projectId]", "page")
 
-      // revalidatePath("/app/%28platform%29/%28home%29/%5BworkspaceId%5D/%5BprojectId%5D")
     }
   })
