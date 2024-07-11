@@ -132,10 +132,13 @@ export function LabelSelector({ labels, ...rest }: { labels: LabelsData }) {
                                   as={BorderlessInput}
                                   autoFocus
                                   className="w-full border-0 px-4 py-2.5 text-gray-900 focus:ring-0 sm:text-sm"
+                                  onBlur={() => {
+                                    setColorQuery("")
+                                  }}
+                                  onChange={(event) => {
+                                    setColorQuery(event.target.value)
+                                  }}
                                   placeholder="Select a color for your label"
-                                  onChange={(event) => setColorQuery(event.target.value)}
-                                  // Clear query when input gets out of focus
-                                  onBlur={() => setColorQuery("")}
                                 />
 
                                 <Divider />
