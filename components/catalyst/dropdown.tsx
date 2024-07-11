@@ -43,6 +43,7 @@ export function DropdownMenu({
           "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
           // Define grid at the menu level if subgrid is supported
           "supports-[grid-template-columns:subgrid]:grid supports-[grid-template-columns:subgrid]:grid-cols-[auto_1fr_1.5rem_0.5rem_auto]",
+          // Transitions
         )}
       />
     </Headless.Transition>
@@ -80,12 +81,7 @@ export function DropdownItem({
   return "href" in props ? (
     <Headless.MenuItem as={Link} {...props} className={classes} />
   ) : (
-    <Headless.MenuItem
-      as="button"
-      type="button"
-      {...props}
-      className={classes}
-    />
+    <Headless.MenuItem as="button" type="button" {...props} className={classes} />
   )
 }
 
@@ -189,10 +185,7 @@ export function DropdownShortcut({
     <Headless.Description
       as="kbd"
       {...props}
-      className={clsx(
-        className,
-        "col-start-5 row-start-1 flex justify-self-end",
-      )}
+      className={clsx(className, "col-start-5 row-start-1 flex justify-self-end")}
     >
       {(Array.isArray(keys) ? keys : keys.split("")).map((char, index) => (
         <kbd
