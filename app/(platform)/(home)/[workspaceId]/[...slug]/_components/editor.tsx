@@ -10,9 +10,12 @@ export default function Editor() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     dictionary: en,
+    domAttributes: {
+      inlineContent: {
+        class: "!prose !prose-sm dark:prose-invert !max-w-none ",
+      },
+    },
   })
-
-  console.log(editor.document)
 
   // Renders the editor instance using a React component.
   return (
