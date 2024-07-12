@@ -78,7 +78,7 @@ export default async function IssuePage({
             <main className="flex-1">
               <div className="py-8">
                 <div className="px-2 lg:px-0 xl:max-w-full">
-                  <div className="dark:border-white/10 xl:pr-16">
+                  <div className="dark:border-white/10 ">
                     <div>
                       <div>
                         <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:pb-2">
