@@ -14,8 +14,8 @@ export default function Editor() {
     dictionary: en,
 
     domAttributes: {
-      inlineContent: {
-        class: "!prose !prose-sm dark:prose-invert !max-w-none ",
+      blockContent: {
+        class: "prose max-w-none prose-sm dark:prose-invert",
       },
     },
   })
