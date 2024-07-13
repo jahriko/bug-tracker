@@ -1,29 +1,30 @@
 /* Base theme */
-.bn-container[data-theming-css-variables-demo][data-color-scheme] .bn-editor {
-	/* --bn-colors-editor-text: #222222;
-	--bn-colors-editor-background: #ffffff;
-	--bn-colors-menu-text: #ffffff;
-	--bn-colors-menu-background: #9b0000;
-	--bn-colors-tooltip-text: #ffffff;
-	--bn-colors-tooltip-background: #b00000;
-	--bn-colors-hovered-text: #ffffff;
-	--bn-colors-hovered-background: #b00000;
-	--bn-colors-selected-text: #ffffff;
-	--bn-colors-selected-background: #c50000;
-	--bn-colors-disabled-text: #9b0000;
-	--bn-colors-disabled-background: #7d0000;
-	--bn-colors-shadow: #640000;
-	--bn-colors-border: #870000;
-	--bn-colors-side-menu: #bababa;
-	--bn-color-highlight-colors: #ffffff;
-	--bn-border-radius: 4px;
-	--bn-font-family: Helvetica Neue, sans-serif; */
+.bn-container[data-theming-custom][data-color-scheme] .bn-editor {
 	padding-inline: 0px;
 }
 
-/* Changes for dark mode */
-/* .bn-container[data-theming-css-variables-demo][data-color-scheme="dark"] {
-	--bn-colors-editor-text: #ffffff;
-	--bn-colors-editor-background: #9b0000;
-	--bn-colors-side-menu: #ffffff;
-} */
+/* Override the data-level and data-prev-level styles */
+[data-level="1"],
+[data-level="2"],
+[data-level="3"],
+[data-prev-level="1"],
+[data-prev-level="2"],
+[data-prev-level="3"] {
+  --level: inherit !important;
+  --prev-level: inherit !important;
+}
+
+/* Override the specific heading styles */
+.prose .bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.prose .bn-block-outer:not([data-prev-type]) > .bn-block > .bn-block-content[data-content-type="heading"] {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+
+/* Ensure Tailwind prose styles are applied */
+.prose h1,
+.prose h2,
+.prose h3 {
+  font-size: revert !important;
+  font-weight: revert !important;
+}
