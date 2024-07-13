@@ -40,7 +40,7 @@ export default function Editor() {
   // Renders the editor instance using a React component.
   return (
     <BlockNoteView
-      data-theming-css-variables-demo
+      data-theming-custom
       editor={editor}
       formattingToolbar={false}
       sideMenu={false}
