@@ -1,9 +1,8 @@
 "use client" // this registers <Editor> as a Client Component
-import { BlockNoteView } from "@blocknote/mantine"
+import { BlockNoteView } from "@blocknote/ariakit"
 // import "@blocknote/ariakit/style.css"
-import { locales } from "@blocknote/core"
+import "@blocknote/ariakit/style.css"
 import "@blocknote/core/fonts/inter.css"
-import "@blocknote/mantine/style.css"
 import {
   BasicTextStyleButton,
   BlockTypeSelect,
@@ -22,17 +21,10 @@ export default function Editor() {
   const editor = useCreateBlockNote({
     trailingBlock: false,
     // defaultStyles: false,
-    dictionary: {
-      ...locales.en,
-      placeholders: {
-        ...locales.en.placeholders,
-        default: "Enter description..." || locales.en.placeholders.default,
-      },
-    },
 
     domAttributes: {
-      blockContent: {
-        class: "prose max-w-none prose-sm dark:prose-invert",
+      blockGroup: {
+        class: "prose prose-stone max-w-none dark:prose-invert",
       },
     },
   })
