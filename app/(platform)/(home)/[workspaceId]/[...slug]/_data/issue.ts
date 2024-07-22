@@ -13,7 +13,7 @@ export const getIssueByProject = async (user: User, projectId: string, id: strin
       const issue = getPrisma(user.userId).issue.findUniqueOrThrow({
         where: {
           project: {
-            identifier: projectId,
+            identifier: projectId.toUpperCase(),
           },
           id: Number(id),
         },
