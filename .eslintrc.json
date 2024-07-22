@@ -77,7 +77,7 @@
     "no-proto": "error",
     "no-restricted-properties": "error",
     "no-return-assign": "error",
-    "no-return-await": "error",
+    // "no-return-await": "error",
     "no-self-compare": "error",
     "no-sequences": "error",
     "no-throw-literal": "error",
@@ -95,31 +95,16 @@
     "require-await": "error",
     "wrap-iife": "error",
     "yoda": "error",
-
-    // stylistic
-    "camelcase": [
-      "warn",
-      {
-        "allow": ["^UNSAFE_"],
-        "ignoreDestructuring": false,
-        "properties": "never"
-      }
-    ],
     "consistent-this": ["warn", "that"],
     "func-name-matching": "error",
     "func-style": ["warn", "declaration", { "allowArrowFunctions": true }],
-    "lines-between-class-members": [
-      "error",
-      "always",
-      { "exceptAfterSingleLine": true }
-    ],
+    "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
     "max-depth": "warn",
     "max-lines": ["warn", 1000],
     "max-params": ["warn", 4],
     "no-array-constructor": "warn",
     "no-bitwise": "warn",
     "no-lonely-if": "error",
-    "@typescript-eslint/no-unsafe-member-access": "warn",
     "no-multi-assign": "warn",
     "no-nested-ternary": "warn",
     "no-new-object": "warn",
@@ -186,20 +171,6 @@
     "import/no-named-as-default-member": "error",
     "import/no-self-import": "error",
     "import/no-named-default": "error",
-    "import/no-useless-path-segments": ["error"],
-    // "import/order": [
-    //   "warn",
-    //   {
-    //     "groups": [
-    //       "builtin", // Node.js built-in modules
-    //       "external", // Packages
-    //       "internal", // Aliased modules
-    //       "parent", // Relative parent
-    //       "sibling", // Relative sibling
-    //       "index" // Relative index
-    //     ],
-    //     "newlines-between": "never"
-    //   }
-    // ]
+    "import/no-useless-path-segments": ["error"]
   }
 }

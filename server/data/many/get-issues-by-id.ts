@@ -24,7 +24,6 @@ export const getIssuesById = async (projectId: string) => {
       createdAt: true,
       title: true,
       status: true,
-      label: true,
       user: {
         select: {
           name: true,

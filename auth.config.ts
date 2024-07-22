@@ -2,30 +2,30 @@ import { getUserByEmail } from "@/lib/user"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import bcryptjs from "bcryptjs"
 import type { DefaultSession, NextAuthConfig } from "next-auth"
+import type { Adapter } from "next-auth/adapters"
+import "next-auth/jwt"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
+import { ErrorCode } from "./lib/ErrorCode"
 import prisma from "./lib/prisma"
 
 declare module "next-auth" {
   interface Session {
     user: {
       userId: string
-      lastWorkspace: string
+      lastWorkspaceUrl: string
     } & DefaultSession["user"]
   }
 
   interface User {
-    lastWorkspace: string
+    lastWorkspaceUrl: string | null
   }
 }
-
-// The `JWT` interface can be found in the `next-auth/jwt` submodule
-import { JWT } from "next-auth/jwt"
 
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
-    lastWorkspace: string
+    lastWorkspaceUrl: string | null
   }
 }
 
@@ -35,11 +35,9 @@ export const authConfig = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
   },
   debug: process.env.NODE_ENV === "development",
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   callbacks: {
     session({ session, token }) {
       if (token.sub && session.user) {
@@ -49,7 +47,7 @@ export const authConfig = {
       if (session.user) {
         session.user.name = token.name ?? null
         session.user.email = token.email ?? ""
-        session.user.lastWorkspace = token.lastWorkspace as string
+        session.user.lastWorkspaceUrl = token.lastWorkspaceUrl!
       }
       return session
     },
@@ -57,7 +55,7 @@ export const authConfig = {
       if (user) {
         token.name = user.name ?? ""
         token.email = user.email ?? ""
-        token.lastWorkspace = user.lastWorkspace
+        token.lastWorkspaceUrl = user.lastWorkspaceUrl
       }
       return token
     },
@@ -65,27 +63,27 @@ export const authConfig = {
   providers: [
     Credentials({
       async authorize(credentials) {
-        console.log("I'm at authorize function!")
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials)
 
-        if (!parsedCredentials.success) {
-          console.log("Invalid credentials")
-          return null
+        if (parsedCredentials.error) {
+          console.error(`For some reason credentials are missing.`)
+          throw new Error(ErrorCode.InternalServerError)
         }
         const { email, password } = parsedCredentials.data
 
         const user = await getUserByEmail(email)
 
-        if (!user || !user.hashedPassword) {
-          return null
+        if (!user.hashedPassword) {
+          console.error("User not found.")
+          throw new Error(ErrorCode.UserNotFound)
         }
 
         const passwordsMatch = await bcryptjs.compare(password, user.hashedPassword)
 
         if (!passwordsMatch) {
-          throw new Error("Invalid password")
+          throw new Error(ErrorCode.IncorrectPassword)
         }
 
         return user

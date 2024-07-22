@@ -1,20 +1,21 @@
+import "server-only"
+
 import { auth } from "@/auth"
 import { Prisma } from "@prisma/client"
-import { redirect } from "next/navigation"
+import { cache } from "react"
 
-export async function getSession() {
+export const getCurrentUser = cache(async () => {
   try {
     const session = await auth()
 
     if (!session) {
-      console.error("No session found. Redirecting to login.")
-      return redirect("/login")
+      throw new Error("No session found")
     }
 
-    return session.user
+    return session?.user
   } catch (error) {
-    throw new Error("Error getting current user")
+    throw new Error("Failed to get logged user")
   }
-}
+})
 
-export type User = Prisma.PromiseReturnType<typeof getSession>
+export type User = Prisma.PromiseReturnType<typeof getCurrentUser>

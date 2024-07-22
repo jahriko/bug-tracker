@@ -22,7 +22,7 @@ export const createWorkspace = authActionClient
           id: userId,
         },
         data: {
-          lastWorkspace: createdWorkspace.name,
+          lastWorkspaceUrl: createdWorkspace.name,
         },
       })
 

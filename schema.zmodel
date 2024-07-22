@@ -1,0 +1,343 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Status {
+  BACKLOG
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  NO_PRIORITY
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Account {
+  id                String  @id() @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id() @default(cuid())
+  sessionToken String   @unique()
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id               String            @id() @default(cuid())
+  name             String
+  email            String            @unique()
+  emailVerified    DateTime?
+  image            String?
+  hashedPassword   String
+  lastWorkspaceUrl String?
+  accounts         Account[]
+  sessions         Session[]
+  ownedWorkspaces  Workspace[]       @relation("WorkspaceOwner")
+  workspaceMembers WorkspaceMember[]
+  projectMembers   ProjectMember[]
+  assignedIssues   Issue[]           @relation("AssignedUser")
+  issues           Issue[]
+  logs             IssueActivity[]
+  comments         Comment[]
+
+  // can be created by anyone, even not logged in
+  @@allow('create', true)
+
+  // can be read by users sharing any workspace
+  @@allow('read', workspaceMembers?[workspace.members?[user == auth()]])
+
+  // full access by oneself
+  @@allow('all', auth() == this)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique()
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Workspace {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  description String?           // Optional description of the workspace
+  createdAt   DateTime          @default(now())
+  private     Boolean           @default(true)
+  url         String            @unique
+  members     WorkspaceMember[] // Relationship to users in the workspace
+  projects    Project[]         // Relationship to projects within the workspace
+
+  owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String            @default(auth().id)
+
+  //everyone can read the workspace if it's not private
+  @@allow('read', !private)
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // everyone can create a workspace
+  @@allow('create', true)
+
+  // any user in the org can read the org
+  @@allow('read', members?[user == auth()])
+
+  // workspace admin can update and delete
+  @@allow('update',  members?[user == auth() && role == 'ADMIN'])
+
+  // owner can do all operations
+  @@allow('all', owner == auth())
+}
+
+model WorkspaceMember {
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId Int
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  role        Role      @default(MEMBER)
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // owner/admin can create/update/delete
+  @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
+
+  // user can read members of a workspace if they're a member of it
+  @@allow('read', workspace.members?[user == auth()])
+
+  @@id([workspaceId, userId])
+}
+
+enum Role {
+  ADMIN
+  PROJECT_MANAGER
+  MEMBER
+}
+
+model Project {
+  id          Int             @id() @default(autoincrement())
+  identifier  String          @unique
+  title       String
+  updatedAt   DateTime        @updatedAt()
+  createdAt   DateTime        @default(now())
+  archivedAt  DateTime?
+  members     ProjectMember[]
+  issues      Issue[]
+
+  workspace   Workspace?      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId Int?
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // can be read by members of the project or everyone if it's not private 
+  @@allow('read', members?[user == auth()] || !workspace.private)
+
+  // project manager can create/update a project
+  @@allow('create,update', workspace.members?[user == auth() && role == 'PROJECT_MANAGER'])
+
+  // Owner and admin can use all operations on a project 
+  @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && (role == 'ADMIN')])
+
+
+  @@index([archivedAt])
+}
+
+model ProjectMember {
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  // require login
+  @@deny('all', auth() == null)
+
+  // members can be modified by the manager, owner, or admin
+  @@allow('all', project.workspace.owner == auth() || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+
+  // can be read by members within the project or everyone if it's not private
+  @@allow('read', project.members?[user == auth()] || !project.workspace.private)
+
+
+  @@id([projectId, userId])
+}
+
+model Label {
+  id     Int          @id() @default(autoincrement())
+  name   String
+  color  String
+
+  issues IssueLabel[]
+
+  // can be read by everyone
+  @@allow('read', true)
+
+  // require login
+  @@deny('all', auth() == null)
+}
+
+model IssueLabel {
+  issueId Int
+  labelId Int
+  issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label   Label @relation(fields: [labelId], references: [id])
+
+  @@id([issueId, labelId])
+
+  // can be read by everyone if the project is not private
+  @@allow('read', !issue.project.workspace.private)
+}
+
+model Issue {
+  id             Int             @id() @default(autoincrement())
+  title          String
+  status         Status          @default(BACKLOG)
+  priority       Priority        @default(NO_PRIORITY)
+  description    String
+  assignedUser   User?           @relation(fields: [assignedUserId], references: [id], name: "AssignedUser")
+  assignedUserId String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt()
+  deletedAt      DateTime?       // Soft delete field
+  archivedAt     DateTime?
+  owner          User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  ownerId        String?         @default(auth().id)
+  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      Int
+  labels         IssueLabel[]
+  activityLogs   IssueActivity[]
+  comments       Comment[]
+
+
+  // can be read by members of the project or if it's not private
+  @@allow('read', check(project) || !project.workspace.private || auth() == owner)
+
+  // can be created by the member who created the issue, admin, and project manager
+  @@allow('create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')] )
+
+  // update cannot change owner
+  @@deny('update', future().owner != owner)
+
+  @@index([projectId, assignedUserId])
+  @@index([archivedAt])
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete field
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  issue     Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId   Int
+  parent    Comment?  @relation("ChildComments", fields: [parentId], references: [id])
+  parentId  Int?
+  children  Comment[] @relation("ChildComments")
+
+  @@index([issueId])
+
+  //temporary
+  @@allow('all', true)
+}
+
+model IssueActivity {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  issueId       Int
+
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String   @default(auth().id)
+
+  issueActivity String
+
+  @@delegate(issueActivity)
+
+  //temporary
+  @@allow('all', true)
+
+  @@index([issueId, createdAt])
+
+  // can be read by everyone if the project is not private
+  // @@allow('read', !issue.project.workspace.private)
+
+  // can be created by the user who created the issue, admin, and project manager
+  // @@allow('create', issue.project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+}
+
+model StatusActivity extends IssueActivity {
+  statusName String
+}
+
+model PriorityActivity extends IssueActivity {
+  priorityName String
+}
+
+model TitleActivity extends IssueActivity {
+  title String
+}
+
+model DescriptionActivity extends IssueActivity {
+  body String
+}
+
+model AssignedActivity extends IssueActivity {
+  assignedUsername  String
+  assignedUserImage String
+}
+
+model LabelActivity extends IssueActivity {
+  labelName  String
+  labelColor String
+}
+
+model CommentActivity extends IssueActivity {
+  commentId Int
+  // require login
+  @@deny('all', auth() == null)
+
+  // can be read by everyone if the project is not private
+  @@allow('read', true && !issue.project.workspace.private)
+
+  // can be created by the user within the workspace
+  @@allow('create', issue.project.workspace.members?[user == auth()])
+
+  // can be updated by the user who created the comment or admin
+  @@allow('update', auth() == user || issue.project.workspace.members?[user == auth() && role == 'ADMIN'])
+}
+
+
+

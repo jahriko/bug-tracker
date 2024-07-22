@@ -1,3 +1,4 @@
+"use client"
 import * as Headless from "@headlessui/react"
 import clsx from "clsx"
 import type React from "react"
@@ -37,13 +38,7 @@ export function FieldGroup({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      data-slot="control"
-      {...props}
-      className={clsx(className, "space-y-8")}
-    />
-  )
+  return <div data-slot="control" {...props} className={clsx(className, "space-y-8")} />
 }
 
 export function Field({

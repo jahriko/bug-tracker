@@ -1,0 +1,74 @@
+/* Base theme */
+.bn-container[data-theming-custom][data-color-scheme] .bn-editor {
+	padding-inline: 0px;
+}
+
+/* Override the data-level and data-prev-level styles */
+[data-level="1"],
+[data-level="2"],
+[data-level="3"],
+[data-prev-level="1"],
+[data-prev-level="2"],
+[data-prev-level="3"] {
+  --level: inherit !important;
+  --prev-level: inherit !important;
+}
+
+/* Override the specific heading styles */
+.prose .bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.prose .bn-block-outer:not([data-prev-type]) > .bn-block > .bn-block-content[data-content-type="heading"] {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+
+input[type="checkbox"] {
+	border-radius: 30%;
+}
+
+/* Ensure Tailwind prose styles are applied */
+.prose h1,
+.prose h2,
+.prose h3 {
+  font-size: revert !important;
+  font-weight: revert !important;
+}
+
+
+.slash-menu {
+  z-index: 9999;
+
+  background-color: white;
+  border: 1px solid lightgray;
+  border-radius: 2px;
+  box-shadow: 0 0 8px #dddddd;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  padding: 8px;
+
+  top: 8px;
+}
+
+.slash-menu-item {
+  background-color: white;
+  border: 1px solid lightgray;
+  border-radius: 2px;
+  box-shadow: 0 0 4px #dddddd;
+
+  cursor: pointer;
+
+  font-size: 16px;
+
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+
+  padding: 8px;
+}
+
+.slash-menu-item:hover,
+.slash-menu-item.selected {
+  background-color: lightgray;
+}

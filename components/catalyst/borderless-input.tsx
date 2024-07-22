@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import * as Headless from "@headlessui/react"
 import { clsx } from "clsx"
@@ -12,19 +13,10 @@ export const BorderlessInput = forwardRef(function Input(
     ...props
   }: {
     className?: string
-    type?:
-      | "email"
-      | "number"
-      | "password"
-      | "search"
-      | "tel"
-      | "text"
-      | "url"
-      | DateType
-  } & Omit<Headless.InputProps, "className" | "value" | "defaultValue">,
+    type?: "email" | "number" | "password" | "search" | "tel" | "text" | "url" | DateType
+  } & Omit<Headless.InputProps, "className" | "defaultValue">,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
-
   return (
     <span
       className={clsx([
