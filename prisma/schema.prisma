@@ -170,8 +170,8 @@ model IssueLabel {
     @@id([issueId, labelId])
 }
 
-/// @@allow('read', project.members?[user == auth()] || !project.workspace.private)
-/// @@allow('read,create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+/// @@allow('read', check(project) || !project.workspace.private || auth() == owner)
+/// @@allow('create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
 /// @@deny('update', future().owner != owner)
 model Issue {
     id Int @id() @default(autoincrement())

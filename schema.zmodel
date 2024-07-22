@@ -238,14 +238,11 @@ model Issue {
   comments       Comment[]
 
 
-  // can be read by members of the project  
-  @@allow('read', project.members?[user == auth()])
-
-  // can be read by everyone if not private
-  @@allow('read', !project.workspace.private)
+  // can be read by members of the project or if it's not private
+  @@allow('read', check(project) || !project.workspace.private || auth() == owner)
 
   // can be created by the member who created the issue, admin, and project manager
-  @@allow('read,create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')] )
+  @@allow('create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')] )
 
   // update cannot change owner
   @@deny('update', future().owner != owner)
