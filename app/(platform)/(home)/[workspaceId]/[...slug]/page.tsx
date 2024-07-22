@@ -13,7 +13,8 @@ import { Textarea } from "@/components/catalyst/textarea"
 import { getCurrentUser } from "@/lib/get-current-user"
 import { LockClosedIcon } from "@heroicons/react/24/outline"
 import { DateTime } from "luxon"
-import { notFound, redirect } from "next/navigation"
+import dynamic from "next/dynamic"
+import { RedirectType, notFound, redirect } from "next/navigation"
 import ActivityFeed from "./_components/activity-feed"
 import { EditableTitle } from "./_components/editable-title"
 import {
@@ -22,23 +23,21 @@ import {
   StatusProperty,
 } from "./_components/issue-details"
 import { getActivities, getIssueByProject } from "./_data/issue"
-import { checkAndRedirect, parseIssueCode } from "./helpers"
-import dynamic from "next/dynamic";
+import { parseIssueCode, slugify } from "./helpers"
 
 const Editor = dynamic(() => import("./_components/editor"), { ssr: false })
-
 
 export default async function IssuePage({
   params,
 }: {
   params: {
     slug: string[]
+    workspaceId: string
   }
 }) {
-  const { slug } = params
-
-  if (slug.length > 2) {
-    notFound()
+  const { slug, workspaceId } = params
+  if (slug.length > 3 || slug.length <= 1) {
+    return notFound()
   }
 
   const session = await getCurrentUser()
@@ -46,18 +45,20 @@ export default async function IssuePage({
     redirect("/login")
   }
 
-  const [projectIdentifier, title] = slug
-  const [projectId, issueId] = parseIssueCode(projectIdentifier)
+  const [, issueCode, title] = slug
+  const [projectId, issueId] = parseIssueCode(issueCode)
 
-  console.log("ProjectID:", projectId)
-  console.log("IssueID:", issueId)
   const issue = await getIssueByProject(session, projectId, issueId)
   if (!issue) {
     notFound()
   }
 
   // Self-healing magic ✨
-  checkAndRedirect(title, issue, projectId, issueId)
+  const issueSlug = slugify(issue.title)
+  if (issueSlug !== title) {
+    const redirectUrl = `/${workspaceId}/issue/${projectId}-${issueId}/${issueSlug}`
+    redirect(redirectUrl, RedirectType.replace)
+  }
 
   const activities = await getActivities(session.userId, issueId)
 
@@ -78,7 +79,7 @@ export default async function IssuePage({
             <main className="flex-1">
               <div className="py-8">
                 <div className="px-2 lg:px-0 xl:max-w-full">
-                  <div className="dark:border-white/10 ">
+                  <div className="dark:border-white/10">
                     <div>
                       <div>
                         <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:pb-2">
