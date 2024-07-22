@@ -15,8 +15,7 @@ const schema = z.object({
 
 export const updateStatus = authActionClient
   .schema(schema)
-  .action(async ({ parsedInput: { issueId, status, lastActivity }, ctx: { userId} }) => {
-    console.log("status name:", status)
+  .action(async ({ parsedInput: { issueId, status, lastActivity }, ctx: { userId } }) => {
     await getPrisma(userId).$transaction(async (tx) => {
       await tx.issue.update({
         where: {
@@ -33,12 +32,12 @@ export const updateStatus = authActionClient
             lastActivity.activityType === "StatusActivity" ? lastActivity.activityId : -1,
         },
         update: {
-          name: status,
+          statusName: status,
         },
         create: {
           userId,
           issueId,
-          name: status,
+          statusName: status,
         },
       })
 

@@ -302,11 +302,11 @@ model IssueActivity {
 }
 
 model StatusActivity extends IssueActivity {
-  name String
+  statusName String
 }
 
 model PriorityActivity extends IssueActivity {
-  name String
+  priorityName String
 }
 
 model TitleActivity extends IssueActivity {

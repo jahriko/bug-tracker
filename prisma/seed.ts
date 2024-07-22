@@ -34,6 +34,7 @@ async function main() {
         { name: "Help Wanted", color: "purple" },
         { name: "Good First Issue", color: "orange" },
       ]
+      
       const labels = await tx.label.createManyAndReturn({ data: labelData })
       const labelIds = labels.map((label) => label.id)
 
@@ -261,7 +262,7 @@ async function main() {
                   create: {
                     userId: getProjectMember.userId,
                     issueId: args.where.id!,
-                    name: args.data[field] as string,
+                    priorityName: args.data[field] as string,
                   },
                 })
                 break
@@ -270,7 +271,7 @@ async function main() {
                   data: {
                     userId: getProjectMember.userId,
                     issueId: args.where.id!,
-                    name: args.data[field] as string,
+                    statusName: args.data[field] as string,
                   },
                 })
                 break

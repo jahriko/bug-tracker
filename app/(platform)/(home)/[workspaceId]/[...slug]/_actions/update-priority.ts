@@ -35,12 +35,12 @@ export const updatePriority = authActionClient
                 : -1,
           },
           update: {
-            name: priority,
+            priorityName: priority,
           },
           create: {
             userId,
             issueId,
-            name: priority,
+            priorityName: priority,
           },
         })
 

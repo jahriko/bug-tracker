@@ -240,14 +240,14 @@ model IssueActivity {
 /// @@allow('all', true)
 model StatusActivity {
     id Int @id()
-    name String
+    statusName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 /// @@allow('all', true)
 model PriorityActivity {
     id Int @id()
-    name String
+    priorityName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
