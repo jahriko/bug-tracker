@@ -10,7 +10,7 @@ export const getIssueByProject = async (user: User, projectId: string, id: strin
   return unstable_cache(
     () => {
       console.log("Calling getIssueByProject function...")
-      const issue = getPrisma(user.userId).issue.findUniqueOrThrow({
+      const issue = getPrisma(user.userId).issue.findUnique({
         where: {
           project: {
             identifier: projectId.toUpperCase(),
