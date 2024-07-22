@@ -106,7 +106,7 @@ function IssueTable({ issues, workspaceId }: { issues: any[]; workspaceId: strin
       <TableBody>
         {issues.map((issue) => (
           <TableRow
-            href={`/${workspaceId}/${issue.project.title}/${issue.id}`}
+            href={`/${workspaceId}/issue/${issue.project.title}-${issue.id}`}
             key={issue.id}
           >
             <TableCell>
