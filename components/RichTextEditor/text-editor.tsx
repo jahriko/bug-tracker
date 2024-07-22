@@ -86,7 +86,7 @@ export default function Editor() {
         <RichTextPlugin
           ErrorBoundary={LexicalErrorBoundary}
           contentEditable={
-            <ContentEditable className="prose relative min-h-[100px] resize-none border-none text-sm font-medium text-gray-950 outline-0 dark:prose-invert focus:outline-none focus:ring-0" />
+            <ContentEditable className="relative min-h-[100px] resize-none border-none font-medium outline-0 dark:prose-invert focus:outline-none focus:ring-0" />
           }
           placeholder={<Placeholder />}
         />
