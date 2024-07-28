@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 "use client"
 import { Avatar } from "@/components/catalyst/avatar"
+import Editor from "@/components/lexical_editor/editor"
+import { $convertToMarkdownString, TRANSFORMERS } from "@lexical/markdown"
+import { EditorState } from "lexical"
 import {
   Ban,
   CheckCircle2,
@@ -10,7 +13,10 @@ import {
   SignalLow,
   SignalMedium,
 } from "lucide-react"
-import { useMemo } from "react"
+import { useAction } from "next-safe-action/hooks"
+import { debounce } from "radash"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { updateDescription } from "../_actions/update-description"
 import { updatePriority } from "../_actions/update-priority"
 import { updateStatus } from "../_actions/update-status"
 import { CustomListbox, CustomListboxOption } from "./custom-listbox"
@@ -68,7 +74,9 @@ export function StatusProperty({ issueId, value, lastActivity }: PropertyProps<S
       },
       {
         value: "DONE",
-        icon: <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />,
+        icon: (
+          <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />
+        ),
         label: "Done",
       },
       {
@@ -94,6 +102,54 @@ export function StatusProperty({ issueId, value, lastActivity }: PropertyProps<S
   )
 }
 
+export function DescriptionField({
+  issueId,
+  value,
+  lastActivity,
+}: PropertyProps<string>) {
+  const [description, setDescription] = useState(value ?? "")
+  const debouncedUpdateRef = useRef<ReturnType<typeof debounce>>()
+  const { execute, result } = useAction(updateDescription)
+
+  const updateFunc = useCallback(
+    (currentDescription: string) => {
+      try {
+        console.log("Debounce update description: ", currentDescription)
+        execute({
+          issueId,
+          description: currentDescription,
+          lastActivity,
+        })
+
+        if (result.serverError) {
+          console.log("Server error: ", result.serverError)
+        }
+      } catch (error) {
+        handleServerError(error as Error)
+      }
+    },
+    [issueId, lastActivity, result.serverError, execute],
+  )
+
+  useEffect(() => {
+    debouncedUpdateRef.current = debounce({ delay: 1000 }, updateFunc)
+    return () => {
+      debouncedUpdateRef.current?.cancel()
+    }
+  }, [updateFunc])
+
+  const handleChange = useCallback((editorState: EditorState) => {
+    editorState.read(() => {
+      const newDescription = $convertToMarkdownString(TRANSFORMERS)
+      setDescription(newDescription)
+      if (debouncedUpdateRef.current) {
+        debouncedUpdateRef.current(newDescription)
+      }
+    })
+  }, [])
+
+  return <Editor initialContent={description} onChange={handleChange} />
+}
 export function PriorityProperty({
   issueId,
   value,
