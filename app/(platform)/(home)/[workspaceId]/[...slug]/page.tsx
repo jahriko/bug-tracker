@@ -15,8 +15,17 @@ import { LockClosedIcon } from "@heroicons/react/24/outline"
 import { DateTime } from "luxon"
 import dynamic from "next/dynamic"
 import { RedirectType, notFound, redirect } from "next/navigation"
-import ActivityFeed from "./_components/activity-feed"
-import { EditableTitle } from "./_components/editable-title"
+import {
+  ActivityFeed,
+  ActivityItem,
+  AssignedActivity,
+  CommentActivity,
+  DescriptionActivity,
+  LabelActivity,
+  PriorityActivity,
+  StatusActivity,
+  TitleActivity,
+} from "./_components/activity-feed"
 import {
   AssigneeProperty,
   PriorityProperty,
@@ -187,7 +196,44 @@ export default async function IssuePage({
                           <Divider className="pb-4" />
                           <div className="pt-6">
                             {/* Activity feed*/}
-                            <ActivityFeed activities={activities} />
+                            <ActivityFeed activities={activities} issue={issue}>
+                              <ActivityItem>
+                                <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
+                                  <Avatar
+                                    alt={issue.owner?.name ?? "User"}
+                                    className="size-5"
+                                    src={issue.owner?.image ?? ""}
+                                  />
+                                </div>
+                                <div className="flex gap-x-2">
+                                  <div className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
+                                    <span className="font-medium text-gray-900">{issue.owner?.name}</span> created this
+                                    issue{" "}
+                                  </div>
+                                  <span>⋅</span>
+                                  <time
+                                    className="flex-none py-0.5 text-xs leading-5 text-gray-500"
+                                    dateTime={new Date(issue.createdAt).toISOString()}
+                                  >
+                                    {timeAgo(DateTime.fromISO(new Date(issue.createdAt).toISOString()))}
+                                  </time>
+                                </div>
+                              </ActivityItem>
+
+                              {activities.map((item, itemIdx) => (
+                                <ActivityItem key={item.id} itemIdx={itemIdx}>
+                                  {item.issueActivity === "TitleActivity" && <TitleActivity item={item} />}
+                                  {item.issueActivity === "DescriptionActivity" && <DescriptionActivity item={item} />}
+                                  {item.issueActivity === "StatusActivity" && <StatusActivity item={item} />}
+                                  {item.issueActivity === "PriorityActivity" && <PriorityActivity item={item} />}
+                                  {item.issueActivity === "AssignedActivity" && <AssignedActivity item={item} />}
+                                  {item.issueActivity === "LabelActivity" && <LabelActivity item={item} />}
+                                  {item.issueActivity === "CommentActivity" && (
+                                    <CommentActivity comments={issue.comments} item={item} />
+                                  )}
+                                </ActivityItem>
+                              ))}
+                            </ActivityFeed>
                             <div className="mt-6">
                               <div className="flex space-x-3">
                                 <div className="min-w-0 flex-1">
