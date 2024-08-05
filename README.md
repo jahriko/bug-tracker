@@ -4,11 +4,11 @@ I started this project because I was tired of watching tutorials and wanted to a
 
 I didn't need another bug tracker. I needed playground to make mistakes, break things, and figure out how all these fancy technologies actually work together. This project has been my late-night companion, weekend obsession, and the cause of both frustrating debug sessions and A-ha! moments.
 
-It's not perfect, probably not even "production-ready," and definitely not meant to compete with existing trackers out there, but it's mine — a hands-on learning exercise where I've learned more about web development than I ever did from tutorials.
+It's not perfect, and definitely not meant to compete with existing trackers out there, but it's mine, and I've learned more about building this than I ever did from tutorials.
 
 Feel free to poke around, maybe even learn something along with me.
 
-I should mention that much of the design and functionality is inspired by Linear and YouTrack. They've got some seriously cool ones, and I thought recreating aspects of them would be a great way to learn.
+I should mention that much of the design and functionality is inspired by Linear and Jetbrains YouTrack. They've got some seriously cool ones, and I thought recreating aspects of them would be a great way to learn.
 
 ## Technologies
 
@@ -76,6 +76,8 @@ I should mention that much of the design and functionality is inspired by Linear
 ## Project Structure
 
 - `app/`: Next.js app router and page components
+  - `_components/`: Shared components specific to routes
+  - `_actions/`: Server actions for routes
 - `components/`: Reusable React components
 - `lib/`: Utility functions and shared logic
 - `prisma/`: Prisma schema and migrations
