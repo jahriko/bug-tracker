@@ -44,13 +44,13 @@ export function CustomListbox<T>({
           as="span"
           className={clsx([
             // Basic layout
-            "relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[2.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+            "relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[1.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
             // Set minimum height for when no value is selected
-            "min-h-11 sm:min-h-9",
+            "min-h-9",
             // Horizontal padding
             "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.3)-1px)] sm:pl-[calc(theme(spacing.3)-1px)]",
             // Typography
-            "text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white sm:text-xs/6 forced-colors:text-[CanvasText]",
+            "text-left text-xs/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white forced-colors:text-[CanvasText]",
             // Border
             "border border-zinc-950/10 group-data-[active]:border-zinc-950/20 group-data-[hover]:border-zinc-950/20 dark:border-white/10 dark:group-data-[active]:border-white/20 dark:group-data-[hover]:border-white/20",
             // Background color
@@ -61,34 +61,35 @@ export function CustomListbox<T>({
             "group-data-[disabled]:border-zinc-950/20 group-data-[disabled]:opacity-100 group-data-[disabled]:dark:border-white/15 group-data-[disabled]:dark:bg-white/[2.5%] dark:data-[hover]:group-data-[disabled]:border-white/15",
           ])}
           options={options}
-          placeholder={placeholder}
+          placeholder={
+            placeholder ? (
+              <span className="block truncate text-zinc-500">{placeholder}</span>
+            ) : null
+          }
         />
       </Headless.ListboxButton>
-      <Headless.Transition
-        leave="transition-opacity duration-100 ease-in pointer-events-none"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
+
+      <Headless.ListboxOptions
+        anchor="bottom start"
+        className={clsx(
+          // Anchor positioning
+          // "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:-1.375rem]",
+          // Base styles
+          "isolate mt-1.5 w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl p-1",
+          // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
+          "outline outline-1 outline-transparent focus:outline-none",
+          // Handle scrolling when menu won't fit in viewport
+          "overflow-y-scroll overscroll-contain",
+          // Popover background
+          "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
+          // Shadows
+          "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
+          // Transitions
+          "transition-opacity duration-100 ease-in data-[leave]:pointer-events-none data-[closed]:data-[enter]:opacity-100 data-[closed]:data-[leave]:opacity-0",
+        )}
       >
-        <Headless.ListboxOptions
-          anchor="bottom start"
-          className={clsx(
-            // Anchor positioning
-            // "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:-1.375rem]",
-            // Base styles
-            "isolate mt-1.5 w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl p-1",
-            // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
-            "outline outline-1 outline-transparent focus:outline-none",
-            // Handle scrolling when menu won't fit in viewport
-            "overflow-y-scroll overscroll-contain",
-            // Popover background
-            "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
-            // Shadows
-            "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
-          )}
-        >
-          {options}
-        </Headless.ListboxOptions>
-      </Headless.Transition>
+        {options}
+      </Headless.ListboxOptions>
     </Headless.Listbox>
   )
 }

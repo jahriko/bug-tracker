@@ -1,100 +1,151 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import { Avatar } from "@/components/catalyst/avatar"
-import { BorderlessInput } from "@/components/catalyst/borderless-input"
-import { BorderlessTextarea } from "@/components/catalyst/borderless-textarea"
 import { Button } from "@/components/catalyst/button"
 import { Dialog, DialogActions, DialogBody } from "@/components/catalyst/dialog"
 import { Field } from "@/components/catalyst/fieldset"
-import { ListboxLabel } from "@/components/catalyst/listbox"
+import { Input } from "@/components/catalyst/input"
+import { MdiSignalCellular1, MdiSignalCellular2, MdiSignalCellular3, TablerLineDashed } from "@/components/icons"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { IssueSchema } from "@/lib/validations.js"
 import { LabelsData } from "@/server/data/many/get-labels"
 import { UsersData } from "@/server/data/many/get-users"
-import {
-  Ban,
-  CheckCircle2,
-  CircleDashed,
-  CircleDot,
-  Loader2,
-  MinusCircle,
-  PauseCircle,
-  SignalHigh,
-  SignalLow,
-  SignalMedium,
-  User2,
-} from "lucide-react"
+import { BlockNoteEditor } from "@blocknote/core"
+import { PencilSquareIcon, Square3Stack3DIcon } from "@heroicons/react/16/solid"
+import { $convertToMarkdownString } from "@lexical/markdown"
+import { Project } from "@prisma/client"
+import { Ban, CheckCircle2, CircleDashed, Loader2, User2 } from "lucide-react"
+import dynamic from "next/dynamic"
 import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { createIssue } from "../_actions/create-issue"
 import { CustomListbox, CustomListboxLabel, CustomListboxOption } from "./custom-listbox"
 import { LabelSelector } from "./label-selector"
 
+const Editor = dynamic(() => import("@/components/lexical_editor/editor"), {
+  ssr: false,
+})
+
+const priorityOptions = [
+  {
+    value: "NO_PRIORITY",
+    icon: <TablerLineDashed aria-hidden="true" className="size-[1.10rem] text-gray-700" />,
+    label: "No Priority",
+  },
+  {
+    value: "HIGH",
+    icon: <MdiSignalCellular3 aria-hidden="true" className="size-[1.10rem] text-gray-700" />,
+    label: "High",
+  },
+  {
+    value: "MEDIUM",
+    icon: <MdiSignalCellular2 aria-hidden="true" className="size-[1.10rem] text-gray-700" />,
+    label: "Medium",
+  },
+  {
+    value: "LOW",
+    icon: <MdiSignalCellular1 aria-hidden="true" className="size-[1.10rem] text-gray-700" />,
+    label: "Low",
+  },
+]
+
+const statusOptions = [
+  {
+    value: "BACKLOG",
+    icon: <CircleDashed className="size-[1.10rem] text-zinc-500" />,
+    label: "Backlog",
+  },
+  {
+    value: "IN_PROGRESS",
+    icon: <Loader2 className="size-[1.10rem] text-yellow-700 hover:text-black" />,
+    label: "In Progress",
+  },
+  {
+    value: "DONE",
+    icon: <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />,
+    label: "Done",
+  },
+  {
+    value: "CANCELLED",
+    icon: <Ban aria-hidden="true" className="size-[1.10rem] text-red-700" />,
+    label: "Cancelled",
+  },
+]
+
 export default function NewIssueDialog({
   assignees,
   labels,
   hasProjects,
+  projects,
 }: {
   assignees: UsersData
   labels: LabelsData
   hasProjects: boolean
+  projects: Project[]
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
-  const projectName = pathname.split("/")[2] || ""
   const router = useRouter()
+  const editorRef = useRef<BlockNoteEditor | null>(null)
+  // const { execute, result } = useAction(createIssue)
 
   const form = useForm<IssueSchema>({
     defaultValues: {
       title: "",
       description: "",
-      status: "backlog",
-      projectName,
+      projectId: projects[0]?.id,
+      status: "BACKLOG",
+      priority: "NO_PRIORITY",
+      labels: [],
     },
   })
 
-  async function onSubmit(data: IssueSchema) {
-    const res = await createIssue(data)
+  const handleOpenDialog = () => {
+    if (!hasProjects) {
+      toast.info("No Projects Found", {
+        description: "Create a project first before creating an issue",
+        action: {
+          label: "Create Project",
+          onClick: () => {
+            router.push(`${pathname}/create-project`)
+          },
+        },
+      })
+      return
+    }
+    setIsOpen(true)
+  }
 
-    const { data: resData, validationErrors, serverError } = res
+  const onSubmit = async (data: IssueSchema) => {
+    const result = await createIssue(data)
 
-    if (serverError) {
-      return toast.error(serverError)
+    if (!result) {
+      toast.error("Something went wrong")
+      return
     }
 
-    if (resData?.success) {
+    if (result.serverError) {
+      toast.error(result.serverError)
+    }
+
+    if (result.validationErrors) {
+      console.error(JSON.stringify(result.validationErrors, null, 2))
+      return
+    }
+
+    if (result.data) {
       setIsOpen(false)
       form.reset()
-      return toast.success("Issue created", {
-        description: data.title,
-      })
-    } else {
-      return toast.error(resData?.error.message)
+      toast.success("Issue created", { description: data.title })
     }
   }
 
   return (
     <>
-      <Button
-        color="zinc"
-        onClick={(e) => {
-          e.preventDefault()
-          if (!hasProjects) {
-            return toast.info("No Projects Found", {
-              description: "Create a project first before creating an issue",
-              action: {
-                label: "Create Project",
-                onClick: () => {
-                  router.push(`${pathname}/create-project`)
-                },
-              },
-            })
-          }
-
-          setIsOpen(true)
-        }}
-      >
+      <Button onClick={handleOpenDialog}>
+        <PencilSquareIcon className="size-4" />
         New Issue
       </Button>
       <Dialog onClose={setIsOpen} open={isOpen} size="3xl">
@@ -110,10 +161,11 @@ export default function NewIssueDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <BorderlessInput
+                            <Input
                               {...field}
                               aria-label="Issue Title"
-                              className="font-medium [&>*]:text-lg"
+                              borderless
+                              className="font-semibold [&>*]:px-0 [&>*]:text-lg [&>*]:leading-none"
                               name="title"
                               placeholder="Issue Title"
                             />
@@ -126,24 +178,29 @@ export default function NewIssueDialog({
                     <FormField
                       control={form.control}
                       name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <BorderlessTextarea
-                              {...field}
-                              aria-label="Description"
-                              name="description"
-                              placeholder="Description"
-                              resizable={false}
-                              rows={3}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        const { ref, ...rest } = field
+                        return (
+                          <FormItem>
+                            <FormControl>
+                              <Editor
+                                {...rest}
+                                placeholderText="Describe the issue"
+                                onChange={(editorState) => {
+                                  editorState.read(() => {
+                                    const markdown = $convertToMarkdownString()
+                                    field.onChange(markdown)
+                                  })
+                                }}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )
+                      }}
                     />
                   </Field>
                 </div>
-                <div className="flex gap-x-1.5">
+                <div className="flex flex-wrap gap-1.5">
                   {/* Status */}
                   <Field className="flex-shrink truncate">
                     <FormField
@@ -154,36 +211,13 @@ export default function NewIssueDialog({
                         return (
                           <FormItem>
                             <FormControl>
-                              <CustomListbox
-                                {...rest}
-                                className="max-w-40"
-                                defaultValue="backlog"
-                                name="status"
-                              >
-                                <CustomListboxOption value="backlog">
-                                  <CircleDashed className="size-4" />
-                                  <ListboxLabel>Todo</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="active">
-                                  <CircleDot className="size-4" />
-                                  <ListboxLabel>Active</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="paused">
-                                  <PauseCircle className="size-4" />
-                                  <ListboxLabel>Paused</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="in-progress">
-                                  <Loader2 className="size-4" />
-                                  <ListboxLabel>In Progress</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="done">
-                                  <CheckCircle2 className="size-4" />
-                                  <ListboxLabel>Done</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="canceled">
-                                  <Ban className="size-4" />
-                                  <ListboxLabel>Canceled</ListboxLabel>
-                                </CustomListboxOption>
+                              <CustomListbox {...rest} className="max-w-40" defaultValue="BACKLOG" name="status">
+                                {statusOptions.map(({ value, label, icon }) => (
+                                  <CustomListboxOption key={value} value={value}>
+                                    {icon}
+                                    <CustomListboxLabel>{label}</CustomListboxLabel>
+                                  </CustomListboxOption>
+                                ))}
                               </CustomListbox>
                             </FormControl>
                           </FormItem>
@@ -206,30 +240,18 @@ export default function NewIssueDialog({
                                 {...rest}
                                 name="priority"
                                 placeholder={
-                                  <div className="flex min-w-0 items-center">
-                                    <MinusCircle className="size-4 flex-shrink-0 text-zinc-500" />
-                                    <span className="ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0">
-                                      Priority
-                                    </span>
+                                  <div className="flex min-w-0 items-center gap-x-2">
+                                    <TablerLineDashed className="size-4 flex-shrink-0" />
+                                    Priority
                                   </div>
                                 }
                               >
-                                <CustomListboxOption value="no-priority">
-                                  <MinusCircle className="size-4" />
-                                  <ListboxLabel>No Priority</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="low">
-                                  <SignalLow className="size-4" />
-                                  <ListboxLabel>Low</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="medium">
-                                  <SignalMedium className="size-4" />
-                                  <ListboxLabel>Medium</ListboxLabel>
-                                </CustomListboxOption>
-                                <CustomListboxOption value="high">
-                                  <SignalHigh className="size-4" />
-                                  <ListboxLabel>High</ListboxLabel>
-                                </CustomListboxOption>
+                                {priorityOptions.map(({ value, label, icon }) => (
+                                  <CustomListboxOption key={value} value={value}>
+                                    {icon}
+                                    <CustomListboxLabel>{label}</CustomListboxLabel>
+                                  </CustomListboxOption>
+                                ))}
                               </CustomListbox>
                             </FormControl>
                           </FormItem>
@@ -254,24 +276,15 @@ export default function NewIssueDialog({
                                 name="assignee"
                                 placeholder={
                                   <div className="flex items-center gap-x-2">
-                                    <User2 className="size-4" />
+                                    <User2 className="size-4 flex-shrink-0" />
                                     Assignee
                                   </div>
                                 }
                               >
                                 {assignees.map((assignee) => (
-                                  <CustomListboxOption
-                                    key={assignee.id}
-                                    value={assignee.id}
-                                  >
-                                    <Avatar
-                                      alt=""
-                                      className="bg-purple-500 text-white"
-                                      src={assignee.image}
-                                    />
-                                    <CustomListboxLabel>
-                                      {assignee.name}
-                                    </CustomListboxLabel>
+                                  <CustomListboxOption key={assignee.id} value={assignee.id}>
+                                    <Avatar className="size-4 text-white" src={assignee.image} />
+                                    <CustomListboxLabel>{assignee.name}</CustomListboxLabel>
                                   </CustomListboxOption>
                                 ))}
                               </CustomListbox>
@@ -293,6 +306,45 @@ export default function NewIssueDialog({
                           <FormItem>
                             <FormControl>
                               <LabelSelector {...rest} labels={labels} />
+                            </FormControl>
+                          </FormItem>
+                        )
+                      }}
+                    />
+                  </Field>
+
+                  {/* Projects */}
+                  <Field className="flex-shrink truncate">
+                    <FormField
+                      control={form.control}
+                      name="projectId"
+                      render={({ field }) => {
+                        const { ref, ...rest } = field
+
+                        return (
+                          <FormItem>
+                            <FormControl>
+                              <CustomListbox
+                                {...rest}
+                                name="projectId"
+                                placeholder={
+                                  <div className="flex items-center gap-x-2">
+                                    <Square3Stack3DIcon className="size-4 flex-shrink-0" />
+                                    Project
+                                  </div>
+                                }
+                              >
+                                {projects.map((project) => (
+                                  <CustomListboxOption key={project.id} value={project.id}>
+                                    <Avatar
+                                      alt=""
+                                      className="bg-purple-500 text-white"
+                                      initials={project.title.substring(0, 2)}
+                                    />
+                                    <CustomListboxLabel>{project.title}</CustomListboxLabel>
+                                  </CustomListboxOption>
+                                ))}
+                              </CustomListbox>
                             </FormControl>
                           </FormItem>
                         )

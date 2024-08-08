@@ -8,14 +8,14 @@ import {
   PopoverButton,
   PopoverPanel,
 } from "@headlessui/react"
-import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
+import { MagnifyingGlassIcon, PlusIcon, TagIcon } from "@heroicons/react/16/solid"
 import clsx from "clsx"
-import { Tag } from "lucide-react"
 import React, { Fragment, forwardRef } from "react"
-import { Badge } from "../../../../../components/catalyst/badge"
 import { InputGroup } from "../../../../../components/catalyst/input"
 
-const MyCustomButton = forwardRef(function (props, ref) {
+import { Badge } from "@/components/catalyst/badge"
+
+const DefaultIssueLabelButton = forwardRef(function (props, ref) {
   return (
     <button
       className={clsx([
@@ -39,10 +39,21 @@ const MyCustomButton = forwardRef(function (props, ref) {
   )
 })
 
-MyCustomButton.displayName = "MyCustomButton"
+DefaultIssueLabelButton.displayName = "DefaultIssueLabelButton"
 
-interface MultiSelectComboBoxProps<T, V extends boolean | undefined>
-  extends Headless.ComboboxProps<T, V> {
+const IssueLabelButtonIcon = forwardRef(function (props, ref) {
+  return (
+    <button
+      ref={ref}
+      {...props}
+      className="rounded-lg p-1.5 text-zinc-700 after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent hover:bg-zinc-200 hover:text-zinc-950 after:data-[focus]:ring-2 after:data-[focus]:ring-blue-500"
+    />
+  )
+})
+
+IssueLabelButtonIcon.displayName = "IssueLabelButtonIcon"
+
+export interface MultiSelectComboBoxProps<T, V extends boolean | undefined> extends Headless.ComboboxProps<T, V> {
   className?: string
   placeholder?: React.ReactNode
   autoFocus?: boolean
@@ -51,6 +62,7 @@ interface MultiSelectComboBoxProps<T, V extends boolean | undefined>
   "aria-label"?: string
   onQueryChange: (query: string) => void
   children?: React.ReactNode
+  renderButtonAsIcon?: boolean
 }
 
 export const MultiSelectComboboxOptions = ComboboxOptions
@@ -60,6 +72,7 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
   placeholder,
   autoFocus,
   filteredOptions,
+  renderButtonAsIcon,
   query,
   "aria-label": ariaLabel,
   children: options,
@@ -68,53 +81,60 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
 }: MultiSelectComboBoxProps<T, V>) {
   return (
     <Popover className="relative">
-      <PopoverButton aria-label={ariaLabel} as={MyCustomButton} autoFocus={autoFocus}>
-        <span
-          className={clsx([
-            // Basic layout
-            "relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[2.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
-            // Set minimum height for when no value is selected
-            "min-h-11 sm:min-h-9",
-            // Horizontal padding
-            "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.4)-1px)] sm:pl-[calc(theme(spacing.3)-1px)]",
-            // Typography
-            "text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white sm:text-sm/6 forced-colors:text-[CanvasText]",
-            // Border
-            "border border-zinc-950/10 group-data-[active]:border-zinc-950/20 group-data-[hover]:border-zinc-950/20 dark:border-white/10 dark:group-data-[active]:border-white/20 dark:group-data-[hover]:border-white/20",
-            // Background color
-            "bg-transparent dark:bg-white/5",
-            // Invalid state
-            "group-data-[invalid]:border-red-500 group-data-[invalid]:group-data-[hover]:border-red-500 group-data-[invalid]:dark:border-red-600 group-data-[invalid]:data-[hover]:dark:border-red-600",
-            // Disabled state
-            "group-data-[disabled]:border-zinc-950/20 group-data-[disabled]:opacity-100 group-data-[disabled]:dark:border-white/15 group-data-[disabled]:dark:bg-white/[2.5%] dark:data-[hover]:group-data-[disabled]:border-white/15",
-          ])}
-        >
-          {Array.isArray(props.value) && props.value.length > 0 ? (
-            <div className="flex items-center gap-x-2">
-              <Tag className="flex size-4 items-center" />
-              <ul>
-                {props.value.length > 1 ? (
-                  <li>
-                    <Badge>{props.value.length} labels </Badge>
-                  </li>
-                ) : (
-                  <>
-                    {props.value.map((option) => (
-                      <li key={option.id}>
-                        <Badge color={option.color}>{option.name}</Badge>
-                      </li>
-                    ))}
-                  </>
-                )}
-              </ul>
-            </div>
-          ) : (
-            <span className="block truncate text-zinc-500">{placeholder}</span>
-          )}
-        </span>
+      <PopoverButton
+        aria-label={ariaLabel}
+        as={renderButtonAsIcon ? IssueLabelButtonIcon : DefaultIssueLabelButton}
+        autoFocus={autoFocus}
+      >
+        {renderButtonAsIcon ? (
+          <PlusIcon aria-hidden="true" className="size-4" />
+        ) : (
+          <span
+            className={clsx([
+              // Basic layout
+              "relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[1.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+              // Set minimum height for when no value is selected
+              "min-h-9",
+              // Horizontal padding
+              "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.4)-1px)] sm:pl-[calc(theme(spacing.3)-1px)]",
+              // Typography
+              "text-left text-xs/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white forced-colors:text-[CanvasText]",
+              // Border
+              "border border-zinc-950/10 group-data-[active]:border-zinc-950/20 group-data-[hover]:border-zinc-950/20 dark:border-white/10 dark:group-data-[active]:border-white/20 dark:group-data-[hover]:border-white/20",
+              // Background color
+              "bg-transparent dark:bg-white/5",
+              // Invalid state
+              "group-data-[invalid]:border-red-500 group-data-[invalid]:group-data-[hover]:border-red-500 group-data-[invalid]:dark:border-red-600 group-data-[invalid]:data-[hover]:dark:border-red-600",
+              // Disabled state
+              "group-data-[disabled]:border-zinc-950/20 group-data-[disabled]:opacity-100 group-data-[disabled]:dark:border-white/15 group-data-[disabled]:dark:bg-white/[2.5%] dark:data-[hover]:group-data-[disabled]:border-white/15",
+            ])}
+          >
+            {Array.isArray(props.value) && props.value.length > 0 ? (
+              <div className="flex items-center gap-x-2">
+                <TagIcon className="flex size-4 items-center" />
+                <ul>
+                  {props.value.length > 1 ? (
+                    <li>
+                      <Badge>{props.value.length} labels </Badge>
+                    </li>
+                  ) : (
+                    <>
+                      {props.value.map((option) => (
+                        <li key={option.id}>
+                          <Badge color={option.color}>{option.name}</Badge>
+                        </li>
+                      ))}
+                    </>
+                  )}
+                </ul>
+              </div>
+            ) : (
+              <span className="block truncate text-zinc-500">{placeholder}</span>
+            )}
+          </span>
+        )}
       </PopoverButton>
       <PopoverPanel
-        focus
         anchor="bottom start"
         className={clsx(
           // Anchor positioning
@@ -126,10 +146,11 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
           // Handle scrolling when menu won't fit in viewport
           "overflow-y-scroll overscroll-contain",
           // Popover background
-          "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
+          "bg-white dark:bg-zinc-800/75",
           // Shadows
           "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
         )}
+        focus
       >
         <Combobox {...props} as="div">
           <InputGroup>
@@ -158,10 +179,7 @@ export function MultiSelectComboBoxOption<T>({
   children,
   className,
   ...props
-}: { className?: string; children?: React.ReactNode } & Omit<
-  Headless.ComboboxOptionProps<"div", T>,
-  "className"
->) {
+}: { className?: string; children?: React.ReactNode } & Omit<Headless.ComboboxOptionProps<"div", T>, "className">) {
   const sharedClasses = clsx(
     // Base
     "flex min-w-0 items-center",
@@ -183,7 +201,7 @@ export function MultiSelectComboBoxOption<T>({
             // Typography
             "text-base/6 text-zinc-950 dark:text-white sm:text-sm/6 forced-colors:text-[CanvasText]",
             // Focus
-            "outline-none data-[focus]:bg-blue-500 data-[focus]:text-white",
+            "outline-none data-[focus]:bg-zinc-100 data-[focus]:text-black",
             // Forced colors mode
             "forced-color-adjust-none forced-colors:data-[focus]:bg-[Highlight] forced-colors:data-[focus]:text-[HighlightText]",
             // Disabled
@@ -199,16 +217,9 @@ export function MultiSelectComboBoxOption<T>({
             fill="none"
             viewBox="0 0 16 16"
           >
-            <path
-              d="M4 8.5l3 3L12 4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-            />
+            <path d="M4 8.5l3 3L12 4" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} />
           </svg>
-          <span className={clsx(className, sharedClasses, "col-start-2")}>
-            {children}
-          </span>
+          <span className={clsx(className, sharedClasses, "col-start-2")}>{children}</span>
         </div>
       )}
     </ComboboxOption>
@@ -288,14 +299,6 @@ const CustomMultiSelectInput = forwardRef(function Input(
   )
 })
 
-export function MultiSelectComboBoxLabel({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"span">) {
-  return (
-    <span
-      {...props}
-      className={clsx(className, "ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0")}
-    />
-  )
+export function MultiSelectComboBoxLabel({ className, ...props }: React.ComponentPropsWithoutRef<"span">) {
+  return <span {...props} className={clsx(className, "ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0")} />
 }
