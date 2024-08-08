@@ -21,10 +21,12 @@
     "semi": "off",
     "quotes": "off",
     "comma-dangle": ["error", "always-multiline"],
+    // "max-len": ["error", { "code": 120 }],
     "prettier/prettier": [
       "error",
       {
-        "endOfLine": "auto"
+        "endOfLine": "auto",
+        "printWidth": 120
       }
     ],
     "react/react-in-jsx-scope": "off",
@@ -77,6 +79,7 @@
     "no-proto": "error",
     "no-restricted-properties": "error",
     "no-return-assign": "error",
+    "@typescript-eslint/restrict-template-expressions": "off",
     // "no-return-await": "error",
     "no-self-compare": "error",
     "no-sequences": "error",
