@@ -10,6 +10,7 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
+    "./lib/colors.ts",
   ],
   theme: {
     fontSize: {
@@ -48,11 +49,7 @@ const config = {
     },
   },
   prefix: "",
-  plugins: [
-    require("tailwindcss-animate"),
-    require("@tailwindcss/forms"),
-    require("@tailwindcss/typography"),
-  ],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/forms"), require("@tailwindcss/typography")],
 } satisfies Config
 
 export default config
