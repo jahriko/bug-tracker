@@ -5,7 +5,11 @@ import { DropdownItem, DropdownLabel } from "../../../../components/catalyst/dro
 
 export default function LogoutButton() {
   return (
-    <DropdownItem onClick={() => logout()}>
+    <DropdownItem
+      onClick={async () => {
+        await logout()
+      }}
+    >
       <ArrowRightStartOnRectangleIcon />
       <DropdownLabel>Sign out</DropdownLabel>
     </DropdownItem>
