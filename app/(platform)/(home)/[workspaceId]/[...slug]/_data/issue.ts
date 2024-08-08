@@ -97,4 +97,16 @@ export async function getActivities(userId, issueId) {
   return issueActivities
 }
 
-export type IssueActivityType = Prisma.PromiseReturnType<typeof getActivities>
+export type IssueActivityType =
+  | Prisma.PromiseReturnType<typeof getActivities>
+  | {
+      id: string
+      issueActivity: "GroupedLabelActivity"
+      addedLabels: { name: string; color: string }[]
+      removedLabels: { name: string; color: string }[]
+      user: {
+        name: string
+        image: string | null
+      }
+      createdAt: Date
+    }[]
