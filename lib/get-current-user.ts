@@ -1,5 +1,3 @@
-import "server-only"
-
 import { auth } from "@/auth"
 import { Prisma } from "@prisma/client"
 import { cache } from "react"
