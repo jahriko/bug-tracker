@@ -5,7 +5,7 @@
 
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL")
+    url = env("DATABASE_URL")
 }
 
 generator client {
@@ -33,57 +33,57 @@ enum Role {
 }
 
 model Account {
-    id                String  @id() @default(cuid())
-    userId            String
-    type              String
-    provider          String
+    id String @id() @default(cuid())
+    userId String
+    type String
+    provider String
     providerAccountId String
-    refresh_token     String?
-    access_token      String?
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String?
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    refresh_token String?
+    access_token String?
+    expires_at Int?
+    token_type String?
+    scope String?
+    id_token String?
+    session_state String?
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id() @default(cuid())
-    sessionToken String   @unique()
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id String @id() @default(cuid())
+    sessionToken String @unique()
+    userId String
+    expires DateTime
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// @@allow('create', true)
 /// @@allow('read', workspaceMembers?[workspace.members?[user == auth()]])
 /// @@allow('all', auth() == this)
 model User {
-    id               String            @id() @default(cuid())
-    name             String
-    email            String            @unique()
-    emailVerified    DateTime?
-    image            String?
-    hashedPassword   String
+    id String @id() @default(cuid())
+    name String
+    email String @unique()
+    emailVerified DateTime?
+    image String?
+    hashedPassword String
     lastWorkspaceUrl String?
-    accounts         Account[]
-    sessions         Session[]
-    ownedWorkspaces  Workspace[]       @relation("WorkspaceOwner")
+    accounts Account[]
+    sessions Session[]
+    ownedWorkspaces Workspace[] @relation("WorkspaceOwner")
     workspaceMembers WorkspaceMember[]
-    projectMembers   ProjectMember[]
-    assignedIssues   Issue[]           @relation("AssignedUser")
-    issues           Issue[]
-    logs             IssueActivity[]
-    comments         Comment[]
+    projectMembers ProjectMember[]
+    assignedIssues Issue[] @relation("AssignedUser")
+    issues Issue[]
+    logs IssueActivity[]
+    comments Comment[]
 }
 
 model VerificationToken {
     identifier String
-    token      String   @unique()
-    expires    DateTime
+    token String @unique()
+    expires DateTime
 
     @@unique([identifier, token])
 }
@@ -95,27 +95,27 @@ model VerificationToken {
 /// @@allow('update', members?[user == auth() && role == 'ADMIN'])
 /// @@allow('all', owner == auth())
 model Workspace {
-    id          Int               @id() @default(autoincrement())
-    name        String            @unique()
+    id Int @id() @default(autoincrement())
+    name String @unique()
     description String?
-    createdAt   DateTime          @default(now())
-    private     Boolean           @default(true)
-    url         String            @unique()
-    members     WorkspaceMember[]
-    projects    Project[]
-    owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-    ownerId     String
+    createdAt DateTime @default(now())
+    private Boolean @default(true)
+    url String @unique()
+    members WorkspaceMember[]
+    projects Project[]
+    owner User @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId String
 }
 
 /// @@deny('all', auth() == null)
 /// @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
 /// @@allow('read', workspace.members?[user == auth()])
 model WorkspaceMember {
-    workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId Int
-    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId      String
-    role        Role      @default(MEMBER)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
+    role Role @default(MEMBER)
 
     @@id([workspaceId, userId])
 }
@@ -125,15 +125,15 @@ model WorkspaceMember {
 /// @@allow('create,update', workspace.members?[user == auth() && role == 'PROJECT_MANAGER'])
 /// @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
 model Project {
-    id          Int             @id() @default(autoincrement())
-    identifier  String          @unique()
-    title       String
-    updatedAt   DateTime        @updatedAt()
-    createdAt   DateTime        @default(now())
-    archivedAt  DateTime?
-    members     ProjectMember[]
-    issues      Issue[]
-    workspace   Workspace?      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    id Int @id() @default(autoincrement())
+    identifier String @unique()
+    title String
+    updatedAt DateTime @updatedAt()
+    createdAt DateTime @default(now())
+    archivedAt DateTime?
+    members ProjectMember[]
+    issues Issue[]
+    workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId Int?
 
     @@index([archivedAt])
@@ -143,10 +143,10 @@ model Project {
 /// @@allow('all', project.workspace.owner == auth() || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
 /// @@allow('read', project.members?[user == auth()] || !project.workspace.private)
 model ProjectMember {
-    project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
     projectId Int
-    user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId    String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId String
 
     @@id([projectId, userId])
 }
@@ -154,18 +154,20 @@ model ProjectMember {
 /// @@allow('read', true)
 /// @@deny('all', auth() == null)
 model Label {
-    id     Int          @id() @default(autoincrement())
-    name   String
-    color  String
+    id Int @id() @default(autoincrement())
+    name String
+    color String
     issues IssueLabel[]
 }
 
-/// @@allow('read', !issue.project.workspace.private)
+/// @@allow('read', check(issue))
+/// @@allow('create,update', check(issue))
+/// @@allow('delete', true)
 model IssueLabel {
     issueId Int
     labelId Int
-    issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
-    label   Label @relation(fields: [labelId], references: [id])
+    issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+    label Label @relation(fields: [labelId], references: [id])
 
     @@id([issueId, labelId])
 }
@@ -174,24 +176,24 @@ model IssueLabel {
 /// @@allow('create,update', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
 /// @@deny('update', future().owner != owner)
 model Issue {
-    id             Int             @id() @default(autoincrement())
-    title          String
-    status         Status          @default(BACKLOG)
-    priority       Priority        @default(NO_PRIORITY)
-    description    String
-    assignedUser   User?           @relation(fields: [assignedUserId], references: [id], name: "AssignedUser")
+    id Int @id() @default(autoincrement())
+    title String
+    status Status @default(BACKLOG)
+    priority Priority @default(NO_PRIORITY)
+    description String
+    assignedUser User? @relation(fields: [assignedUserId], references: [id], name: "AssignedUser")
     assignedUserId String?
-    createdAt      DateTime        @default(now())
-    updatedAt      DateTime        @updatedAt()
-    deletedAt      DateTime?
-    archivedAt     DateTime?
-    owner          User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
-    ownerId        String?
-    project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-    projectId      Int
-    labels         IssueLabel[]
-    activityLogs   IssueActivity[]
-    comments       Comment[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
+    deletedAt DateTime?
+    archivedAt DateTime?
+    owner User? @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+    ownerId String?
+    project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+    projectId Int
+    labels IssueLabel[]
+    activityLogs IssueActivity[]
+    comments Comment[]
 
     @@index([projectId, assignedUserId])
     @@index([archivedAt])
@@ -199,18 +201,18 @@ model Issue {
 
 /// @@allow('all', true)
 model Comment {
-    id        Int       @id() @default(autoincrement())
-    content   String
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt()
+    id Int @id() @default(autoincrement())
+    content String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
     deletedAt DateTime?
-    author    User      @relation(fields: [authorId], references: [id])
-    authorId  String
-    issue     Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
-    issueId   Int
-    parent    Comment?  @relation("ChildComments", fields: [parentId], references: [id])
-    parentId  Int?
-    children  Comment[] @relation("ChildComments")
+    author User @relation(fields: [authorId], references: [id])
+    authorId String
+    issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+    issueId Int
+    parent Comment? @relation("ChildComments", fields: [parentId], references: [id])
+    parentId Int?
+    children Comment[] @relation("ChildComments")
 
     @@index([issueId])
 }
@@ -218,66 +220,67 @@ model Comment {
 /// @@delegate(issueActivity)
 /// @@allow('all', true)
 model IssueActivity {
-    id                               Int                  @id() @default(autoincrement())
-    createdAt                        DateTime             @default(now())
-    updatedAt                        DateTime             @updatedAt()
-    issue                            Issue                @relation(fields: [issueId], references: [id], onDelete: Cascade)
-    issueId                          Int
-    user                             User                 @relation(fields: [userId], references: [id])
-    userId                           String
-    issueActivity                    String
-    delegate_aux_statusActivity      StatusActivity?
-    delegate_aux_priorityActivity    PriorityActivity?
-    delegate_aux_titleActivity       TitleActivity?
+    id Int @id() @default(autoincrement())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt()
+    issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+    issueId Int
+    user User @relation(fields: [userId], references: [id])
+    userId String
+    issueActivity String
+    delegate_aux_statusActivity StatusActivity?
+    delegate_aux_priorityActivity PriorityActivity?
+    delegate_aux_titleActivity TitleActivity?
     delegate_aux_descriptionActivity DescriptionActivity?
-    delegate_aux_assignedActivity    AssignedActivity?
-    delegate_aux_labelActivity       LabelActivity?
-    delegate_aux_commentActivity     CommentActivity?
+    delegate_aux_assignedActivity AssignedActivity?
+    delegate_aux_labelActivity LabelActivity?
+    delegate_aux_commentActivity CommentActivity?
 
     @@index([issueId, createdAt])
 }
 
 /// @@allow('all', true)
 model StatusActivity {
-    id                         Int           @id()
-    statusName                 String
+    id Int @id()
+    statusName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 /// @@allow('all', true)
 model PriorityActivity {
-    id                         Int           @id()
-    priorityName               String
+    id Int @id()
+    priorityName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 /// @@allow('all', true)
 model TitleActivity {
-    id                         Int           @id()
-    title                      String
+    id Int @id()
+    title String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 /// @@allow('all', true)
 model DescriptionActivity {
-    id                         Int           @id()
-    body                       String
+    id Int @id()
+    body String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 /// @@allow('all', true)
 model AssignedActivity {
-    id                         Int           @id()
-    assignedUsername           String
-    assignedUserImage          String
+    id Int @id()
+    assignedUsername String
+    assignedUserImage String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 /// @@allow('all', true)
 model LabelActivity {
-    id                         Int           @id()
-    labelName                  String
-    labelColor                 String
+    id Int @id()
+    labelName String
+    labelColor String
+    action String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
@@ -287,7 +290,7 @@ model LabelActivity {
 /// @@allow('create', issue.project.workspace.members?[user == auth()])
 /// @@allow('update', auth() == user || issue.project.workspace.members?[user == auth() && role == 'ADMIN'])
 model CommentActivity {
-    id                         Int           @id()
-    commentId                  Int
+    id Int @id()
+    commentId Int
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

@@ -213,8 +213,11 @@ model IssueLabel {
 
   @@id([issueId, labelId])
 
-  // can be read by everyone if the project is not private
-  @@allow('read', !issue.project.workspace.private)
+  @@allow('read', check(issue))
+  @@allow('create,update', check(issue))
+
+  // Temporary
+  @@allow('delete', true)
 }
 
 model Issue {
@@ -322,6 +325,7 @@ model AssignedActivity extends IssueActivity {
 model LabelActivity extends IssueActivity {
   labelName  String
   labelColor String
+  action     String
 }
 
 model CommentActivity extends IssueActivity {
