@@ -1,7 +1,7 @@
 "use server"
-import { revalidatePath } from "next/cache"
-import { ProjectSchema } from "@/lib/validations"
 import prisma from "@/lib/prisma"
+import { ProjectSchema } from "@/lib/validations"
+import { revalidatePath } from "next/cache"
 
 export async function createProject(data: ProjectSchema) {
   const { workspaceId, title } = ProjectSchema.parse(data)
