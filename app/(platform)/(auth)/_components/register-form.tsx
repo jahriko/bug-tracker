@@ -1,23 +1,16 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { useTransition } from "react"
+import { register } from "@/app/(platform)/(auth)/_actions/register"
+import { Button } from "@/components/catalyst/button"
+import { Icons } from "@/components/icons"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/catalyst/input"
+import { RegisterSchema } from "@/lib/validations"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { useTransition } from "react"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { register } from "@/app/(platform)/(auth)/_actions/register"
-import { Icons } from "@/components/icons"
-import { RegisterSchema } from "@/lib/validations"
 
 const RegisterForm = () => {
   const form = useForm<RegisterSchema>({
@@ -51,7 +44,7 @@ const RegisterForm = () => {
   }
 
   return (
-    <div className="flex min-h-full flex-1 flex-col  justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Register account
@@ -59,10 +52,7 @@ const RegisterForm = () => {
       </div>
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <Form {...form}>
-          <form
-            className="w-96 space-y-6"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
+          <form className="w-96 space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -97,11 +87,7 @@ const RegisterForm = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        type="password"
-                        {...field}
-                      />
+                      <Input placeholder="Enter your password" type="password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -114,11 +100,7 @@ const RegisterForm = () => {
                   <FormItem>
                     <FormLabel>Confirm password</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Re-enter your password"
-                        type="password"
-                        {...field}
-                      />
+                      <Input placeholder="Re-enter your password" type="password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
