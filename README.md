@@ -2,9 +2,7 @@
 
 I started this project because I was tired of watching tutorials and wanted to actually build something. I figured the best way to learn was to dive in headfirst. So, here we are – my very own issue tracking app.
 
-I didn't need another bug tracker. I needed playground to make mistakes, break things, and figure out how all these fancy technologies actually work together. This project has been my late-night companion, weekend obsession, and the cause of both frustrating debug sessions and A-ha! moments.
-
-It's not perfect, and definitely not meant to compete with existing trackers out there, but it's mine, and I've learned more about building this than I ever did from tutorials.
+I needed a playground to make mistakes, break things, and figure out how all these fancy technologies actually work together. This project has been my late-night companion, weekend obsession, and the cause of both frustrating debug sessions and A-ha! moments.
 
 Feel free to poke around, maybe even learn something along with me.
 
@@ -33,7 +31,7 @@ I should mention that much of the design and functionality is inspired by Linear
 ### Prerequisites
 
 - Node.js (v18 or later)
-- pnpm/bun
+- pnpm or bun
 - PostgreSQL database
 
 ### Installation
@@ -41,8 +39,8 @@ I should mention that much of the design and functionality is inspired by Linear
 1. Clone the repository:
 
    ```
-   git clone https://github.com/your-username/bug-tracker.git
-   cd bug-tracker
+   git clone https://github.com/jahriko/issue-tracker.git
+   cd issue-tracker
    ```
 
 2. Install dependencies:
@@ -63,6 +61,12 @@ I should mention that much of the design and functionality is inspired by Linear
 
    ```
    pnpm prisma db push
+   ```
+
+5. Seed database
+
+   ```
+   pnpm prisma db seed
    ```
 
 5. Run the development server:
