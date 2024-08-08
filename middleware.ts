@@ -1,4 +1,3 @@
-import { getCurrentUser } from '@/lib/get-current-user';
 import { authConfig } from "@/auth.config"
 import { apiAuthPrefix, authRoutes, publicRoutes } from "@/routes"
 import NextAuth from "next-auth"
@@ -14,6 +13,9 @@ export default auth((req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
   const isAuthRoute = authRoutes.includes(nextUrl.pathname)
   const lastWorkspaceUsed = user?.lastWorkspaceUrl
+
+  // Check if the current path is a workspace root
+  const isWorkspaceRoot = /^\/[^\/]+$/.test(nextUrl.pathname)
 
   if (isApiAuthRoute) {
     return
@@ -37,7 +39,24 @@ export default auth((req) => {
     return Response.redirect(new URL("/login", nextUrl))
   }
 
-  return
+  // Handle workspace root redirect
+  if (isLoggedIn && isWorkspaceRoot && nextUrl.pathname !== "/create-workspace") {
+    // Check if the current path is the lastWorkspaceUsed
+    if (lastWorkspaceUsed && nextUrl.pathname === `/${lastWorkspaceUsed}`) {
+      const issuesUrl = new URL(`${nextUrl.pathname}/issues`, nextUrl)
+      // Preserve all search params
+      issuesUrl.search = nextUrl.search
+      return Response.redirect(issuesUrl)
+    }
+    // If it's not the lastWorkspaceUsed, don't redirect
+    return
+  }
+
+  // If we're on a workspace page (including issues), allow access
+  if (isLoggedIn && /^\/[^\/]+\/.*$/.test(nextUrl.pathname)) {
+    return
+  }
+
 })
 
 export const config = {
