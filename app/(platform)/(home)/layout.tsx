@@ -12,9 +12,8 @@ import { Navbar, NavbarDivider, NavbarItem, NavbarSection, NavbarSpacer } from "
 import { Sidebar, SidebarBody, SidebarHeader, SidebarItem, SidebarSection } from "@/components/catalyst/sidebar"
 import { StackedLayout } from "@/components/catalyst/stacked-layout"
 import { getCurrentUser } from "@/lib/get-current-user"
-import prisma from "@/lib/prisma"
+import { getPrisma } from "@/lib/getPrisma"
 import { UserCircleIcon, UserIcon } from "@heroicons/react/16/solid"
-import { enhance } from "@zenstackhq/runtime"
 import React from "react"
 import NavbarLinks from "./_components/NavbarLinks"
 import SwitchWorkspace from "./_components/switch-workspace"
@@ -26,9 +25,8 @@ const navItems = [
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getCurrentUser()
-  const db = enhance(prisma, { user: { id: session.userId } })
 
-  const workspaces = await db.workspace.findMany({
+  const workspaces = await getPrisma(session.userId).workspace.findMany({
     select: {
       id: true,
       name: true,
