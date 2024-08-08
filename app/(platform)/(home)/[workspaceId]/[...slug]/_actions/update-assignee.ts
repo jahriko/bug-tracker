@@ -1,6 +1,7 @@
 "use server"
 import { getPrisma } from "@/lib/getPrisma"
 import { authActionClient } from "@/lib/safe-action"
+import { revalidateTag } from "next/cache"
 import { z } from "zod"
 
 export const updateAssignee = authActionClient
@@ -55,6 +56,7 @@ export const updateAssignee = authActionClient
             issueId,
           },
         })
+        revalidateTag(`issue-${issueId}`)
       })
     },
   )
