@@ -41,6 +41,12 @@ export const getIssueByProject = async (user: User, projectId: string, id: strin
               },
             },
           },
+          comments: {
+            select: {
+              id: true,
+              content: true,
+            },
+          },
           createdAt: true,
           project: {
             select: {
