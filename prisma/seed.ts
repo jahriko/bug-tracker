@@ -35,6 +35,8 @@ async function main() {
         { name: "Good First Issue", color: "orange" },
       ]
 
+      console.log("Creating labels")
+
       const labels = await tx.label.createManyAndReturn({ data: labelData })
       const labelIds = labels.map((label) => label.id)
 
@@ -50,6 +52,8 @@ async function main() {
         ),
         skipDuplicates: true,
       })
+
+      console.log("Creating users")
 
       // Create 3 more users that own a workspace
       const numOfWorkspaces = 3
@@ -100,6 +104,8 @@ async function main() {
           ),
         )
 
+        console.log("Making 5 added members admins")
+
         // make 5 added members admins
         const shuffledMemberIds = faker.helpers.shuffle(workspaceMembers.map((member) => member.userId))
         const adminIds = shuffledMemberIds.slice(0, 5)
@@ -115,6 +121,8 @@ async function main() {
             },
           })
         }
+
+        console.log("Creating projects")
 
         const projectTitle = faker.lorem.word()
         const projectId = projectTitle.substring(0, 3).toUpperCase()
@@ -132,6 +140,7 @@ async function main() {
         })
 
         // Add members each project
+        console.log("Adding members to projects")
         const projectMembers = await tx.projectMember.createManyAndReturn({
           data: await Promise.all(
             Array.from({ length: 10 }, async () => ({
@@ -143,6 +152,7 @@ async function main() {
         })
 
         // Create issues each project
+        console.log("Creating issues")
         const priorities: Priority[] = ["LOW", "MEDIUM", "HIGH", "NO_PRIORITY"]
         const statuses: Status[] = ["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]
 
@@ -160,6 +170,7 @@ async function main() {
         })
 
         // Assign each issues a label
+        console.log("Assigning labels to issues")
         const createIssueLabelData = (issueId, labelId) => ({
           issueId,
           labelId,
@@ -181,131 +192,131 @@ async function main() {
       }
     },
     {
-      maxWait: 9000, // default: 2000
-      timeout: 30000, // default: 5000
+      maxWait: 15000, // default: 2000
+      timeout: 60000, // default: 5000
     },
   )
-  const workspaceAdmin = await prisma.workspaceMember.findFirstOrThrow({
-    where: {
-      role: "ADMIN",
-    },
-    select: {
-      workspaceId: true,
-      userId: true,
-    },
-  })
+  // const workspaceAdmin = await prisma.workspaceMember.findFirstOrThrow({
+  //   where: {
+  //     role: "ADMIN",
+  //   },
+  //   select: {
+  //     workspaceId: true,
+  //     userId: true,
+  //   },
+  // })
 
-  const getProject = await prisma.project.findFirstOrThrow({
-    where: {
-      workspaceId: workspaceAdmin.workspaceId,
-    },
-  })
+  // const getProject = await prisma.project.findFirstOrThrow({
+  //   where: {
+  //     workspaceId: workspaceAdmin.workspaceId,
+  //   },
+  // })
 
-  const getProjectMember = await prisma.projectMember.findFirstOrThrow({
-    where: {
-      projectId: getProject.id,
-    },
-    select: {
-      user: {
-        select: {
-          name: true,
-        },
-      },
-      userId: true,
-    },
-  })
+  // const getProjectMember = await prisma.projectMember.findFirstOrThrow({
+  //   where: {
+  //     projectId: getProject.id,
+  //   },
+  //   select: {
+  //     user: {
+  //       select: {
+  //         name: true,
+  //       },
+  //     },
+  //     userId: true,
+  //   },
+  // })
 
-  const enhanced = enhance(prisma, { user: { id: getProjectMember.userId } })
+  // const enhanced = enhance(prisma, { user: { id: getProjectMember.userId } })
 
-  const user_db = enhanced.$extends({
-    name: "logIssueUpdate",
-    query: {
-      issue: {
-        async update({ args }) {
-          const createIssueActivity = await enhanced.issue.update(args)
+  // const user_db = enhanced.$extends({
+  //   name: "logIssueUpdate",
+  //   query: {
+  //     issue: {
+  //       async update({ args }) {
+  //         const createIssueActivity = await enhanced.issue.update(args)
 
-          for (const field in args.data) {
-            switch (field) {
-              case "title":
-                await enhanced.titleActivity.create({
-                  data: {
-                    userId: getProjectMember.userId,
-                    issueId: args.where.id!,
-                    title: args.data[field] as string,
-                  },
-                })
-                break
-              case "description":
-                console.log("Description updated:", args.data[field])
-                break
-              case "priority":
-                await enhanced.priorityActivity.upsert({
-                  where: {
-                    activityId: {
-                      userId: getProjectMember.userId,
-                      issueId: args.where.id!,
-                      name: args.data[field] as string,
-                    },
-                  },
-                  update: {
-                    name: args.data[field] as string,
-                  },
-                  create: {
-                    userId: getProjectMember.userId,
-                    issueId: args.where.id!,
-                    priorityName: args.data[field] as string,
-                  },
-                })
-                break
-              case "status":
-                await enhanced.statusActivity.create({
-                  data: {
-                    userId: getProjectMember.userId,
-                    issueId: args.where.id!,
-                    statusName: args.data[field] as string,
-                  },
-                })
-                break
-              default:
-                break
-            }
-          }
+  //         for (const field in args.data) {
+  //           switch (field) {
+  //             case "title":
+  //               await enhanced.titleActivity.create({
+  //                 data: {
+  //                   userId: getProjectMember.userId,
+  //                   issueId: args.where.id!,
+  //                   title: args.data[field] as string,
+  //                 },
+  //               })
+  //               break
+  //             case "description":
+  //               console.log("Description updated:", args.data[field])
+  //               break
+  //             case "priority":
+  //               await enhanced.priorityActivity.upsert({
+  //                 where: {
+  //                   activityId: {
+  //                     userId: getProjectMember.userId,
+  //                     issueId: args.where.id!,
+  //                     name: args.data[field] as string,
+  //                   },
+  //                 },
+  //                 update: {
+  //                   name: args.data[field] as string,
+  //                 },
+  //                 create: {
+  //                   userId: getProjectMember.userId,
+  //                   issueId: args.where.id!,
+  //                   priorityName: args.data[field] as string,
+  //                 },
+  //               })
+  //               break
+  //             case "status":
+  //               await enhanced.statusActivity.create({
+  //                 data: {
+  //                   userId: getProjectMember.userId,
+  //                   issueId: args.where.id!,
+  //                   statusName: args.data[field] as string,
+  //                 },
+  //               })
+  //               break
+  //             default:
+  //               break
+  //           }
+  //         }
 
-          return createIssueActivity
-        },
-      },
-    },
-  })
+  //         return createIssueActivity
+  //       },
+  //     },
+  //   },
+  // })
 
-  const issue = await prisma.issue.findFirst({
-    where: {
-      projectId: getProject.id,
-    },
-    select: {
-      id: true,
-      ownerId: true,
-    },
-  })
+  // const issue = await prisma.issue.findFirst({
+  //   where: {
+  //     projectId: getProject.id,
+  //   },
+  //   select: {
+  //     id: true,
+  //     ownerId: true,
+  //   },
+  // })
 
-  if (issue) {
-    // update issue status
-    const updateStatus = await user_db.issue.update({
-      select: {
-        status: true,
-        id: true,
-      },
-      where: {
-        id: issue.id,
-      },
-      data: {
-        status: faker.helpers.arrayElement(["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]),
-      },
-    })
+  // if (issue) {
+  //   // update issue status
+  //   const updateStatus = await user_db.issue.update({
+  //     select: {
+  //       status: true,
+  //       id: true,
+  //     },
+  //     where: {
+  //       id: issue.id,
+  //     },
+  //     data: {
+  //       status: faker.helpers.arrayElement(["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]),
+  //     },
+  //   })
 
-    console.log("Issue status updated:", updateStatus.status, issue.id, getProjectMember.userId)
-  } else {
-    console.error("No issue or project member found")
-  }
+  //   console.log("Issue status updated:", updateStatus.status, issue.id, getProjectMember.userId)
+  // } else {
+  //   console.error("No issue or project member found")
+  // }
 }
 
 function generateMarkdownDescription() {
