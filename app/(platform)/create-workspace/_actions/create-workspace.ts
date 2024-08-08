@@ -1,7 +1,6 @@
 "use server"
-import prisma from "@/lib/prisma"
+import { getPrisma } from "@/lib/getPrisma"
 import { authActionClient } from "@/lib/safe-action"
-import { enhance } from "@zenstackhq/runtime"
 import { z } from "zod"
 
 const schema = z.object({
@@ -14,10 +13,8 @@ const schema = z.object({
 export const createWorkspace = authActionClient
   .schema(schema)
   .action(async ({ parsedInput: { name, url }, ctx: { userId } }) => {
-    const authZ = enhance(prisma, { user: { id: userId } })
-
-    await prisma.$transaction(async (tx) => {
-      await authZ.workspace.create({
+    await getPrisma(userId).$transaction(async (tx) => {
+      await tx.workspace.create({
         data: {
           name,
           url,
