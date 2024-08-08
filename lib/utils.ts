@@ -1,4 +1,4 @@
-import { type ClassValue, clsx } from "clsx"
+import { DateTime } from "luxon"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -42,4 +42,17 @@ export function darkenColor(hex, percent) {
   b = (b < 255 ? b : 255).toString(16).padStart(2, "0")
 
   return `#${r}${g}${b}`
+}
+
+export function timeAgo(dateTime: DateTime) {
+  const now = DateTime.now()
+  const diffInSeconds = now.diff(dateTime, "seconds").seconds
+
+  if (diffInSeconds < 60) {
+    return "just now"
+  } else if (diffInSeconds < 120) {
+    return "a minute ago"
+  } else {
+    return dateTime.toRelative(now)
+  }
 }
