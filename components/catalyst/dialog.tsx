@@ -56,7 +56,7 @@ export function Dialog({
                 className={clsx(
                   className,
                   sizes[size],
-                  "row-start-2 w-full min-w-0 rounded-t-3xl bg-white p-[--gutter] shadow-lg ring-1 ring-zinc-950/10 [--gutter:theme(spacing.8)] dark:bg-zinc-900 dark:ring-white/10 sm:mb-auto sm:rounded-2xl forced-colors:outline",
+                  "row-start-2 w-full min-w-0 rounded-t-3xl bg-white p-[--gutter] shadow-lg ring-1 ring-zinc-950/10 [--gutter:theme(spacing.6)] dark:bg-zinc-900 dark:ring-white/10 sm:mb-auto sm:rounded-2xl forced-colors:outline",
                 )}
               >
                 {children}
@@ -87,10 +87,7 @@ export function DialogTitle({
 export function DialogDescription({
   className,
   ...props
-}: { className?: string } & Omit<
-  Headless.DescriptionProps<typeof Text>,
-  "className"
->) {
+}: { className?: string } & Omit<Headless.DescriptionProps<typeof Text>, "className">) {
   return (
     <Headless.Description
       as={Text}
