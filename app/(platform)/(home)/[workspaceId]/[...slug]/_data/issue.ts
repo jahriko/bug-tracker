@@ -81,6 +81,9 @@ export async function getActivities(userId, issueId) {
     where: {
       issueId: Number(issueId),
     },
+    orderBy: {
+      createdAt: "asc",
+    },
     include: {
       user: {
         select: {
