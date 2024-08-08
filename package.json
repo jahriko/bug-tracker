@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:debug": "cross-env NODE_OPTIONS='--inspect' next dev",
-    "build": "next build",
+    "build": "zenstack generate && next build && prisma migrate deploy",
     "start": "next start",
     "lint": "pnpx oxlint && pnpm eslint && next lint",
     "format": "prettier --check --ignore-path .gitignore .",
