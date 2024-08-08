@@ -34,7 +34,7 @@ async function main() {
         { name: "Help Wanted", color: "purple" },
         { name: "Good First Issue", color: "orange" },
       ]
-      
+
       const labels = await tx.label.createManyAndReturn({ data: labelData })
       const labelIds = labels.map((label) => label.id)
 
@@ -101,9 +101,7 @@ async function main() {
         )
 
         // make 5 added members admins
-        const shuffledMemberIds = faker.helpers.shuffle(
-          workspaceMembers.map((member) => member.userId),
-        )
+        const shuffledMemberIds = faker.helpers.shuffle(workspaceMembers.map((member) => member.userId))
         const adminIds = shuffledMemberIds.slice(0, 5)
 
         for (const adminId of adminIds) {
@@ -137,9 +135,7 @@ async function main() {
         const projectMembers = await tx.projectMember.createManyAndReturn({
           data: await Promise.all(
             Array.from({ length: 10 }, async () => ({
-              userId: faker.helpers.arrayElement(
-                workspaceMembers.map((user) => user.userId),
-              ),
+              userId: faker.helpers.arrayElement(workspaceMembers.map((user) => user.userId)),
               projectId: faker.helpers.arrayElement(project.map((project) => project.id)),
             })),
           ),
@@ -147,20 +143,18 @@ async function main() {
         })
 
         // Create issues each project
-        const priorities = ["LOW", "MEDIUM", "HIGH", "NO_PRIORITY"]
-        const statuses = ["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]
+        const priorities: Priority[] = ["LOW", "MEDIUM", "HIGH", "NO_PRIORITY"]
+        const statuses: Status[] = ["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]
 
         const issue = await tx.issue.createManyAndReturn({
           data: await Promise.all(
             Array.from({ length: 15 }, async () => ({
               title: faker.hacker.phrase(),
-              description: faker.lorem.paragraph(3),
-              priority: faker.helpers.arrayElement(priorities) as Priority,
-              status: faker.helpers.arrayElement(statuses) as Status,
+              description: generateMarkdownDescription(),
+              priority: faker.helpers.arrayElement(priorities),
+              status: faker.helpers.arrayElement(statuses),
               projectId: faker.helpers.arrayElement(project.map((project) => project.id)),
-              ownerId: faker.helpers.arrayElement(
-                projectMembers.map((member) => member.userId),
-              ),
+              ownerId: faker.helpers.arrayElement(projectMembers.map((member) => member.userId)),
             })),
           ),
         })
@@ -180,10 +174,7 @@ async function main() {
         if (selectedLabelIds.length > 0) {
           await tx.issueLabel.createMany({
             data: selectedLabelIds.map((labelId) =>
-              createIssueLabelData(
-                faker.helpers.arrayElement(issue.map((issue) => issue.id)),
-                labelId,
-              ),
+              createIssueLabelData(faker.helpers.arrayElement(issue.map((issue) => issue.id)), labelId),
             ),
           })
         }
@@ -307,24 +298,38 @@ async function main() {
         id: issue.id,
       },
       data: {
-        status: faker.helpers.arrayElement([
-          "BACKLOG",
-          "IN_PROGRESS",
-          "DONE",
-          "CANCELLED",
-        ]),
+        status: faker.helpers.arrayElement(["BACKLOG", "IN_PROGRESS", "DONE", "CANCELLED"]),
       },
     })
 
-    console.log(
-      "Issue status updated:",
-      updateStatus.status,
-      issue.id,
-      getProjectMember.userId,
-    )
+    console.log("Issue status updated:", updateStatus.status, issue.id, getProjectMember.userId)
   } else {
     console.error("No issue or project member found")
   }
+}
+
+function generateMarkdownDescription() {
+  return `
+${faker.lorem.paragraphs()}
+
+## Steps to Reproduce
+
+1. ${faker.lorem.sentence()}
+2. ${faker.lorem.sentence()}
+3. ${faker.lorem.sentence()}
+
+## Expected Behavior
+
+${faker.lorem.paragraph()}
+
+## Actual Behavior
+
+${faker.lorem.paragraph()}
+
+## Additional Notes
+
+${faker.lorem.paragraph()}
+  `.trim()
 }
 
 main()
