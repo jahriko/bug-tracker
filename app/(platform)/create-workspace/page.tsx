@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/catalyst/button"
-import { Field, FieldGroup, Fieldset } from "@/components/catalyst/fieldset"
+import { Field, FieldGroup, Fieldset, Label } from "@/components/catalyst/fieldset"
 import { Input } from "@/components/catalyst/input"
 import { Icons } from "@/components/icons"
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
@@ -94,12 +94,9 @@ export default function CreateWorkspacePage() {
               strokeWidth={2}
             />
           </svg>
-          <h2 className="mt-2 text-base font-semibold leading-6 text-gray-900">
-            Create a workspace
-          </h2>
+          <h2 className="mt-2 text-base font-semibold leading-6 text-gray-900">Create a workspace</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Create a dedicated workspace where your team can collaborate and track
-            progress together.
+            Create a dedicated workspace where your team can collaborate and track progress together.
           </p>
         </div>
         <Form {...form}>
@@ -115,12 +112,7 @@ export default function CreateWorkspacePage() {
                         <FormItem className="w-full">
                           <FormControl>
                             <Headless.Field className="relative">
-                              <label
-                                className="absolute -top-2 left-2 z-10 inline-block bg-white px-1 text-xs font-medium text-gray-900"
-                                htmlFor="workspace-name"
-                              >
-                                Workspace Name
-                              </label>
+                              <Label htmlFor="workspace-name">Workspace Name</Label>
                               <Input
                                 {...field}
                                 id="workspace-name"
@@ -153,12 +145,7 @@ export default function CreateWorkspacePage() {
                         <FormItem className="w-full">
                           <FormControl>
                             <Headless.Field className="relative">
-                              <label
-                                className="absolute -top-2 left-2 z-10 inline-block bg-white px-1 text-xs font-medium text-gray-900"
-                                htmlFor="workspace-url"
-                              >
-                                Workspace URL
-                              </label>
+                              <Label htmlFor="url">Workspace URL</Label>
                               <Input
                                 {...field}
                                 id="url"
