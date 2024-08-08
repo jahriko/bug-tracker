@@ -7,7 +7,7 @@ import { Fragment } from "react"
 export function CustomListbox<T>({
   className,
   placeholder,
-  autoFocus,
+  autoFocus = false,
   "aria-label": ariaLabel,
   children: options,
   ...props
@@ -34,7 +34,7 @@ export function CustomListbox<T>({
           // Hide default focus styles
           "focus:outline-none",
           // Focus ring
-          "focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500",
+          // "focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500",
           // Disabled state
           "data-[disabled]:opacity-50 before:data-[disabled]:bg-zinc-950/5 before:data-[disabled]:shadow-none",
         ])}
@@ -48,50 +48,44 @@ export function CustomListbox<T>({
             // Set minimum height for when no value is selected
             "min-h-11 sm:min-h-9",
             // Horizontal padding
-            "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.7)-1px)] sm:pl-[calc(theme(spacing.3)-1px)]",
+            "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.7)-1px)] sm:pl-[calc(theme(spacing.1)-1px)]",
             // Typography
             "text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white sm:text-sm/6 forced-colors:text-[CanvasText]",
             // Borderless
-            "border-transparent text-zinc-950 group-data-[active]:bg-zinc-950/5 group-data-[hover]:bg-zinc-950/5  dark:text-white dark:group-data-[active]:bg-white/10 dark:group-data-[hover]:bg-white/10",
+            "border-transparent text-zinc-950 group-data-[active]:text-blue-800 group-data-[hover]:text-blue-700 dark:text-white dark:group-data-[hover]:bg-white/10 dark:group-data-[active]:text-blue-800",
             // Background color
             "bg-transparent dark:bg-white/5",
             // Invalid state
-            "group-data-[invalid]:border-red-500 group-data-[invalid]:group-data-[hover]:border-red-500 group-data-[invalid]:dark:border-red-600 group-data-[invalid]:data-[hover]:dark:border-red-600",
+            // "group-data-[invalid]:border-red-500 group-data-[invalid]:group-data-[hover]:border-red-500 group-data-[invalid]:dark:border-red-600 group-data-[invalid]:data-[hover]:dark:border-red-600",
             // Disabled state
             "group-data-[disabled]:opacity-50",
           ])}
           options={options}
-          placeholder={placeholder}
+          placeholder={placeholder ? <span className="block truncate text-zinc-500">{placeholder}</span> : null}
         />
       </Headless.ListboxButton>
-      <Headless.Transition
-        leave="transition-opacity duration-100 ease-in pointer-events-none"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
+      <Headless.ListboxOptions
+        anchor="bottom start"
+        className={clsx(
+          // Anchor positioning
+          // "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:-1.375rem]",
+          // Base styles
+          "isolate mt-1.5 w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl p-1",
+          // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
+          "outline outline-1 outline-transparent focus:outline-none",
+          // Handle scrolling when menu won't fit in viewport
+          "overflow-y-scroll overscroll-contain",
+          // Popover background
+          "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
+          // Shadows
+          "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
+          // Transitions
+          "transition-opacity duration-100 ease-in data-[leave]:pointer-events-none data-[closed]:data-[enter]:opacity-100 data-[closed]:data-[leave]:opacity-0",
+        )}
+        transition
       >
-        <Headless.ListboxOptions
-          anchor="bottom start"
-          className={clsx(
-            // Anchor positioning
-            // "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:-1.375rem]",
-            // Base styles
-            "isolate mt-1.5 w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl p-1",
-            // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
-            "outline outline-1 outline-transparent focus:outline-none",
-            // Handle scrolling when menu won't fit in viewport
-            "overflow-y-scroll overscroll-contain",
-            // Popover background
-            "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
-            // Shadows
-            "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
-            // Transitions
-            "transition-opacity duration-100 ease-in data-[leave]:pointer-events-none data-[closed]:data-[enter]:opacity-100 data-[closed]:data-[leave]:opacity-0",
-          )}
-          transition
-        >
-          {options}
-        </Headless.ListboxOptions>
-      </Headless.Transition>
+        {options}
+      </Headless.ListboxOptions>
     </Headless.Listbox>
   )
 }
@@ -100,10 +94,7 @@ export function CustomListboxOption<T>({
   children,
   className,
   ...props
-}: { className?: string; children?: React.ReactNode } & Omit<
-  Headless.ListboxOptionProps<"div", T>,
-  "className"
->) {
+}: { className?: string; children?: React.ReactNode } & Omit<Headless.ListboxOptionProps<"div", T>, "className">) {
   const sharedClasses = clsx(
     // Base
     "flex min-w-0 items-center",
@@ -137,22 +128,7 @@ export function CustomListboxOption<T>({
               "data-[disabled]:opacity-50",
             )}
           >
-            {/* <svg
-              aria-hidden="true"
-              className="relative hidden size-5 self-center stroke-current group-data-[selected]/option:inline sm:size-4"
-              fill="none"
-              viewBox="0 0 16 16"
-            >
-              <path
-                d="M4 8.5l3 3L12 4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-              />
-            </svg> */}
-            <span className={clsx(className, sharedClasses, "col-start-2")}>
-              {children}
-            </span>
+            <span className={clsx(className, sharedClasses, "col-start-2")}>{children}</span>
           </div>
         )
       }}
@@ -160,23 +136,11 @@ export function CustomListboxOption<T>({
   )
 }
 
-export function CustomListboxLabel({
-  className,
-  ...props
-}: React.ComponentPropsWithoutRef<"span">) {
-  return (
-    <span
-      {...props}
-      className={clsx(className, "ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0")}
-    />
-  )
+export function CustomListboxLabel({ className, ...props }: React.ComponentPropsWithoutRef<"span">) {
+  return <span {...props} className={clsx(className, "ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0")} />
 }
 
-export function ListboxDescription({
-  className,
-  children,
-  ...props
-}: React.ComponentPropsWithoutRef<"span">) {
+export function ListboxDescription({ className, children, ...props }: React.ComponentPropsWithoutRef<"span">) {
   return (
     <span
       {...props}

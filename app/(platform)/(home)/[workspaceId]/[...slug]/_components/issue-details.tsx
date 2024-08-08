@@ -1,34 +1,36 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 "use client"
 import { Avatar } from "@/components/catalyst/avatar"
+import { Button } from "@/components/catalyst/button"
+import { Field } from "@/components/catalyst/fieldset"
+import { MdiSignalCellular1, MdiSignalCellular2, MdiSignalCellular3, TablerLineDashed } from "@/components/icons"
 import Editor from "@/components/lexical_editor/editor"
 import { $convertToMarkdownString, TRANSFORMERS } from "@lexical/markdown"
 import { EditorState } from "lexical"
-import {
-  Ban,
-  CheckCircle2,
-  CircleDashed,
-  Loader2,
-  SignalHigh,
-  SignalLow,
-  SignalMedium,
-} from "lucide-react"
+import { Ban, CheckCircle2, CircleDashed, Loader2, UserPlus } from "lucide-react"
 import { useAction } from "next-safe-action/hooks"
 import { debounce } from "radash"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { addComment } from "../_actions/add-comment"
+import { updateAssignee } from "../_actions/update-assignee"
 import { updateDescription } from "../_actions/update-description"
 import { updatePriority } from "../_actions/update-priority"
 import { updateStatus } from "../_actions/update-status"
 import { CustomListbox, CustomListboxOption } from "./custom-listbox"
 // https://stackoverflow.com/questions/63466463/how-to-submit-react-form-fields-on-onchange-rather-than-on-submit-using-react-ho
+import * as Headless from "@headlessui/react"
 
 export type Status = "BACKLOG" | "IN_PROGRESS" | "DONE" | "CANCELLED"
 export type Priority = "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH"
-export type Assignee = "eduardo" | "hilary"
+export interface AssignedUser {
+  id: string
+  name: string
+  image: string | null
+}
 
 interface PropertyProps<T> {
   issueId: number
-  value: string | null
+  value?: T | null
   lastActivity: {
     activityType:
       | "StatusActivity"
@@ -49,11 +51,12 @@ const handleServerError = (error: Error) => {
 }
 
 export function StatusProperty({ issueId, value, lastActivity }: PropertyProps<Status>) {
-  const handleChange = async (status: Status) => {
+  const { execute, result } = useAction(updateStatus)
+  const handleChange = (status: Status) => {
     try {
-      const result = await updateStatus({ issueId, status, lastActivity })
+      execute({ issueId, status, lastActivity })
       if (result.serverError) {
-        handleServerError(result.serverError)
+        console.log("Server error: ", result.serverError)
       }
     } catch (error) {
       handleServerError(error as Error)
@@ -74,9 +77,7 @@ export function StatusProperty({ issueId, value, lastActivity }: PropertyProps<S
       },
       {
         value: "DONE",
-        icon: (
-          <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />
-        ),
+        icon: <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />,
         label: "Done",
       },
       {
@@ -89,24 +90,23 @@ export function StatusProperty({ issueId, value, lastActivity }: PropertyProps<S
   )
 
   return (
-    <CustomListbox aria-label="Status" onChange={handleChange} value={value}>
-      {options.map(({ value, icon, label }) => (
-        <CustomListboxOption key={value} value={value}>
-          <div className="flex items-center space-x-2">
-            {icon}
-            <span className="font-medium">{label}</span>
-          </div>
-        </CustomListboxOption>
-      ))}
-    </CustomListbox>
+    <Field>
+      <Headless.Label className="select-none text-xs font-medium text-zinc-400">Status</Headless.Label>
+      <CustomListbox aria-label="Status" onChange={handleChange} value={value}>
+        {options.map(({ value, icon, label }) => (
+          <CustomListboxOption key={value} value={value}>
+            <div className="flex items-center space-x-2">
+              {icon}
+              <span className="font-medium">{label}</span>
+            </div>
+          </CustomListboxOption>
+        ))}
+      </CustomListbox>
+    </Field>
   )
 }
 
-export function DescriptionField({
-  issueId,
-  value,
-  lastActivity,
-}: PropertyProps<string>) {
+export function DescriptionField({ issueId, value, lastActivity }: PropertyProps<string>) {
   const [description, setDescription] = useState(value ?? "")
   const debouncedUpdateRef = useRef<ReturnType<typeof debounce>>()
   const { execute, result } = useAction(updateDescription)
@@ -114,7 +114,6 @@ export function DescriptionField({
   const updateFunc = useCallback(
     (currentDescription: string) => {
       try {
-        console.log("Debounce update description: ", currentDescription)
         execute({
           issueId,
           description: currentDescription,
@@ -122,7 +121,7 @@ export function DescriptionField({
         })
 
         if (result.serverError) {
-          console.log("Server error: ", result.serverError)
+          console.error("Server error: ", result.serverError)
         }
       } catch (error) {
         handleServerError(error as Error)
@@ -132,38 +131,39 @@ export function DescriptionField({
   )
 
   useEffect(() => {
-    debouncedUpdateRef.current = debounce({ delay: 1000 }, updateFunc)
+    debouncedUpdateRef.current = debounce({ delay: 1500 }, updateFunc)
     return () => {
       debouncedUpdateRef.current?.cancel()
     }
   }, [updateFunc])
 
-  const handleChange = useCallback((editorState: EditorState) => {
-    editorState.read(() => {
-      const newDescription = $convertToMarkdownString(TRANSFORMERS)
-      setDescription(newDescription)
-      if (debouncedUpdateRef.current) {
-        debouncedUpdateRef.current(newDescription)
-      }
-    })
-  }, [])
+  const handleChange = useCallback(
+    (editorState: EditorState) => {
+      editorState.read(() => {
+        const newDescription = $convertToMarkdownString(TRANSFORMERS)
+        setDescription(newDescription)
+        if (debouncedUpdateRef.current && newDescription !== value) {
+          debouncedUpdateRef.current(newDescription)
+        }
+      })
+    },
+    [value],
+  )
 
-  return <Editor initialContent={description} onChange={handleChange} />
+  return <Editor initialContent={description} onChange={handleChange} placeholderText="Describe the issue..." />
 }
-export function PriorityProperty({
-  issueId,
-  value,
-  lastActivity,
-}: PropertyProps<Priority>) {
-  const handleChange = async (priority: Priority) => {
+export function PriorityProperty({ issueId, value, lastActivity }: PropertyProps<Priority>) {
+  const { execute, result } = useAction(updatePriority)
+  const handleChange = (priority: Priority) => {
     try {
-      const result = await updatePriority({
+      execute({
         issueId,
         priority,
         lastActivity,
       })
+
       if (result.serverError) {
-        handleServerError(result?.serverError)
+        console.error(result.serverError)
       }
     } catch (error) {
       handleServerError(error as Error)
@@ -173,25 +173,23 @@ export function PriorityProperty({
   const options = useMemo(
     () => [
       {
-        value: "NO_PRIORITY",
-        icon: <SignalHigh aria-hidden="true" className="size-[1.10rem] text-red-700" />,
+        priorityName: "NO_PRIORITY",
+        icon: <TablerLineDashed aria-hidden="true" className="size-[1.10rem] text-zinc-700" />,
         label: "No Priority",
       },
       {
-        value: "HIGH",
-        icon: <SignalHigh aria-hidden="true" className="size-[1.10rem] text-red-700" />,
+        priorityName: "HIGH",
+        icon: <MdiSignalCellular3 aria-hidden="true" className="size-[1.10rem] text-zinc-700" />,
         label: "High",
       },
       {
-        value: "MEDIUM",
-        icon: (
-          <SignalMedium aria-hidden="true" className="size-[1.10rem] text-yellow-700" />
-        ),
+        priorityName: "MEDIUM",
+        icon: <MdiSignalCellular2 aria-hidden="true" className="size-[1.10rem] text-zinc-700" />,
         label: "Medium",
       },
       {
-        value: "LOW",
-        icon: <SignalLow aria-hidden="true" className="size-[1.10rem] text-green-700" />,
+        priorityName: "LOW",
+        icon: <MdiSignalCellular1 aria-hidden="true" className="size-[1.10rem] text-zinc-700" />,
         label: "Low",
       },
     ],
@@ -199,67 +197,126 @@ export function PriorityProperty({
   )
 
   return (
-    <CustomListbox aria-label="Priority" onChange={handleChange} value={value}>
-      {options.map(({ value, icon, label }) => (
-        <CustomListboxOption key={value} value={value}>
-          <div className="flex items-center space-x-2">
-            {icon}
-            <span className="font-medium">{label}</span>
+    <Field>
+      <Headless.Label className="select-none text-xs font-medium text-zinc-400">Priority</Headless.Label>
+      <CustomListbox
+        aria-label="Priority"
+        onChange={handleChange}
+        {...(value && { value })}
+        placeholder={
+          <div className="flex items-center gap-x-2">
+            <TablerLineDashed className="size-4 flex-shrink-0" />
+            Set priority
           </div>
-        </CustomListboxOption>
-      ))}
-    </CustomListbox>
+        }
+      >
+        {options.map(({ priorityName, icon, label }) => (
+          <CustomListboxOption key={priorityName} value={priorityName}>
+            <div className="flex items-center space-x-2">
+              {icon}
+              <span className="font-medium">{label}</span>
+            </div>
+          </CustomListboxOption>
+        ))}
+      </CustomListbox>
+    </Field>
   )
 }
 
-export function AssigneeProperty({ value }: Omit<PropertyProps<Assignee>, "issueId">) {
-  const handleChange = async (assigneeId: Assignee) => {
-    // Implement assignee change logic here
-    console.log("Assignee changed to:", assigneeId)
+export function AssigneeProperty({
+  issueId,
+  value,
+  projectMembers,
+  lastActivity,
+}: PropertyProps<string> & {
+  projectMembers: {
+    user: {
+      id: string
+      name: string
+      image: string | null
+    }
+  }[]
+}) {
+  const { execute, result } = useAction(updateAssignee)
+  const handleChange = ({
+    user: { id, name, image },
+  }: {
+    user: {
+      id: string
+      name: string
+      image: string
+    }
+  }) => {
+    execute({
+      issueId,
+      assignedUserId: id,
+      assignedUsername: name,
+      assignedUserImage: image,
+      lastActivity,
+    })
+    if (result.serverError) {
+      console.error("Server Error: ", result.serverError)
+    }
   }
 
-  const options = useMemo(
-    () => [
-      {
-        value: "eduardo",
-        avatar: (
-          <Avatar
-            aria-hidden="true"
-            className="size-5"
-            src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-          />
-        ),
-        label: "Eduardo Benz",
-      },
-      {
-        value: "hilary",
-        avatar: (
-          <Avatar
-            aria-hidden="true"
-            className="size-5"
-            src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-          />
-        ),
-        label: "Hilary Mahy",
-      },
-    ],
-    [],
-  )
+  const findUserById = (id: string) => {
+    return projectMembers.find(({ user }) => user.id === id)
+  }
 
   return (
-    <CustomListbox
-      aria-label="Assignee"
-      onChange={handleChange}
-      value={value || "eduardo"}
-    >
-      {options.map(({ value, avatar, label }) => (
-        <CustomListboxOption key={value} value={value}>
-          <div className="flex items-center space-x-2">
-            {avatar}
-            <span className="font-medium">{label}</span>
+    <Field>
+      <Headless.Label className="select-none text-xs font-medium text-zinc-400">Assigned to</Headless.Label>
+      <CustomListbox
+        aria-label="AssignedUser"
+        onChange={handleChange}
+        placeholder={
+          <div className="flex items-center gap-x-2">
+            <UserPlus className="size-4 flex-shrink-0" />
+            Assign
           </div>
-        </CustomListboxOption>
-      ))}
-    </CustomListbox>
+        }
+        value={value ? findUserById(value) : undefined}
+      >
+        {projectMembers.map(({ user: { id, name, image } }) => (
+          <CustomListboxOption key={id} value={findUserById(id)}>
+            <div className="flex items-center space-x-2">
+              <Avatar className="size-4" src={image} />
+              <span className="font-medium">{name}</span>
+            </div>
+          </CustomListboxOption>
+        ))}
+      </CustomListbox>
+    </Field>
+  )
+}
+
+export function AddComment({ issueId, lastActivity }: PropertyProps<string>) {
+  const [comment, setComment] = useState("")
+  const { execute, result } = useAction(addComment)
+
+  const handleChange = useCallback((editorState: EditorState) => {
+    editorState.read(() => {
+      const comment = $convertToMarkdownString(TRANSFORMERS)
+      setComment(comment)
+    })
+  }, [])
+
+  return (
+    <>
+      <Editor onChange={handleChange} placeholderText="Write a comment" type="commentBox" withBorder />
+      <div className="mt-6 flex items-center justify-end">
+        <Button
+          onClick={() => {
+            execute({ commentBody: comment, issueId, lastActivity })
+
+            if (result.serverError) {
+              console.error("Server error: ", result.serverError)
+            }
+          }}
+        >
+          Comment
+        </Button>
+      </div>
+    </>
   )
 }
