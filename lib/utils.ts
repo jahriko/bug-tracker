@@ -1,3 +1,4 @@
+import { clsx, type ClassValue } from "clsx"
 import { DateTime } from "luxon"
 import { twMerge } from "tailwind-merge"
 
@@ -10,9 +11,9 @@ export function classNames(...classes: string[]) {
 }
 
 export const convertHexToRGBA = (hex: string, opacity: number) => {
-  let r = 0,
-    g = 0,
-    b = 0
+  let r = 0
+  let g = 0
+  let b = 0
   // 3 digits
   if (hex.length === 4) {
     r = parseInt(hex[1] + hex[1], 16)
