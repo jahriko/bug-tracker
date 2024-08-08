@@ -1,40 +1,28 @@
 /* eslint-disable @next/next/no-img-element */
-// import Editor from "@/components/RichTextEditor/text-editor"
-import { Avatar } from "@/components/catalyst/avatar"
-import { Badge } from "@/components/catalyst/badge"
-import { Button } from "@/components/catalyst/button"
-import {
-  DescriptionDetails,
-  DescriptionList,
-  DescriptionTerm,
-} from "@/components/catalyst/description-list"
 import { Divider } from "@/components/catalyst/divider"
-import { Textarea } from "@/components/catalyst/textarea"
+import { COLORS } from "@/lib/colors"
 import { getCurrentUser } from "@/lib/get-current-user"
+import prisma from "@/lib/prisma"
+import { classNames } from "@/lib/utils"
 import { LockClosedIcon } from "@heroicons/react/24/outline"
-import { DateTime } from "luxon"
 import dynamic from "next/dynamic"
 import { RedirectType, notFound, redirect } from "next/navigation"
+import { Suspense } from "react"
+import { ActivityFeed } from "./_components/activity-feed"
+import AddLabelButton from "./_components/add-label-button"
 import {
-  ActivityFeed,
-  ActivityItem,
-  AssignedActivity,
-  CommentActivity,
-  DescriptionActivity,
-  LabelActivity,
-  PriorityActivity,
-  StatusActivity,
-  TitleActivity,
-} from "./_components/activity-feed"
-import {
+  AddComment,
   AssigneeProperty,
+  DescriptionField,
   PriorityProperty,
   StatusProperty,
 } from "./_components/issue-details"
-import { getActivities, getIssueByProject } from "./_data/issue"
-import { parseIssueCode, slugify } from "./helpers"
+import { IssueActivityType, getActivities, getIssueByProject } from "./_data/issue"
+import { slugify } from "./helpers"
 
-const Editor = dynamic(() => import("./_components/editor"), { ssr: false })
+const Editor = dynamic(() => import("@/components/lexical_editor/editor"), {
+  ssr: true,
+})
 
 export default async function IssuePage({
   params,
@@ -45,7 +33,7 @@ export default async function IssuePage({
   }
 }) {
   const { slug, workspaceId } = params
-  if (slug.length > 3 || slug.length <= 1) {
+  if (slug.length > 3) {
     return notFound()
   }
 
@@ -54,15 +42,18 @@ export default async function IssuePage({
     redirect("/login")
   }
 
-  const [, issueCode, title] = slug
-  const [projectId, issueId] = parseIssueCode(issueCode)
+  const [, issueCode = "", title] = slug
+  const [projectId = "", issueId = ""] = issueCode.split("-")
 
   const issue = await getIssueByProject(session, projectId, issueId)
   if (!issue) {
     notFound()
   }
 
-  // Self-healing magic ✨
+  const labels = await prisma.label.findMany()
+  const issueLabels = issue.labels
+
+  // Self-healing url
   const issueSlug = slugify(issue.title)
   if (issueSlug !== title) {
     const redirectUrl = `/${workspaceId}/issue/${projectId}-${issueId}/${issueSlug}`
@@ -70,20 +61,22 @@ export default async function IssuePage({
   }
 
   const activities = await getActivities(session.userId, issueId)
-
-  // This is used for server actions to upsert
-  // an activity log when a user modifies an issue property
+  const labelActivities: Extract<IssueActivityType[number], { issueActivity: "LabelActivity" }>[] = activities.filter(
+    (a) => a.issueActivity === "LabelActivity",
+  )
   const lastActivity = activities.at(-1) ?? { issueActivity: "None", id: -1 }
   const lastActivityInfo = {
     activityType: lastActivity.issueActivity,
     activityId: lastActivity.id,
   }
 
+  // Get all labels and labels that are set to the issue
+
   return (
     <main className="flex flex-1 flex-col pb-2 lg:px-2">
       <div className="flex flex-1 lg:rounded-lg lg:bg-white lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
         <div className="flex flex-1 flex-col lg:flex-row">
-          <div className="mx-auto w-full max-w-4xl flex-grow p-6 lg:p-10">
+          <div className="overlow-y-auto mx-auto w-full max-w-4xl flex-grow p-6 lg:p-10">
             {/* -- */}
             <main className="flex-1">
               <div className="py-8">
@@ -93,19 +86,9 @@ export default async function IssuePage({
                       <div>
                         <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:pb-2">
                           <div className="w-full">
-                            <EditableTitle initialTitle={issue.title} />
-
-                            <p className="mt-2 flex items-center gap-x-1.5 text-sm text-gray-500">
-                              <Avatar className="size-4" src={issue.owner?.image} />
-                              <a
-                                className="font-medium text-gray-900 dark:text-gray-100"
-                                href="#"
-                              >
-                                {issue.owner?.name}
-                              </a>{" "}
-                              created the issue ·{" "}
-                              {DateTime.fromJSDate(issue.createdAt).toRelative()}
-                            </p>
+                            <Suspense fallback={<div>Loading...</div>}>
+                              <Editor initialContent={issue.title} placeholderText="Enter title" type="title" />
+                            </Suspense>
                           </div>
                         </div>
 
@@ -114,20 +97,13 @@ export default async function IssuePage({
                           <h2 className="sr-only">Details</h2>
                           <div className="space-y-5">
                             <div className="flex items-center space-x-2">
-                              <LockClosedIcon
-                                aria-hidden="true"
-                                className="h-5 w-5 text-indigo-500"
-                              />
-                              <span className="text-sm font-medium text-indigo-700">
-                                Duplicate Issue
-                              </span>
+                              <LockClosedIcon aria-hidden="true" className="h-5 w-5 text-indigo-500" />
+                              <span className="text-sm font-medium text-indigo-700">Duplicate Issue</span>
                             </div>
                           </div>
                           <div className="mt-6 space-y-8 border-b border-t border-gray-200 py-6">
                             <div>
-                              <h2 className="text-sm font-medium text-gray-500">
-                                Assignees
-                              </h2>
+                              <h2 className="text-sm font-medium text-gray-500">Assignees</h2>
                               <ul className="mt-3 space-y-3" role="list">
                                 <li className="flex justify-start">
                                   <a className="flex items-center space-x-3" href="#">
@@ -138,9 +114,7 @@ export default async function IssuePage({
                                         src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
                                       />
                                     </div>
-                                    <div className="text-sm font-medium text-gray-900">
-                                      Eduardo Benz
-                                    </div>
+                                    <div className="text-sm font-medium text-gray-900">Eduardo Benz</div>
                                   </a>
                                 </li>
                               </ul>
@@ -154,14 +128,9 @@ export default async function IssuePage({
                                     href="#"
                                   >
                                     <div className="absolute flex flex-shrink-0 items-center justify-center">
-                                      <span
-                                        aria-hidden="true"
-                                        className="h-1.5 w-1.5 rounded-full bg-rose-500"
-                                      />
+                                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                                     </div>
-                                    <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                      Bug
-                                    </div>
+                                    <div className="ml-3.5 text-sm font-medium text-gray-900">Bug</div>
                                   </a>{" "}
                                 </li>
                                 <li className="inline">
@@ -170,23 +139,24 @@ export default async function IssuePage({
                                     href="#"
                                   >
                                     <div className="absolute flex flex-shrink-0 items-center justify-center">
-                                      <span
-                                        aria-hidden="true"
-                                        className="h-1.5 w-1.5 rounded-full bg-indigo-500"
-                                      />
+                                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
                                     </div>
-                                    <div className="ml-3.5 text-sm font-medium text-gray-900">
-                                      Accessibility
-                                    </div>
+                                    <div className="ml-3.5 text-sm font-medium text-gray-900">Accessibility</div>
                                   </a>{" "}
                                 </li>
                               </ul>
                             </div>
                           </div>
                         </aside>
-                        <div className="py-3 xl:pb-0 xl:pt-6">
+                        <div className="py-2 xl:pb-0">
                           <h2 className="sr-only">Description</h2>
-                          <Editor />
+                          <Suspense fallback={<div>Loading...</div>}>
+                            <DescriptionField
+                              issueId={issue.id}
+                              lastActivity={lastActivityInfo}
+                              value={issue.description}
+                            />
+                          </Suspense>
                         </div>
                       </div>
                     </div>
@@ -196,65 +166,14 @@ export default async function IssuePage({
                           <Divider className="pb-4" />
                           <div className="pt-6">
                             {/* Activity feed*/}
-                            <ActivityFeed activities={activities} issue={issue}>
-                              <ActivityItem>
-                                <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
-                                  <Avatar
-                                    alt={issue.owner?.name ?? "User"}
-                                    className="size-5"
-                                    src={issue.owner?.image ?? ""}
-                                  />
-                                </div>
-                                <div className="flex gap-x-2">
-                                  <div className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
-                                    <span className="font-medium text-gray-900">{issue.owner?.name}</span> created this
-                                    issue{" "}
-                                  </div>
-                                  <span>⋅</span>
-                                  <time
-                                    className="flex-none py-0.5 text-xs leading-5 text-gray-500"
-                                    dateTime={new Date(issue.createdAt).toISOString()}
-                                  >
-                                    {timeAgo(DateTime.fromISO(new Date(issue.createdAt).toISOString()))}
-                                  </time>
-                                </div>
-                              </ActivityItem>
-
-                              {activities.map((item, itemIdx) => (
-                                <ActivityItem key={item.id} itemIdx={itemIdx}>
-                                  {item.issueActivity === "TitleActivity" && <TitleActivity item={item} />}
-                                  {item.issueActivity === "DescriptionActivity" && <DescriptionActivity item={item} />}
-                                  {item.issueActivity === "StatusActivity" && <StatusActivity item={item} />}
-                                  {item.issueActivity === "PriorityActivity" && <PriorityActivity item={item} />}
-                                  {item.issueActivity === "AssignedActivity" && <AssignedActivity item={item} />}
-                                  {item.issueActivity === "LabelActivity" && <LabelActivity item={item} />}
-                                  {item.issueActivity === "CommentActivity" && (
-                                    <CommentActivity comments={issue.comments} item={item} />
-                                  )}
-                                </ActivityItem>
-                              ))}
-                            </ActivityFeed>
+                            <ActivityFeed activities={activities} issue={issue} />
                             <div className="mt-6">
                               <div className="flex space-x-3">
                                 <div className="min-w-0 flex-1">
-                                  <form action="#">
-                                    <div>
-                                      <label className="sr-only" htmlFor="comment">
-                                        Comment
-                                      </label>
-                                      <Textarea
-                                        // className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm"
-                                        defaultValue=""
-                                        id="comment"
-                                        name="comment"
-                                        placeholder="Leave a comment"
-                                        rows={3}
-                                      />
-                                    </div>
-                                    <div className="mt-6 flex items-center justify-end">
-                                      <Button type="submit">Comment</Button>
-                                    </div>
-                                  </form>
+                                  <label className="sr-only" htmlFor="comment">
+                                    Comment
+                                  </label>
+                                  <AddComment issueId={issue.id} lastActivity={lastActivityInfo} />
                                 </div>
                               </div>
                             </div>
@@ -269,50 +188,63 @@ export default async function IssuePage({
             {/* Here */}
           </div>
           {/* Right desktop sidebar */}
-          <div className="hidden w-80 flex-shrink-0 overflow-y-auto rounded-r-lg border-l border-zinc-200 bg-white dark:border-zinc-700 lg:block">
-            <div className="sticky top-0 p-8">
-              <DescriptionList>
-                {" "}
-                {/* Add vertical gap between rows */}
-                <DescriptionTerm className="flex items-center">Status</DescriptionTerm>
-                <DescriptionDetails className="flex items-center">
-                  <StatusProperty
-                    issueId={issue.id}
-                    lastActivity={lastActivityInfo}
-                    value={issue.status}
-                  />
-                </DescriptionDetails>
-                <DescriptionTerm className="flex items-center">Priority</DescriptionTerm>
-                <DescriptionDetails className="flex items-center">
-                  <PriorityProperty
-                    issueId={issue.id}
-                    lastActivity={lastActivityInfo}
-                    value={issue.priority}
-                  />
-                </DescriptionDetails>
-                <DescriptionTerm className="flex items-center">
-                  Assigned to
-                </DescriptionTerm>
-                <DescriptionDetails className="flex items-center">
-                  <AssigneeProperty
-                    lastActivity={lastActivityInfo}
-                    projectMembers={issue.project.members}
-                    value={issue.assignedUserId}
-                  />
-                </DescriptionDetails>
-              </DescriptionList>
-
-              <div className="border-t border-gray-900/5 py-8">
-                <div>
-                  <h2 className="text-sm text-gray-500">Labels</h2>
-                  <ul className="mt-2 space-x-1.5 leading-8" role="list">
-                    <li className="inline">
-                      <Badge color="rose">Bug</Badge>
-                    </li>
-                    <li className="inline">
-                      <Badge color="indigo">Accessibility</Badge>
-                    </li>
-                  </ul>
+          <div className="hidden h-full w-auto flex-shrink-0 overflow-hidden rounded-r-lg border-l border-zinc-200 bg-white dark:border-zinc-700 lg:block">
+            <div className="sticky top-0 h-full p-6">
+              <div className="h-full">
+                <div className="flex w-72 flex-col gap-2">
+                  <div key="status">
+                    <Suspense fallback={<p>Loading</p>}>
+                      <StatusProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.status} />
+                    </Suspense>
+                  </div>
+                  <div key="priority">
+                    <Suspense fallback={<p>Loading</p>}>
+                      <PriorityProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.priority} />
+                    </Suspense>
+                  </div>
+                  <div key="assigned_to">
+                    <Suspense fallback={<p>Loading</p>}>
+                      <AssigneeProperty
+                        issueId={issue.id}
+                        lastActivity={lastActivityInfo}
+                        projectMembers={issue.project.members}
+                        value={issue.assignedUserId}
+                      />
+                    </Suspense>
+                  </div>
+                  <div key="labels">
+                    <div className="space-y-2">
+                      <span className="select-none text-xs font-medium text-zinc-400">Labels</span>
+                      <ul className="flex flex-wrap items-center gap-1.5" role="list">
+                        {issueLabels.map((label) => {
+                          const labelInfo = labels.find((l) => l.id === label.label.id)
+                          return (
+                            <li className="inline" key={label.label.id}>
+                              <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+                                <div
+                                  className={classNames(
+                                    COLORS[labelInfo?.color] || "bg-zinc-100",
+                                    "flex-none rounded-full p-1",
+                                  )}
+                                >
+                                  <div className="size-2 rounded-full bg-current" />
+                                </div>
+                                {labelInfo?.name}
+                              </span>
+                            </li>
+                          )
+                        })}
+                        <li>
+                          <AddLabelButton
+                            activities={labelActivities}
+                            issueId={issue.id}
+                            issueLabels={issueLabels}
+                            labels={labels}
+                          />
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

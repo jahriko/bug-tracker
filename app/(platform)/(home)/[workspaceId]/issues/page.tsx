@@ -1,12 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { Badge, BadgeProps } from "@/components/catalyst/badge"
-import {
-  Dropdown,
-  DropdownButton,
-  DropdownItem,
-  DropdownMenu,
-} from "@/components/catalyst/dropdown"
-import { Input, InputGroup } from "@/components/catalyst/input"
+import { InputGroup } from "@/components/catalyst/input"
 import {
   Pagination,
   PaginationList,
@@ -14,23 +7,15 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from "@/components/catalyst/pagination"
-import { Table, TableBody, TableCell, TableRow } from "@/components/catalyst/table"
 import { getCurrentUser } from "@/lib/get-current-user"
 import { getPrisma } from "@/lib/getPrisma"
 import prisma from "@/lib/prisma"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import {
-  Ban,
-  CheckCircle2,
-  CircleDashed,
-  CircleDot,
-  CircleHelp,
-  Loader2,
-  PauseCircle,
-} from "lucide-react"
-import { DateTime } from "luxon"
-import { notFound, redirect } from "next/navigation"
+import { Priority, Prisma, Status } from "@prisma/client"
+import { notFound } from "next/navigation"
 import NewIssueDialog from "../_components/new-issue-dialog"
+import IssueTable from "./_components/issue-table"
+import SearchInput from "./_components/search-input"
 
 export default async function IssuePage({
   params,
@@ -44,6 +29,10 @@ export default async function IssuePage({
 
   const page = Number(searchParams.page) || 1
   const pageSize = 20
+  const filter = searchParams.filter as string | undefined
+  const status = searchParams.status as Status | undefined
+  const priority = searchParams.priority as Priority | undefined
+  const search = searchParams.search as string | undefined
 
   const workspaceData = await getWorkspaceData(session.userId, params.workspaceId)
   if (!workspaceData) notFound()
@@ -54,14 +43,15 @@ export default async function IssuePage({
     projectIds,
     page,
     pageSize,
+    filter,
+    status,
+    priority,
+    search,
   )
-  const projectMembers = workspaceData.projects.flatMap((p) =>
-    p.members.map((m) => m.user),
-  )
+
+  const projectMembers = workspaceData.projects.flatMap((p) => p.members.map((m) => m.user))
 
   const labels = await prisma.label.findMany()
-
-  if (totalIssues === 0) return redirect("/create-workspace")
 
   const paginationData = getPaginationData(page, totalIssues, pageSize)
 
@@ -78,17 +68,31 @@ export default async function IssuePage({
                   <div className="flex-grow">
                     <InputGroup className="w-full">
                       <MagnifyingGlassIcon />
-                      <Input
-                        aria-label="Search"
-                        name="search"
-                        placeholder="Search&hellip;"
-                      />
+                      <SearchInput initialSearch={search} workspaceId={params.workspaceId} />
                     </InputGroup>
                   </div>
-                  <NewIssueDialog assignees={projectMembers} labels={labels} />
+                  <NewIssueDialog
+                    assignees={projectMembers}
+                    hasProjects={workspaceData.projects.length > 0}
+                    labels={labels}
+                    projects={workspaceData.projects}
+                  />
                 </div>
-                <IssueTable issues={issues} workspaceId={params.workspaceId} />
-                <TablePagination {...paginationData} />
+                {/* <div className="mt-2 flex items-center gap-x-2">
+                  <IssueFilterSelect
+                    labels={labels}
+                    projectMembers={projectMembers}
+                    projects={workspaceData.projects}
+                  />
+                </div> */}
+                {issues.length > 0 ? (
+                  <>
+                    <IssueTable issues={issues} workspaceId={params.workspaceId} />
+                    <TablePagination {...paginationData} />
+                  </>
+                ) : (
+                  <NoIssuesFound search={search} />
+                )}
               </div>
             </main>
           </div>
@@ -100,63 +104,79 @@ export default async function IssuePage({
   )
 }
 
-function IssueTable({ issues, workspaceId }: { issues: any[]; workspaceId: string }) {
+function NoIssuesFound({ search }: { search: string | undefined }) {
   return (
-    <Table>
-      <TableBody>
-        {issues.map((issue) => (
-          <TableRow
-            href={`/${workspaceId}/issue/${issue.project.title}-${issue.id}`}
-            key={issue.id}
-          >
-            <TableCell>
-              <div className="flex items-center gap-4">
-                <div>
-                  <div className="flex items-center gap-x-2">
-                    <Dropdown>
-                      <DropdownButton
-                        aria-label="More options"
-                        plain
-                        className="!rounded-full !p-0 data-[hover]:bg-transparent"
-                        // className="h-auto w-0 !text-zinc-500 !data-[hover]:bg-none"
-                      >
-                        {renderStatus(issue.status)}
-                      </DropdownButton>
-                      <DropdownMenu anchor="bottom start">
-                        <DropdownItem href="/users/1">View</DropdownItem>
-                        <DropdownItem href="/users/1/edit">Edit</DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
-                    <div className="flex gap-x-3">
-                      <div className="font-medium">{issue.title}</div>
-                      <span className="flex gap-x-1">
-                        {issue.labels.map((label) => (
-                          <Badge
-                            color={(label.label.color as BadgeProps["color"]) || "zinc"}
-                            key={label.label.id}
-                          >
-                            {label.label.name}
-                          </Badge>
-                        ))}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-xs text-zinc-500">
-                    <span className="hover:text-zinc-700">
-                      {issue.project.title.slice(0, 3).toUpperCase()}-{issue.id} opened{" "}
-                      {DateTime.fromJSDate(issue.createdAt).toRelative()} by{" "}
-                      {issue.owner?.name}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="mt-8 text-center">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">No issues found</h3>
+      {search ? (
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          No issues match the search term `{search}`. Try a different search or clear the filter.
+        </p>
+      ) : null}
+      {!search && (
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          There are no issues in this workspace yet. Create a new issue to get started.
+        </p>
+      )}
+    </div>
   )
 }
+
+// function IssueTable({ issues, workspaceId }: { issues: any[]; workspaceId: string }) {
+//   return (
+//     <Table className="mt-2 [--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.4)]">
+//       <TableBody>
+//         {issues.map((issue) => (
+//           <TableRow key={issue.id}>
+//             <TableCell>
+//               <Checkbox />
+//             </TableCell>
+//             <TableCell>
+//               <div className="flex items-start gap-x-2">
+//                 {/* Dropdown Column */}
+//                 <div className="flex-shrink-0 pt-1">{renderStatus(issue.status)}</div>
+
+//                 {/* Content Column */}
+//                 <div className="min-w-0 flex-grow">
+//                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+//                     <Link
+//                       className="text-wrap font-medium hover:text-blue-700"
+//                       href={`/${workspaceId}/issue/${issue.project.identifier}-${issue.id}`}
+//                     >
+//                       {issue.title}
+//                     </Link>
+//                     {issue.labels.map((label) => (
+//                       <span
+//                         className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200"
+//                         key={label.label.id}
+//                       >
+//                         <div
+//                           className={classNames(
+//                             COLORS[label.label.color] || "bg-zinc-100",
+//                             "flex-none rounded-full p-1",
+//                           )}
+//                         >
+//                           <div className="size-2 rounded-full bg-current" />
+//                         </div>
+//                         {label.label.name}
+//                       </span>
+//                     ))}
+//                   </div>
+//                   <div className="mt-1 text-xs text-zinc-500">
+//                     <span className="hover:text-zinc-700">
+//                       {issue.project.identifier}-{issue.id} opened {DateTime.fromJSDate(issue.createdAt).toRelative()}{" "}
+//                       by {issue.owner?.name}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </TableCell>
+//           </TableRow>
+//         ))}
+//       </TableBody>
+//     </Table>
+//   )
+// }
 
 function TablePagination({
   currentPage,
@@ -184,11 +204,7 @@ function TablePagination({
       </PaginationPrevious>
       <PaginationList>
         {pageNumbers.map((pageNum) => (
-          <PaginationPage
-            current={currentPage === pageNum}
-            href={createPageUrl(pageNum)}
-            key={pageNum}
-          >
+          <PaginationPage current={currentPage === pageNum} href={createPageUrl(pageNum)} key={pageNum}>
             {pageNum}
           </PaginationPage>
         ))}
@@ -249,19 +265,45 @@ async function getIssuesData(
   projectIds: number[],
   page: number,
   pageSize: number,
+  filter?: string,
+  status?: Status | "all",
+  priority?: Priority | "all",
+  search?: string,
 ) {
   const skip = (page - 1) * pageSize
 
+  const whereClause: Prisma.IssueWhereInput = { projectId: { in: projectIds } }
+
+  if (filter) {
+    if (filter === "owned") {
+      whereClause.ownerId = userId
+    } else {
+      whereClause.ownerId = filter
+    }
+  }
+
+  if (status && status !== "all") {
+    whereClause.status = status
+  }
+
+  if (priority && priority !== "all") {
+    whereClause.priority = priority
+  }
+
+  if (search) {
+    whereClause.OR = [{ title: { contains: search, mode: "insensitive" } }]
+  }
+
   const [issues, totalIssues] = await Promise.all([
     getPrisma(userId).issue.findMany({
-      where: { projectId: { in: projectIds } },
+      where: whereClause,
       skip,
       take: pageSize,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         createdAt: true,
-        project: { select: { id: true, title: true } },
+        project: { select: { id: true, title: true, identifier: true } },
         owner: { select: { name: true, image: true } },
         title: true,
         status: true,
@@ -274,7 +316,7 @@ async function getIssuesData(
         },
       },
     }),
-    prisma.issue.count({ where: { projectId: { in: projectIds } } }),
+    prisma.issue.count({ where: whereClause }),
   ])
 
   return { issues, totalIssues }
@@ -289,24 +331,5 @@ function getPaginationData(currentPage: number, totalIssues: number, pageSize: n
     hasNextPage: currentPage < totalPages,
     hasPreviousPage: currentPage > 1,
     createPageUrl: (pageNum: number) => `?page=${pageNum}`,
-  }
-}
-
-function renderStatus(status: string) {
-  switch (status) {
-    case "backlog":
-      return <CircleDashed className="size-[1.10rem] text-zinc-500 hover:text-black" />
-    case "open":
-      return <CircleDot className="size-[1.10rem] text-green-700 hover:text-black" />
-    case "in-progress":
-      return <Loader2 className="size-[1.10rem] text-yellow-700 hover:text-black" />
-    case "closed":
-      return <CheckCircle2 className="size-[1.10rem] text-indigo-700 hover:text-black" />
-    case "paused":
-      return <PauseCircle className="size-[1.10rem] text-zinc-500 hover:text-black" />
-    case "duplicate":
-      return <Ban className="size-[1.10rem] text-zinc-500 hover:text-black" />
-    default:
-      return <CircleHelp className="size-[1.10rem] text-zinc-500" />
   }
 }
