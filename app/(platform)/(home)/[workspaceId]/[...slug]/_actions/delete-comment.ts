@@ -12,22 +12,20 @@ export const deleteComment = authActionClient
       issueId: z.number(),
     }),
   )
-  .action(
-    async ({ parsedInput: { commentId, activityId, issueId }, ctx: { userId } }) => {
-      await getPrisma(userId).$transaction(async (tx) => {
-        await tx.comment.delete({
-          where: {
-            id: commentId,
-          },
-        })
-
-        await tx.commentActivity.delete({
-          where: {
-            id: activityId,
-          },
-        })
-
-        revalidateTag(`issue-${issueId}`)
+  .action(async ({ parsedInput: { commentId, activityId, issueId }, ctx: { userId } }) => {
+    await getPrisma(userId).$transaction(async (tx) => {
+      await tx.comment.delete({
+        where: {
+          id: commentId,
+        },
       })
-    },
-  )
+
+      await tx.commentActivity.delete({
+        where: {
+          id: activityId,
+        },
+      })
+
+      revalidateTag(`issue-${issueId}`)
+    })
+  })

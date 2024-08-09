@@ -19,6 +19,8 @@ import { updateStatus } from "../_actions/update-status"
 import { CustomListbox, CustomListboxOption } from "./custom-listbox"
 // https://stackoverflow.com/questions/63466463/how-to-submit-react-form-fields-on-onchange-rather-than-on-submit-using-react-ho
 import * as Headless from "@headlessui/react"
+import { Square3Stack3DIcon } from "@heroicons/react/16/solid"
+import { Project } from "@prisma/client"
 
 export type Status = "BACKLOG" | "IN_PROGRESS" | "DONE" | "CANCELLED"
 export type Priority = "NO_PRIORITY" | "LOW" | "MEDIUM" | "HIGH"
@@ -318,5 +320,41 @@ export function AddComment({ issueId, lastActivity }: PropertyProps<string>) {
         </Button>
       </div>
     </>
+  )
+}
+
+export function ProjectProperty({
+  issueId,
+  value,
+  lastActivity,
+  projects,
+}: PropertyProps<string> & { projects: Project[] }) {
+  // const { execute, result } = useAction(updateProject)
+  const handleChange = (project: Project) => {
+    console.log(project)
+  }
+  return (
+    <Field>
+      <Headless.Label className="select-none text-xs font-medium text-zinc-400">Project</Headless.Label>
+      <CustomListbox
+        aria-label="Project"
+        onChange={handleChange}
+        placeholder={
+          <div className="flex items-center gap-x-2">
+            <Square3Stack3DIcon className="size-4 flex-shrink-0" />
+            Project
+          </div>
+        }
+        value={value}
+      >
+        {projects.map(({ id, title }) => (
+          <CustomListboxOption key={id} value={id}>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">{title}</span>
+            </div>
+          </CustomListboxOption>
+        ))}
+      </CustomListbox>
+    </Field>
   )
 }

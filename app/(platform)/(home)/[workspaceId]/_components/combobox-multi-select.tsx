@@ -140,7 +140,7 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
           // Anchor positioning
           // "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:0rem]",
           // Base styles
-          "isolate mt-1.5 w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl",
+          "isolate mt-1.5 w-max min-w-[calc(var(--button-width)+5.75rem)] select-none scroll-py-1 rounded-xl",
           // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
           "outline outline-1 outline-transparent focus:outline-none",
           // Handle scrolling when menu won't fit in viewport

@@ -1,7 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
+import { Avatar } from "@/components/catalyst/avatar"
+import { Button } from "@/components/catalyst/button"
 import { Divider } from "@/components/catalyst/divider"
 import { COLORS } from "@/lib/colors"
 import { getCurrentUser } from "@/lib/get-current-user"
+import { getPrisma } from "@/lib/getPrisma"
 import prisma from "@/lib/prisma"
 import { classNames } from "@/lib/utils"
 import { LockClosedIcon } from "@heroicons/react/24/outline"
@@ -15,10 +18,12 @@ import {
   AssigneeProperty,
   DescriptionField,
   PriorityProperty,
+  ProjectProperty,
   StatusProperty,
 } from "./_components/issue-details"
 import { IssueActivityType, getActivities, getIssueByProject } from "./_data/issue"
 import { slugify } from "./helpers"
+import { DeleteIssueButton } from "./_components/delete-issue-button"
 
 const Editor = dynamic(() => import("@/components/lexical_editor/editor"), {
   ssr: true,
@@ -49,6 +54,12 @@ export default async function IssuePage({
   if (!issue) {
     notFound()
   }
+
+  const projects = await getPrisma(session.userId).project.findMany({
+    where: {
+      identifier: projectId,
+    },
+  })
 
   const labels = await prisma.label.findMany()
   const issueLabels = issue.labels
@@ -95,56 +106,62 @@ export default async function IssuePage({
                         {/* 2nd Column */}
                         <aside className="mt-8 xl:hidden">
                           <h2 className="sr-only">Details</h2>
-                          <div className="space-y-5">
-                            <div className="flex items-center space-x-2">
-                              <LockClosedIcon aria-hidden="true" className="h-5 w-5 text-indigo-500" />
-                              <span className="text-sm font-medium text-indigo-700">Duplicate Issue</span>
+                          <div className="flex flex-wrap gap-4">
+                            <div className="w-full sm:w-auto">
+                              <Suspense fallback={<p>Loading</p>}>
+                                <StatusProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.status} />
+                              </Suspense>
+                            </div>
+                            <div className="w-full sm:w-auto">
+                              <Suspense fallback={<p>Loading</p>}>
+                                <PriorityProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.priority} />
+                              </Suspense>
+                            </div>
+                            <div className="w-full sm:w-auto">
+                              <Suspense fallback={<p>Loading</p>}>
+                                <AssigneeProperty
+                                  issueId={issue.id}
+                                  lastActivity={lastActivityInfo}
+                                  projectMembers={issue.project.members}
+                                  value={issue.assignedUserId}
+                                />
+                              </Suspense>
+                            </div>
+                            <div className="w-full sm:w-auto">
+                              <Suspense fallback={<p>Loading</p>}>
+                                <ProjectProperty issueId={issue.id} lastActivity={lastActivityInfo} projects={projects} />
+                              </Suspense>
                             </div>
                           </div>
-                          <div className="mt-6 space-y-8 border-b border-t border-gray-200 py-6">
-                            <div>
-                              <h2 className="text-sm font-medium text-gray-500">Assignees</h2>
-                              <ul className="mt-3 space-y-3" role="list">
-                                <li className="flex justify-start">
-                                  <a className="flex items-center space-x-3" href="#">
-                                    <div className="flex-shrink-0">
-                                      <img
-                                        alt=""
-                                        className="h-5 w-5 rounded-full"
-                                        src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80"
-                                      />
-                                    </div>
-                                    <div className="text-sm font-medium text-gray-900">Eduardo Benz</div>
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                            <div>
-                              <h2 className="text-sm font-medium text-gray-500">Tags</h2>
-                              <ul className="mt-2 leading-8" role="list">
-                                <li className="inline">
-                                  <a
-                                    className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                                    href="#"
-                                  >
-                                    <div className="absolute flex flex-shrink-0 items-center justify-center">
-                                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                                    </div>
-                                    <div className="ml-3.5 text-sm font-medium text-gray-900">Bug</div>
-                                  </a>{" "}
-                                </li>
-                                <li className="inline">
-                                  <a
-                                    className="relative inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
-                                    href="#"
-                                  >
-                                    <div className="absolute flex flex-shrink-0 items-center justify-center">
-                                      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                                    </div>
-                                    <div className="ml-3.5 text-sm font-medium text-gray-900">Accessibility</div>
-                                  </a>{" "}
-                                </li>
-                              </ul>
+                          <div className="mt-6 border-b border-t border-gray-200 py-6">
+                            <h2 className="text-sm font-medium text-gray-500">Labels</h2>
+                            <ul className="mt-2 flex flex-wrap gap-2 leading-8" role="list">
+                              {issueLabels.map((label) => {
+                                const labelInfo = labels.find((l) => l.id === label.label.id)
+                                return (
+                                  <li className="inline" key={label.label.id}>
+                                    <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+                                      <div
+                                        className={classNames(
+                                          COLORS[labelInfo?.color] || "bg-zinc-100",
+                                          "flex-none rounded-full p-1",
+                                        )}
+                                      >
+                                        <div className="size-2 rounded-full bg-current" />
+                                      </div>
+                                      {labelInfo?.name}
+                                    </span>
+                                  </li>
+                                )
+                              })}
+                            </ul>
+                            <div className="mt-2">
+                              <AddLabelButton
+                                activities={labelActivities}
+                                issueId={issue.id}
+                                issueLabels={issueLabels}
+                                labels={labels}
+                              />
                             </div>
                           </div>
                         </aside>
@@ -188,8 +205,8 @@ export default async function IssuePage({
             {/* Here */}
           </div>
           {/* Right desktop sidebar */}
-          <div className="hidden h-full w-auto flex-shrink-0 overflow-hidden rounded-r-lg border-l border-zinc-200 bg-white dark:border-zinc-700 lg:block">
-            <div className="sticky top-0 h-full p-6">
+          <div className="hidden h-screen w-auto flex-shrink-0 overflow-y-auto rounded-r-lg border-l border-zinc-200 bg-white dark:border-zinc-700 lg:sticky lg:top-0 lg:block">
+            <div className="p-6">
               <div className="h-full">
                 <div className="flex w-72 flex-col gap-2">
                   <div key="status">
@@ -244,6 +261,44 @@ export default async function IssuePage({
                         </li>
                       </ul>
                     </div>
+                  </div>
+                  <div key="project">
+                    <Suspense fallback={<p>Loading</p>}>
+                      <ProjectProperty issueId={issue.id} lastActivity={lastActivityInfo} projects={projects} />
+                    </Suspense>
+                  </div>
+                  <Divider className="my-4" />
+                  <fieldset>
+                    <label className="select-none text-xs font-medium text-zinc-400">Participants</label>
+                    <ul className="mt-2 flex flex-wrap gap-2">
+                      {Array.from(
+                        new Set([
+                          issue.owner,
+                          ...activities
+                            .filter((activity) => activity.issueActivity === "CommentActivity")
+                            .map((activity) => activity.user),
+                        ]),
+                      ).map((user) => (
+                        <li key={user.id}>
+                          <Avatar
+                            alt={user.name}
+                            className="size-6"
+                            initials={user.name.substring(0, 2)}
+                            src={user.image}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </fieldset>
+                  <Divider className="my-4" />
+                  <div>
+                    <Button plain>
+                      <LockClosedIcon className="size-4" />
+                      Lock conversation
+                    </Button>
+                  </div>
+                  <div>
+                    <DeleteIssueButton issueId={issue.id} workspaceId={workspaceId} />
                   </div>
                 </div>
               </div>

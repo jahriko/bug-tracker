@@ -10,14 +10,14 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { IssueSchema } from "@/lib/validations.js"
 import { LabelsData } from "@/server/data/many/get-labels"
 import { UsersData } from "@/server/data/many/get-users"
-import { BlockNoteEditor } from "@blocknote/core"
 import { PencilSquareIcon, Square3Stack3DIcon } from "@heroicons/react/16/solid"
 import { $convertToMarkdownString } from "@lexical/markdown"
 import { Project } from "@prisma/client"
 import { Ban, CheckCircle2, CircleDashed, Loader2, User2 } from "lucide-react"
+import { flattenValidationErrors } from "next-safe-action"
 import dynamic from "next/dynamic"
 import { usePathname, useRouter } from "next/navigation"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { createIssue } from "../_actions/create-issue"
@@ -88,8 +88,6 @@ export default function NewIssueDialog({
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const editorRef = useRef<BlockNoteEditor | null>(null)
-  // const { execute, result } = useAction(createIssue)
 
   const form = useForm<IssueSchema>({
     defaultValues: {
@@ -131,7 +129,15 @@ export default function NewIssueDialog({
     }
 
     if (result.validationErrors) {
-      console.error(JSON.stringify(result.validationErrors, null, 2))
+      const flattenedErrors = flattenValidationErrors(result.validationErrors)
+      if (flattenedErrors.formErrors.length > 0) {
+        toast.error(flattenedErrors.formErrors[0])
+      } else if (Object.keys(flattenedErrors.fieldErrors).length > 0) {
+        const firstFieldError = Object.values(flattenedErrors.fieldErrors)[0]
+        if (Array.isArray(firstFieldError) && firstFieldError.length > 0) {
+          toast.error(firstFieldError[0])
+        }
+      }
       return
     }
 
@@ -185,13 +191,13 @@ export default function NewIssueDialog({
                             <FormControl>
                               <Editor
                                 {...rest}
-                                placeholderText="Describe the issue"
                                 onChange={(editorState) => {
                                   editorState.read(() => {
                                     const markdown = $convertToMarkdownString()
                                     field.onChange(markdown)
                                   })
                                 }}
+                                placeholderText="Describe the issue"
                               />
                             </FormControl>
                           </FormItem>
