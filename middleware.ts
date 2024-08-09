@@ -35,8 +35,17 @@ export default auth((req) => {
     return
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
+  if (!isLoggedIn && isPublicRoute) {
     return Response.redirect(new URL("/login", nextUrl))
+  }
+
+  // Redirect logged-in users to their last workspace
+  if (isLoggedIn && nextUrl.pathname === "/") {
+    if (lastWorkspaceUsed) {
+      return Response.redirect(new URL(`/${lastWorkspaceUsed}`, nextUrl))
+    } else {
+      return Response.redirect(new URL("/create-workspace", nextUrl))
+    }
   }
 
   // Handle workspace root redirect
@@ -54,9 +63,7 @@ export default auth((req) => {
 
   // If we're on a workspace page (including issues), allow access
   if (isLoggedIn && /^\/[^\/]+\/.*$/.test(nextUrl.pathname)) {
-    return
   }
-
 })
 
 export const config = {
