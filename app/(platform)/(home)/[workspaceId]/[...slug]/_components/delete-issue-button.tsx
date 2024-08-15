@@ -3,7 +3,7 @@
 import { Alert, AlertActions, AlertDescription, AlertTitle } from "@/components/catalyst/alert"
 import { Button } from "@/components/catalyst/button"
 import { TrashIcon } from "@heroicons/react/16/solid"
-import { useOptimisticAction } from "next-safe-action/hooks"
+import { useAction } from "next-safe-action/hooks"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -12,14 +12,14 @@ import { deleteIssue } from "../_actions/delete-issue"
 export function DeleteIssueButton({ issueId, workspaceId }: { issueId: number; workspaceId: string }) {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
-  const { execute, result } = useOptimisticAction(deleteIssue, {
+  const { execute, result } = useAction(deleteIssue, {
     onSuccess: () => {
       setIsOpen(false)
       toast.success("Issue deleted successfully")
-      router.push(`/${workspaceId}`)
+      router.push(`/${workspaceId}/issues`)
     },
-    onError: (error: Error) => {
-      toast.error("Failed to delete issue: " + error.message)
+    onError: (error) => {
+      toast.error("Failed to delete issue: ", error)
     },
   })
 
