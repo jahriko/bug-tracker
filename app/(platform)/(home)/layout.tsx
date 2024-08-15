@@ -15,7 +15,7 @@ import { getCurrentUser } from "@/lib/get-current-user"
 import { getPrisma } from "@/lib/getPrisma"
 import { UserCircleIcon, UserIcon } from "@heroicons/react/16/solid"
 import React from "react"
-import NavbarLinks from "./_components/NavbarLinks"
+import NavbarLinks from "./_components/navbar-links"
 import SwitchWorkspace from "./_components/switch-workspace"
 
 const navItems = [
@@ -46,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <NavbarSpacer />
           <NavbarSection>
             <Dropdown>
-              <DropdownButton as={NavbarItem}>
+              <DropdownButton as={NavbarItem} data-testid="user-menu">
                 <UserCircleIcon />
               </DropdownButton>
               <DropdownMenu anchor="bottom end" className="min-w-64">
