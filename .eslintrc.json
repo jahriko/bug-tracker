@@ -159,7 +159,17 @@
     "import/no-extraneous-dependencies": [
       "error",
       {
-        "devDependencies": ["tests/**/*", "ruling/**/*"]
+        "devDependencies": [
+          "tests/**/*",
+          "ruling/**/*",
+          "**/*.test.ts",
+          "**/*.test.tsx",
+          "**/*.spec.ts",
+          "**/*.spec.tsx",
+          "next.config.js",
+          "postcss.config.js",
+          "tailwind.config.js"
+        ]
       }
     ],
     "import/extensions": "error",
