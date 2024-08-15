@@ -1,13 +1,16 @@
 "use client"
 import { logout } from "@/app/(platform)/(auth)/_actions/logout"
 import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/16/solid"
+import { useRouter } from "next/navigation"
 import { DropdownItem, DropdownLabel } from "../../../../components/catalyst/dropdown"
 
 export default function LogoutButton() {
+  const router = useRouter()
   return (
     <DropdownItem
       onClick={async () => {
         await logout()
+        router.push("/login")
       }}
     >
       <ArrowRightStartOnRectangleIcon />
