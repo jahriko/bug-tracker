@@ -23,14 +23,24 @@ export default function SwitchWorkspace({ workspaces }: { workspaces: Workspace[
   return (
     <Dropdown>
       <DropdownButton as={NavbarItem} className="max-lg:hidden">
-        <Avatar initials={workspaceUrlToName?.substring(0, 2) ?? ""} slot="icon" />
+        <Avatar
+          className="bg-zinc-900 text-white dark:bg-white dark:text-black"
+          initials={workspaceUrlToName?.substring(0, 2) ?? ""}
+          slot="icon"
+          square
+        />
         <NavbarLabel>{workspaceUrlToName}</NavbarLabel>
         <ChevronDownIcon />
       </DropdownButton>
       <DropdownMenu anchor="bottom start" className="min-w-80 lg:min-w-64">
         {workspaces.map((workspace) => (
           <DropdownItem href={`/${workspace.url}`} key={workspace.id}>
-            <Avatar initials={workspace.name.substring(0, 2)} slot="icon" />
+            <Avatar
+              className="bg-zinc-900 text-white dark:bg-white dark:text-black"
+              initials={workspace.name.substring(0, 2)}
+              slot="icon"
+              square
+            />
             <DropdownLabel>{workspace.name}</DropdownLabel>
           </DropdownItem>
         ))}
