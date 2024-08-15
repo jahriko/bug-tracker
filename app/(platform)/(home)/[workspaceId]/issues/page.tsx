@@ -61,23 +61,23 @@ export default async function IssuePage({
         <div className="mx-auto max-w-6xl">
           {/* -- */}
 
+          <div className="flex items-center gap-x-2">
+            <div className="flex-grow">
+              <InputGroup className="w-full">
+                <MagnifyingGlassIcon />
+                <SearchInput initialSearch={search} workspaceId={params.workspaceId} />
+              </InputGroup>
+            </div>
+            <NewIssueDialog
+              assignees={projectMembers}
+              hasProjects={workspaceData.projects.length > 0}
+              labels={labels}
+              projects={workspaceData.projects}
+            />
+          </div>
           <div className="py-6">
-            <main className="container">
+            <main>
               <div>
-                <div className="flex items-center gap-x-2">
-                  <div className="flex-grow">
-                    <InputGroup className="w-full">
-                      <MagnifyingGlassIcon />
-                      <SearchInput initialSearch={search} workspaceId={params.workspaceId} />
-                    </InputGroup>
-                  </div>
-                  <NewIssueDialog
-                    assignees={projectMembers}
-                    hasProjects={workspaceData.projects.length > 0}
-                    labels={labels}
-                    projects={workspaceData.projects}
-                  />
-                </div>
                 {/* <div className="mt-2 flex items-center gap-x-2">
                   <IssueFilterSelect
                     labels={labels}
@@ -121,62 +121,6 @@ function NoIssuesFound({ search }: { search: string | undefined }) {
     </div>
   )
 }
-
-// function IssueTable({ issues, workspaceId }: { issues: any[]; workspaceId: string }) {
-//   return (
-//     <Table className="mt-2 [--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.4)]">
-//       <TableBody>
-//         {issues.map((issue) => (
-//           <TableRow key={issue.id}>
-//             <TableCell>
-//               <Checkbox />
-//             </TableCell>
-//             <TableCell>
-//               <div className="flex items-start gap-x-2">
-//                 {/* Dropdown Column */}
-//                 <div className="flex-shrink-0 pt-1">{renderStatus(issue.status)}</div>
-
-//                 {/* Content Column */}
-//                 <div className="min-w-0 flex-grow">
-//                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-//                     <Link
-//                       className="text-wrap font-medium hover:text-blue-700"
-//                       href={`/${workspaceId}/issue/${issue.project.identifier}-${issue.id}`}
-//                     >
-//                       {issue.title}
-//                     </Link>
-//                     {issue.labels.map((label) => (
-//                       <span
-//                         className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200"
-//                         key={label.label.id}
-//                       >
-//                         <div
-//                           className={classNames(
-//                             COLORS[label.label.color] || "bg-zinc-100",
-//                             "flex-none rounded-full p-1",
-//                           )}
-//                         >
-//                           <div className="size-2 rounded-full bg-current" />
-//                         </div>
-//                         {label.label.name}
-//                       </span>
-//                     ))}
-//                   </div>
-//                   <div className="mt-1 text-xs text-zinc-500">
-//                     <span className="hover:text-zinc-700">
-//                       {issue.project.identifier}-{issue.id} opened {DateTime.fromJSDate(issue.createdAt).toRelative()}{" "}
-//                       by {issue.owner?.name}
-//                     </span>
-//                   </div>
-//                 </div>
-//               </div>
-//             </TableCell>
-//           </TableRow>
-//         ))}
-//       </TableBody>
-//     </Table>
-//   )
-// }
 
 function TablePagination({
   currentPage,

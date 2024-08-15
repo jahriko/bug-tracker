@@ -18,7 +18,6 @@ export const deleteIssue = authActionClient
       },
     })
 
-    // Assuming you want to revalidate some tag related to issues
     revalidateTag(`issue-${issueId}`)
 
     return { success: true }

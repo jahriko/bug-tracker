@@ -13,6 +13,7 @@ import { RedirectType, notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
 import { ActivityFeed } from "./_components/activity-feed"
 import AddLabelButton from "./_components/add-label-button"
+import { DeleteIssueButton } from "./_components/delete-issue-button"
 import {
   AddComment,
   AssigneeProperty,
@@ -23,7 +24,6 @@ import {
 } from "./_components/issue-details"
 import { IssueActivityType, getActivities, getIssueByProject } from "./_data/issue"
 import { slugify } from "./helpers"
-import { DeleteIssueButton } from "./_components/delete-issue-button"
 
 const Editor = dynamic(() => import("@/components/lexical_editor/editor"), {
   ssr: true,
@@ -109,12 +109,20 @@ export default async function IssuePage({
                           <div className="flex flex-wrap gap-4">
                             <div className="w-full sm:w-auto">
                               <Suspense fallback={<p>Loading</p>}>
-                                <StatusProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.status} />
+                                <StatusProperty
+                                  issueId={issue.id}
+                                  lastActivity={lastActivityInfo}
+                                  value={issue.status}
+                                />
                               </Suspense>
                             </div>
                             <div className="w-full sm:w-auto">
                               <Suspense fallback={<p>Loading</p>}>
-                                <PriorityProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.priority} />
+                                <PriorityProperty
+                                  issueId={issue.id}
+                                  lastActivity={lastActivityInfo}
+                                  value={issue.priority}
+                                />
                               </Suspense>
                             </div>
                             <div className="w-full sm:w-auto">
@@ -129,7 +137,11 @@ export default async function IssuePage({
                             </div>
                             <div className="w-full sm:w-auto">
                               <Suspense fallback={<p>Loading</p>}>
-                                <ProjectProperty issueId={issue.id} lastActivity={lastActivityInfo} projects={projects} />
+                                <ProjectProperty
+                                  issueId={issue.id}
+                                  lastActivity={lastActivityInfo}
+                                  projects={projects}
+                                />
                               </Suspense>
                             </div>
                           </div>
@@ -208,65 +220,68 @@ export default async function IssuePage({
           <div className="hidden h-screen w-auto flex-shrink-0 overflow-y-auto rounded-r-lg border-l border-zinc-200 bg-white dark:border-zinc-700 lg:sticky lg:top-0 lg:block">
             <div className="p-6">
               <div className="h-full">
-                <div className="flex w-72 flex-col gap-2">
-                  <div key="status">
-                    <Suspense fallback={<p>Loading</p>}>
-                      <StatusProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.status} />
-                    </Suspense>
-                  </div>
-                  <div key="priority">
-                    <Suspense fallback={<p>Loading</p>}>
-                      <PriorityProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.priority} />
-                    </Suspense>
-                  </div>
-                  <div key="assigned_to">
-                    <Suspense fallback={<p>Loading</p>}>
-                      <AssigneeProperty
-                        issueId={issue.id}
-                        lastActivity={lastActivityInfo}
-                        projectMembers={issue.project.members}
-                        value={issue.assignedUserId}
-                      />
-                    </Suspense>
-                  </div>
-                  <div key="labels">
-                    <div className="space-y-2">
-                      <span className="select-none text-xs font-medium text-zinc-400">Labels</span>
-                      <ul className="flex flex-wrap items-center gap-1.5" role="list">
-                        {issueLabels.map((label) => {
-                          const labelInfo = labels.find((l) => l.id === label.label.id)
-                          return (
-                            <li className="inline" key={label.label.id}>
-                              <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
-                                <div
-                                  className={classNames(
-                                    COLORS[labelInfo?.color] || "bg-zinc-100",
-                                    "flex-none rounded-full p-1",
-                                  )}
-                                >
-                                  <div className="size-2 rounded-full bg-current" />
-                                </div>
-                                {labelInfo?.name}
-                              </span>
-                            </li>
-                          )
-                        })}
-                        <li>
-                          <AddLabelButton
-                            activities={labelActivities}
-                            issueId={issue.id}
-                            issueLabels={issueLabels}
-                            labels={labels}
-                          />
-                        </li>
-                      </ul>
+                <div className="flex w-72 flex-col">
+                  <div className="flex flex-col gap-4">
+                    <div key="status">
+                      <Suspense fallback={<p>Loading</p>}>
+                        <StatusProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.status} />
+                      </Suspense>
+                    </div>
+                    <div key="priority">
+                      <Suspense fallback={<p>Loading</p>}>
+                        <PriorityProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.priority} />
+                      </Suspense>
+                    </div>
+                    <div key="assigned_to">
+                      <Suspense fallback={<p>Loading</p>}>
+                        <AssigneeProperty
+                          issueId={issue.id}
+                          lastActivity={lastActivityInfo}
+                          projectMembers={issue.project.members}
+                          value={issue.assignedUserId}
+                        />
+                      </Suspense>
+                    </div>
+                    <div key="labels">
+                      <div className="space-y-2">
+                        <span className="select-none text-xs font-medium text-zinc-400">Labels</span>
+                        <ul className="flex flex-wrap items-center gap-1.5" role="list">
+                          {issueLabels.map((label) => {
+                            const labelInfo = labels.find((l) => l.id === label.label.id)
+                            return (
+                              <li className="inline" key={label.label.id}>
+                                <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+                                  <div
+                                    className={classNames(
+                                      COLORS[labelInfo?.color] || "bg-zinc-100",
+                                      "flex-none rounded-full p-1",
+                                    )}
+                                  >
+                                    <div className="size-2 rounded-full bg-current" />
+                                  </div>
+                                  {labelInfo?.name}
+                                </span>
+                              </li>
+                            )
+                          })}
+                          <li>
+                            <AddLabelButton
+                              activities={labelActivities}
+                              issueId={issue.id}
+                              issueLabels={issueLabels}
+                              labels={labels}
+                            />
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div key="project">
+                      <Suspense fallback={<p>Loading</p>}>
+                        <ProjectProperty issueId={issue.id} lastActivity={lastActivityInfo} projects={projects} />
+                      </Suspense>
                     </div>
                   </div>
-                  <div key="project">
-                    <Suspense fallback={<p>Loading</p>}>
-                      <ProjectProperty issueId={issue.id} lastActivity={lastActivityInfo} projects={projects} />
-                    </Suspense>
-                  </div>
+
                   <Divider className="my-4" />
                   <fieldset>
                     <label className="select-none text-xs font-medium text-zinc-400">Participants</label>
