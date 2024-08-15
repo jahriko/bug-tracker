@@ -4,9 +4,7 @@ I started this project because I was tired of watching tutorials and wanted to a
 
 I needed a playground to make mistakes, break things, and figure out how all these fancy technologies actually work together. This project has been my late-night companion, weekend obsession, and the cause of both frustrating debug sessions and A-ha! moments.
 
-Feel free to poke around, maybe even learn something along with me.
-
-I should mention that much of the design and functionality is inspired by Linear and Jetbrains YouTrack. They've got some seriously cool ones, and I thought recreating aspects of them would be a great way to learn.
+Note: Much of the design and functionality is inspired by Linear, Github, and Jetbrains YouTrack. They've got some seriously cool ones, and I thought recreating aspects of them would be a great way to learn.
 
 ## Technologies
 
