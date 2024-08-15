@@ -5,6 +5,7 @@ Remix, and Inertia.js in the Catalyst documentation:
 
 https://catalyst.tailwindui.com/docs#client-side-router-integration
 */
+"use client"
 
 import * as Headless from "@headlessui/react"
 import React from "react"
