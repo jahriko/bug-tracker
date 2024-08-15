@@ -39,3 +39,7 @@ next-env.d.ts
 # Jetbrains
 .idea
 .zenstack_repl_history
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
