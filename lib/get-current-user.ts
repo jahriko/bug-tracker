@@ -6,11 +6,7 @@ export const getCurrentUser = cache(async () => {
   try {
     const session = await auth()
 
-    if (!session) {
-      throw new Error("No session found")
-    }
-
-    return session?.user
+    return session?.user ?? null
   } catch (error) {
     throw new Error("Failed to get logged user")
   }
