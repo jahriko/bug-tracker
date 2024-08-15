@@ -4,7 +4,7 @@ import { Avatar } from "@/components/catalyst/avatar"
 import { Button } from "@/components/catalyst/button"
 import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from "@/components/catalyst/dialog"
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react"
-import { UserCircleIcon, UserPlusIcon } from "@heroicons/react/16/solid"
+import { DocumentIcon, UserCircleIcon, UserPlusIcon } from "@heroicons/react/16/solid"
 import { Project } from "@prisma/client"
 import clsx from "clsx"
 import { Fragment, useState } from "react"
@@ -44,47 +44,52 @@ export default function TeamSettings({
         {projectDetails.title}
       </p>
 
-      <Dialog onClose={setIsOpen} open={isOpen}>
-        <DialogTitle>Team settings</DialogTitle>
-        <DialogDescription>
-          Manage team members and project settings for {projectDetails.title}. You can view the current team members
-          below.
-        </DialogDescription>
+      <Dialog onClose={setIsOpen} open={isOpen} size="3xl">
+        <DialogTitle>{projectDetails.title}</DialogTitle>
+        <DialogDescription>Project overview and team management for {projectDetails.title}.</DialogDescription>
         <DialogBody>
-          <div className="flex items-center gap-x-2">
-            <div className="flex-grow">
-              <SearchCombobox people={workspaceMembers} />
+          {/* Team Members */}
+          <div className="mb-6">
+            <h3 className="mb-2 text-lg font-semibold">Team Members</h3>
+            <div className="mb-4 flex items-center gap-x-2">
+              <div className="flex-grow">
+                <SearchCombobox people={workspaceMembers} />
+              </div>
+              <Button>
+                <UserPlusIcon className="mr-2 h-5 w-5" />
+                Invite
+              </Button>
             </div>
-            <Button>
-              <UserPlusIcon />
-              Add member
-            </Button>
-          </div>
-          <ul className="divide-y divide-gray-100" role="list">
-            {projectMembers.map((member) => (
-              <li className="flex items-center justify-between gap-x-4 py-5" key={member.user.email}>
-                <div className="flex items-center gap-x-4">
-                  {member.user.image ? (
-                    <img alt="" className="h-12 w-12 flex-none rounded-full bg-gray-50" src={member.user.image} />
-                  ) : (
-                    <UserIcon className="h-12 w-12 flex-none rounded-full bg-gray-50 p-2 text-gray-400" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold leading-6 text-gray-900">{member.user.name}</p>
-                    <p className="mt-1 truncate text-xs leading-5 text-gray-500">{member.user.email}</p>
+            <ul className="divide-y divide-gray-100" role="list">
+              {projectMembers.map((member) => (
+                <li className="flex items-center justify-between gap-x-4 py-5" key={member.user.email}>
+                  <div className="flex items-center gap-x-4">
+                    {member.user.image ? (
+                      <img alt="" className="h-12 w-12 flex-none rounded-full bg-gray-50" src={member.user.image} />
+                    ) : (
+                      <UserCircleIcon className="h-12 w-12 flex-none rounded-full bg-gray-50 p-2 text-gray-400" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold leading-6 text-gray-900">{member.user.name}</p>
+                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">{member.user.email}</p>
+                    </div>
                   </div>
-                </div>
-                <span className={clsx(
-                  "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                  member.role === "ADMIN" ? "bg-purple-50 text-purple-700 ring-purple-700/10" :
-                  member.role === "PROJECT_MANAGER" ? "bg-green-50 text-green-700 ring-green-700/10" :
-                  "bg-gray-50 text-gray-600 ring-gray-500/10"
-                )}>
-                  {member.role}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <span
+                    className={clsx(
+                      "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                      member.role === "ADMIN"
+                        ? "bg-purple-50 text-purple-700 ring-purple-700/10"
+                        : member.role === "PROJECT_MANAGER"
+                          ? "bg-green-50 text-green-700 ring-green-700/10"
+                          : "bg-gray-50 text-gray-600 ring-gray-500/10",
+                    )}
+                  >
+                    {member.role}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </DialogBody>
         <DialogActions>
           <Button
@@ -109,7 +114,7 @@ function SearchCombobox({ people }: { people: { id: string; name: string; image:
     query === ""
       ? people
       : people.filter((person) => {
-          return person.name.toLowerCase().includes(query.toLowerCase())
+          return person.name.includes(query)
         })
 
   const sharedClasses = clsx(
