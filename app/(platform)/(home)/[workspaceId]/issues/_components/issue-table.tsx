@@ -16,6 +16,7 @@ export default function IssueTable({ issues, workspaceId }: { issues: any[]; wor
   const [checked, setChecked] = useState(false)
   const [indeterminate, setIndeterminate] = useState(false)
   const [selectedIssues, setSelectedIssues] = useState<any[]>([])
+  const [hoveredIssueId, setHoveredIssueId] = useState<string | null>(null)
 
   useLayoutEffect(() => {
     const isIndeterminate = selectedIssues.length > 0 && selectedIssues.length < issues.length
@@ -46,7 +47,11 @@ export default function IssueTable({ issues, workspaceId }: { issues: any[]; wor
       <TableHead>
         <TableRow>
           <TableCell className="w-0">
-            <Checkbox checked={checked} indeterminate={indeterminate} onChange={toggleAll} />
+            <Checkbox
+              checked={checked}
+              indeterminate={indeterminate}
+              onChange={toggleAll}
+            />
           </TableCell>
           <TableCell className="h-14">
             {selectedIssues.length > 0 ? (
@@ -112,7 +117,7 @@ export default function IssueTable({ issues, workspaceId }: { issues: any[]; wor
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="flex cursor-pointer items-center gap-x-1">
-                        <Ban className="size-4 text-red-700" />
+                        <Ban className="size-4 text-zinc-500" />
                         {issues.filter((issue) => issue.status === "CANCELLED").length}
                       </span>
                     </TooltipTrigger>
@@ -126,25 +131,37 @@ export default function IssueTable({ issues, workspaceId }: { issues: any[]; wor
       </TableHead>
       <TableBody>
         {issues.map((issue) => (
-          <TableRow key={issue.id}>
+          <TableRow
+            className="group"
+            key={issue.id}
+            onMouseEnter={() => {
+              setHoveredIssueId(issue.id)
+            }}
+            onMouseLeave={() => {
+              setHoveredIssueId(null)
+            }}
+          >
             <TableCell>
               <Checkbox
                 checked={selectedIssues.includes(issue)}
                 onChange={() => {
                   toggleIssue(issue)
                 }}
+                className={classNames(
+                  hoveredIssueId === issue.id || selectedIssues.includes(issue)
+                    ? "opacity-100"
+                    : "opacity-0",
+                  "transition-opacity duration-75"
+                )}
               />
             </TableCell>
             <TableCell>
               <div className="flex items-start gap-x-2">
-                {/* Dropdown Column */}
                 <div className="flex-shrink-0">{renderStatus(issue.status)}</div>
-
-                {/* Content Column */}
                 <div className="min-w-0 flex-grow">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <Link
-                      className="text-wrap font-medium leading-tight hover:text-blue-700"
+                      className="cursor-pointer text-wrap font-medium leading-tight hover:text-blue-700"
                       href={`/${workspaceId}/issue/${issue.project.identifier}-${issue.id}`}
                     >
                       {issue.title}
@@ -182,7 +199,7 @@ export default function IssueTable({ issues, workspaceId }: { issues: any[]; wor
   )
 }
 
-function renderStatus(status: Status) {
+function renderStatus(status: string) {
   switch (status) {
     case "BACKLOG":
       return <CircleDashed className="size-[1.10rem] text-zinc-500" />
