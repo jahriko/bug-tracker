@@ -8,7 +8,7 @@ import { Input, InputGroup } from '@/components/catalyst/input';
 import { getCurrentUser } from '@/lib/get-current-user';
 
 import DiscussionFilter from './_components/discussion-filter';
-import { getDiscussions, getCategories } from './discussions';
+import { getCategories, getDiscussions } from './_data/discussions';
 
 export default async function Discussions({
   params,
@@ -76,9 +76,9 @@ export default async function Discussions({
               <div className="md:py-8">
                 {/* Forum Entries */}
                 <DiscussionList
+                  currentUserId={user.userId}
                   discussions={discussions}
                   workspaceId={params.workspaceId}
-                  currentUserId={user.userId}
                 />
 
                 {/* Pagination */}
