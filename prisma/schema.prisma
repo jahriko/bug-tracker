@@ -226,7 +226,7 @@ model Comment {
 }
 
 /// @@delegate(issueActivity)
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model IssueActivity {
     id Int @id() @default(autoincrement())
     createdAt DateTime @default(now())
@@ -247,35 +247,35 @@ model IssueActivity {
     @@index([issueId, createdAt])
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model StatusActivity {
     id Int @id()
     statusName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model PriorityActivity {
     id Int @id()
     priorityName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model TitleActivity {
     id Int @id()
     title String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model DescriptionActivity {
     id Int @id()
     body String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model AssignedActivity {
     id Int @id()
     assignedUsername String
@@ -283,7 +283,7 @@ model AssignedActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 model LabelActivity {
     id Int @id()
     labelName String
@@ -292,7 +292,7 @@ model LabelActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create', check(issue))
+/// @@allow('read,create,update', check(issue))
 /// @@deny('all', auth() == null)
 /// @@allow('read', true && !issue.project.workspace.private)
 /// @@allow('create', issue.project.workspace.members?[user == auth()])
@@ -345,7 +345,6 @@ model Discussion {
     @@index([projectId, createdAt])
     @@index([projectId, isResolved])
     @@index([categoryId])
-    @@index([likeCount])
 }
 
 /// @@allow('read', check(discussion))

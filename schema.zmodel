@@ -302,7 +302,7 @@ model IssueActivity {
   @@index([issueId, createdAt])
 
   // can be read/created by everyone if the project is not private
-  @@allow('read,create', check(issue))
+  @@allow('read,create,update', check(issue))
 }
 
 model StatusActivity extends IssueActivity {
