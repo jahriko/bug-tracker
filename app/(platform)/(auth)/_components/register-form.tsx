@@ -1,47 +1,54 @@
-"use client"
+'use client';
 
-import { register } from "@/app/(platform)/(auth)/_actions/register"
-import { Button } from "@/components/catalyst/button"
-import { Icons } from "@/components/icons"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/catalyst/input"
-import { RegisterSchema } from "@/lib/validations"
-import { zodResolver } from "@hookform/resolvers/zod"
-import Link from "next/link"
-import { useTransition } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { register } from '@/app/(platform)/(auth)/_actions/register';
+import { Button } from '@/components/catalyst/button';
+import { Icons } from '@/components/icons';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/catalyst/input';
+import { RegisterSchema } from '@/lib/validations';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 const RegisterForm = () => {
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     },
-  })
+  });
 
-  const [isPending, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition();
 
   const onSubmit = async (values: RegisterSchema) => {
     startTransition(() => {
       register(values)
         .then((data) => {
           if (data.error) {
-            return toast(data.error)
+            return toast(data.error);
           }
 
           if (data.success) {
-            return toast(data.success)
+            return toast(data.success);
           }
         })
         .catch(() => {
-          toast("Something went wrong")
-        })
-    })
-  }
+          toast('Something went wrong');
+        });
+    });
+  };
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -52,7 +59,10 @@ const RegisterForm = () => {
       </div>
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <Form {...form}>
-          <form className="w-96 space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            className="w-96 space-y-6"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
             <div className="space-y-2">
               <FormField
                 control={form.control}
@@ -87,7 +97,11 @@ const RegisterForm = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your password" type="password" {...field} />
+                      <Input
+                        placeholder="Enter your password"
+                        type="password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -100,7 +114,11 @@ const RegisterForm = () => {
                   <FormItem>
                     <FormLabel>Confirm password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Re-enter your password" type="password" {...field} />
+                      <Input
+                        placeholder="Re-enter your password"
+                        type="password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -124,7 +142,7 @@ const RegisterForm = () => {
         </Form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RegisterForm
+export default RegisterForm;

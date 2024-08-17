@@ -1,15 +1,23 @@
-"use server"
+'use server';
 
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { IssueSchema } from "@/lib/validations"
-import { revalidateTag } from "next/cache"
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { IssueSchema } from '@/lib/validations';
+import { revalidateTag } from 'next/cache';
 
 export const createIssue = authActionClient
   .schema(IssueSchema)
   .action(
     async ({
-      parsedInput: { title, description, status, priority, assigneeId, labels, projectId },
+      parsedInput: {
+        title,
+        description,
+        status,
+        priority,
+        assigneeId,
+        labels,
+        projectId,
+      },
       ctx: { userId },
     }) => {
       await getPrisma(userId).issue.create({
@@ -29,10 +37,10 @@ export const createIssue = authActionClient
               }
             : {}),
         },
-      })
+      });
 
-      revalidateTag("issue-list")
+      revalidateTag('issue-list');
 
-      return { success: true }
+      return { success: true };
     },
-  )
+  );

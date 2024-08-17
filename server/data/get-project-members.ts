@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache"
+import { unstable_cache } from 'next/cache';
 
 export const getProjectMembers = async (projectId: number) => {
   return unstable_cache(async () => {
@@ -15,7 +15,7 @@ export const getProjectMembers = async (projectId: number) => {
           },
         },
       },
-    })
-    return members
-  })
-}
+    });
+    return members;
+  });
+};

@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getIssue = async (issueId: number) => {
   const issue = await prisma.issue.findUnique({
@@ -25,13 +25,13 @@ export const getIssue = async (issueId: number) => {
         },
       },
     },
-  })
+  });
 
   if (!issue) {
-    throw new Error("Error fetching issue")
+    throw new Error('Error fetching issue');
   }
 
-  return issue
-}
+  return issue;
+};
 
-export type IssueData = Prisma.PromiseReturnType<typeof getIssue>
+export type IssueData = Prisma.PromiseReturnType<typeof getIssue>;

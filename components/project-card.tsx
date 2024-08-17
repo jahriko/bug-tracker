@@ -1,22 +1,22 @@
 /* eslint-disable no-underscore-dangle */
-"use client"
+'use client';
 
-import { Fragment } from "react"
-import { Menu, Transition } from "@headlessui/react"
-import { EllipsisHorizontalIcon } from "@heroicons/react/20/solid"
-import Link from "next/link"
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
+import Link from 'next/link';
 
 function classNames(...classes) {
-  return classes.filter(Boolean).join(" ")
+  return classes.filter(Boolean).join(' ');
 }
 
 interface ProjectCardProps {
-  id: string
-  title: string
+  id: string;
+  title: string;
   _count: {
-    issues: number
-  }
-  url: string
+    issues: number;
+  };
+  url: string;
 }
 
 export default function ProjectCard(project: ProjectCardProps) {
@@ -54,8 +54,8 @@ export default function ProjectCard(project: ProjectCardProps) {
                   {({ active }) => (
                     <a
                       className={classNames(
-                        active ? "bg-gray-50" : "",
-                        "block px-3 py-1 text-sm leading-6 text-gray-900",
+                        active ? 'bg-gray-50' : '',
+                        'block px-3 py-1 text-sm leading-6 text-gray-900',
                       )}
                       href="#"
                     >
@@ -67,8 +67,8 @@ export default function ProjectCard(project: ProjectCardProps) {
                   {({ active }) => (
                     <a
                       className={classNames(
-                        active ? "bg-gray-50" : "",
-                        "block px-3 py-1 text-sm leading-6 text-gray-900",
+                        active ? 'bg-gray-50' : '',
+                        'block px-3 py-1 text-sm leading-6 text-gray-900',
                       )}
                       href="#"
                     >
@@ -111,5 +111,5 @@ export default function ProjectCard(project: ProjectCardProps) {
         </dl>
       </div>
     </Link>
-  )
+  );
 }

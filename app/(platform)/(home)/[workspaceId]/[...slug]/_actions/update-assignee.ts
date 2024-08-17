@@ -1,8 +1,8 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const updateAssignee = authActionClient
   .schema(
@@ -36,12 +36,12 @@ export const updateAssignee = authActionClient
           data: {
             assignedUserId,
           },
-        })
+        });
 
         await tx.assignedActivity.upsert({
           where: {
             id:
-              lastActivity.activityType === "AssigneeActivity"
+              lastActivity.activityType === 'AssigneeActivity'
                 ? lastActivity.activityId
                 : -1,
           },
@@ -55,8 +55,8 @@ export const updateAssignee = authActionClient
             userId,
             issueId,
           },
-        })
-        revalidateTag(`issue-${issueId}`)
-      })
+        });
+        revalidateTag(`issue-${issueId}`);
+      });
     },
-  )
+  );

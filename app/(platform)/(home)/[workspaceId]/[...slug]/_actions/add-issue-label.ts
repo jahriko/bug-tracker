@@ -1,8 +1,8 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const addIssueLabel = authActionClient
   .schema(
@@ -16,17 +16,17 @@ export const addIssueLabel = authActionClient
       const issueLabel = await tx.issueLabel.create({
         data: { labelId, issueId },
         select: { label: { select: { name: true, color: true } } },
-      })
+      });
 
       await tx.labelActivity.create({
         data: {
-          action: "add",
+          action: 'add',
           issueId,
           labelName: issueLabel.label.name,
           labelColor: issueLabel.label.color,
         },
-      })
+      });
 
-      revalidateTag(`issue-${issueId}`)
-    })
-  })
+      revalidateTag(`issue-${issueId}`);
+    });
+  });

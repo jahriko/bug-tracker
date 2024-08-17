@@ -1,4 +1,4 @@
-type IconProps = React.HTMLAttributes<SVGElement>
+type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
   logo: (props: IconProps) => (
@@ -145,7 +145,7 @@ export const Icons = {
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   ),
-}
+};
 
 export function TablerLineDashed(props) {
   return (
@@ -165,7 +165,7 @@ export function TablerLineDashed(props) {
         strokeWidth="2"
       />
     </svg>
-  )
+  );
 }
 
 export function MdiSignalCellular1(props) {
@@ -182,7 +182,7 @@ export function MdiSignalCellular1(props) {
         fill="currentColor"
       />
     </svg>
-  )
+  );
 }
 
 export function MdiSignalCellular2(props) {
@@ -199,7 +199,7 @@ export function MdiSignalCellular2(props) {
         fill="currentColor"
       />
     </svg>
-  )
+  );
 }
 
 export function MdiSignalCellular3(props) {
@@ -213,5 +213,5 @@ export function MdiSignalCellular3(props) {
     >
       <path d="M21 4h-5v16h5zm-7 5H9v11h5zm-7 5H2v6h5z" fill="currentColor" />
     </svg>
-  )
+  );
 }

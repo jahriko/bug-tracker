@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { Avatar } from "@/components/catalyst/avatar"
+import { Avatar } from '@/components/catalyst/avatar';
 import {
   Dropdown,
   DropdownButton,
@@ -8,16 +8,26 @@ import {
   DropdownItem,
   DropdownLabel,
   DropdownMenu,
-} from "@/components/catalyst/dropdown"
-import { NavbarItem, NavbarLabel } from "@/components/catalyst/navbar"
-import { ChevronDownIcon, Cog6ToothIcon, PlusIcon } from "@heroicons/react/16/solid"
-import { Workspace } from "@prisma/client"
-import { usePathname } from "next/navigation"
+} from '@/components/catalyst/dropdown';
+import { NavbarItem, NavbarLabel } from '@/components/catalyst/navbar';
+import {
+  ChevronDownIcon,
+  Cog6ToothIcon,
+  PlusIcon,
+} from '@heroicons/react/16/solid';
+import { Workspace } from '@prisma/client';
+import { usePathname } from 'next/navigation';
 
-export default function SwitchWorkspace({ workspaces }: { workspaces: Workspace[] }) {
-  const path = usePathname()
-  const getWorkspaceUrl = path.split("/")[1]
-  const workspaceUrlToName = workspaces.find((workspace) => workspace.url === getWorkspaceUrl)?.name
+export default function SwitchWorkspace({
+  workspaces,
+}: {
+  workspaces: Workspace[];
+}) {
+  const path = usePathname();
+  const getWorkspaceUrl = path.split('/')[1];
+  const workspaceUrlToName = workspaces.find(
+    (workspace) => workspace.url === getWorkspaceUrl,
+  )?.name;
   // const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -25,7 +35,7 @@ export default function SwitchWorkspace({ workspaces }: { workspaces: Workspace[
       <DropdownButton as={NavbarItem} className="max-lg:hidden">
         <Avatar
           className="bg-zinc-900 text-white dark:bg-white dark:text-black"
-          initials={workspaceUrlToName?.substring(0, 2) ?? ""}
+          initials={workspaceUrlToName?.substring(0, 2) ?? ''}
           slot="icon"
           square
         />
@@ -55,5 +65,5 @@ export default function SwitchWorkspace({ workspaces }: { workspaces: Workspace[
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>
-  )
+  );
 }

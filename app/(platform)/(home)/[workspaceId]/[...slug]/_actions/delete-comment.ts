@@ -1,8 +1,8 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const deleteComment = authActionClient
   .schema(
@@ -12,20 +12,25 @@ export const deleteComment = authActionClient
       issueId: z.number(),
     }),
   )
-  .action(async ({ parsedInput: { commentId, activityId, issueId }, ctx: { userId } }) => {
-    await getPrisma(userId).$transaction(async (tx) => {
-      await tx.comment.delete({
-        where: {
-          id: commentId,
-        },
-      })
+  .action(
+    async ({
+      parsedInput: { commentId, activityId, issueId },
+      ctx: { userId },
+    }) => {
+      await getPrisma(userId).$transaction(async (tx) => {
+        await tx.comment.delete({
+          where: {
+            id: commentId,
+          },
+        });
 
-      await tx.commentActivity.delete({
-        where: {
-          id: activityId,
-        },
-      })
+        await tx.commentActivity.delete({
+          where: {
+            id: activityId,
+          },
+        });
 
-      revalidateTag(`issue-${issueId}`)
-    })
-  })
+        revalidateTag(`issue-${issueId}`);
+      });
+    },
+  );

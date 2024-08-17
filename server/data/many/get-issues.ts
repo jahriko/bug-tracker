@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getIssues = async () => {
   const issues = await prisma.issue.findMany({
@@ -33,9 +33,9 @@ export const getIssues = async () => {
         },
       },
     },
-  })
+  });
 
-  return issues
-}
+  return issues;
+};
 
-export type IssuesData = Prisma.PromiseReturnType<typeof getIssues>
+export type IssuesData = Prisma.PromiseReturnType<typeof getIssues>;

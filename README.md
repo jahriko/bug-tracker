@@ -67,13 +67,13 @@ Note: Much of the design and functionality is inspired by Linear, Github, and Je
    pnpm prisma db seed
    ```
 
-5. Run the development server:
+6. Run the development server:
 
    ```
    pnpm dev
    ```
 
-6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+7. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 

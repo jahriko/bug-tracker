@@ -1,26 +1,31 @@
-"use client"
+'use client';
 import MultiSelectComboBox, {
   MultiSelectComboBoxLabel,
   MultiSelectComboBoxOption,
   MultiSelectComboboxOptions,
   MultiSelectComboBoxProps,
-} from "@/app/(platform)/(home)/[workspaceId]/_components/combobox-multi-select"
-import { BadgeProps } from "@/components/catalyst/badge"
-import { BorderlessInput } from "@/components/catalyst/borderless-input"
-import { Button } from "@/components/catalyst/button"
-import { Dialog, DialogBody } from "@/components/catalyst/dialog"
-import { Divider } from "@/components/catalyst/divider"
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
-import { classNames } from "@/lib/utils"
-import { LabelsData } from "@/server/data/many/get-labels"
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react"
-import { PlusIcon, TagIcon } from "@heroicons/react/16/solid"
-import { useOptimisticAction } from "next-safe-action/hooks"
-import { useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { createLabel } from "../_actions/create-label"
-import { COLORS } from "@/lib/colors"
+} from '@/app/(platform)/(home)/[workspaceId]/_components/combobox-multi-select';
+import { BadgeProps } from '@/components/catalyst/badge';
+import { BorderlessInput } from '@/components/catalyst/borderless-input';
+import { Button } from '@/components/catalyst/button';
+import { Dialog, DialogBody } from '@/components/catalyst/dialog';
+import { Divider } from '@/components/catalyst/divider';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { classNames } from '@/lib/utils';
+import { LabelsData } from '@/server/data/many/get-labels';
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/react';
+import { PlusIcon, TagIcon } from '@heroicons/react/16/solid';
+import { useOptimisticAction } from 'next-safe-action/hooks';
+import { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { createLabel } from '../_actions/create-label';
+import { COLORS } from '@/lib/colors';
 
 export function LabelSelector<T, V extends boolean | undefined>({
   labels,
@@ -28,77 +33,89 @@ export function LabelSelector<T, V extends boolean | undefined>({
   renderButtonAsIcon,
   ...rest
 }: {
-  labels: LabelsData
-  renderButton?: boolean
+  labels: LabelsData;
+  renderButton?: boolean;
 } & MultiSelectComboBoxProps<T, V>) {
-  const [query, setQuery] = useState("")
-  const [colorQuery, setColorQuery] = useState("")
-  const [isCreateLabelDialogOpen, setCreateLabelDialogOpen] = useState(false)
+  const [query, setQuery] = useState('');
+  const [colorQuery, setColorQuery] = useState('');
+  const [isCreateLabelDialogOpen, setCreateLabelDialogOpen] = useState(false);
 
   const form = useForm<{ color: string }>({
-    defaultValues: { color: "" },
-  })
+    defaultValues: { color: '' },
+  });
 
-  const { execute, result, optimisticState } = useOptimisticAction(createLabel, {
-    currentState: { labels },
-    updateFn: (state, newLabel) => ({
-      labels: [...state.labels, { ...newLabel, available: true }],
-    }),
-    onError: ({ error, input }) => {
-      console.error("[Action Error]: ", error, input)
+  const { execute, result, optimisticState } = useOptimisticAction(
+    createLabel,
+    {
+      currentState: { labels },
+      updateFn: (state, newLabel) => ({
+        labels: [...state.labels, { ...newLabel, available: true }],
+      }),
+      onError: ({ error, input }) => {
+        console.error('[Action Error]: ', error, input);
+      },
+      onExecute: ({ input }) => {
+        setQuery('');
+        setCreateLabelDialogOpen(false);
+        toast.success('Label created', { description: input.name });
+      },
     },
-    onExecute: ({ input }) => {
-      setQuery("")
-      setCreateLabelDialogOpen(false)
-      toast.success("Label created", { description: input.name })
-    },
-  })
+  );
 
   const filteredColors = useMemo(() => {
-    const validColors = Object.keys(COLORS) as BadgeProps["color"][]
-    if (colorQuery === "") return validColors
-    return validColors.filter((color) => color.toLowerCase().includes(colorQuery.toLowerCase()))
-  }, [colorQuery])
+    const validColors = Object.keys(COLORS) as BadgeProps['color'][];
+    if (colorQuery === '') return validColors;
+    return validColors.filter((color) =>
+      color.toLowerCase().includes(colorQuery.toLowerCase()),
+    );
+  }, [colorQuery]);
 
   const filteredLabels = useMemo(() => {
-    if (query === "") return optimisticState.labels
-    return optimisticState.labels.filter((label) => label.name.toLowerCase().includes(query.toLowerCase().trim()))
-  }, [query, optimisticState.labels])
+    if (query === '') return optimisticState.labels;
+    return optimisticState.labels.filter((label) =>
+      label.name.toLowerCase().includes(query.toLowerCase().trim()),
+    );
+  }, [query, optimisticState.labels]);
 
   const handleCreateLabel = (color: string) => {
     execute({
       id: Math.random(),
       name: query,
       color,
-    })
+    });
 
     if (result.serverError) {
-      console.error("Error creating label: ", result.serverError)
+      console.error('Error creating label: ', result.serverError);
     }
-  }
+  };
 
   const renderColorOption = (color: string) => (
     <ComboboxOption
       className={({ active }) =>
         classNames(
-          "flex cursor-default select-none items-center gap-x-3 rounded-md px-4 py-3",
-          active ? "bg-gray-100" : "",
+          'flex cursor-default select-none items-center gap-x-3 rounded-md px-4 py-3',
+          active ? 'bg-gray-100' : '',
         )
       }
       key={color}
       onClick={() =>
         form.handleSubmit(() => {
-          handleCreateLabel(color)
+          handleCreateLabel(color);
         })()
       }
       value={color}
     >
-      <div className={classNames(COLORS[color] || "bg-zinc-100", "flex-none rounded-full p-1")}>
+      <div
+        className={classNames(
+          COLORS[color] || 'bg-zinc-100',
+          'flex-none rounded-full p-1',
+        )}
+      >
         <div className="size-2.5 rounded-full bg-current" />
       </div>
       {color.charAt(0).toUpperCase() + color.slice(1)}
     </ComboboxOption>
-  )
+  );
 
   return (
     <MultiSelectComboBox
@@ -119,12 +136,23 @@ export function LabelSelector<T, V extends boolean | undefined>({
       <MultiSelectComboboxOptions hold static>
         <div className="p-1">
           {filteredLabels.map((label) => (
-            <MultiSelectComboBoxOption disabled={label.available} key={label.id} value={label}>
-              <div className={classNames(COLORS[label.color] || "bg-zinc-100", "flex-none rounded-full p-1")}>
+            <MultiSelectComboBoxOption
+              disabled={label.available}
+              key={label.id}
+              value={label}
+            >
+              <div
+                className={classNames(
+                  COLORS[label.color] || 'bg-zinc-100',
+                  'flex-none rounded-full p-1',
+                )}
+              >
                 <div className="size-2 rounded-full bg-current" />
               </div>
               {/* <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: label.color }} /> */}
-              <MultiSelectComboBoxLabel className="font-medium">{label.name}</MultiSelectComboBoxLabel>
+              <MultiSelectComboBoxLabel className="font-medium">
+                {label.name}
+              </MultiSelectComboBoxLabel>
             </MultiSelectComboBoxOption>
           ))}
 
@@ -133,10 +161,10 @@ export function LabelSelector<T, V extends boolean | undefined>({
               <Button
                 className="relative w-full"
                 onClick={() => {
-                  setCreateLabelDialogOpen(true)
+                  setCreateLabelDialogOpen(true);
                 }}
                 onMouseDown={(event: React.MouseEvent) => {
-                  event.preventDefault()
+                  event.preventDefault();
                 }}
                 plain
               >
@@ -148,8 +176,8 @@ export function LabelSelector<T, V extends boolean | undefined>({
               <Dialog
                 className="!p-4"
                 onClose={() => {
-                  setQuery("")
-                  setCreateLabelDialogOpen(false)
+                  setQuery('');
+                  setCreateLabelDialogOpen(false);
                 }}
                 open={isCreateLabelDialogOpen}
               >
@@ -167,10 +195,10 @@ export function LabelSelector<T, V extends boolean | undefined>({
                                 autoFocus
                                 className="w-full border-0 px-4 py-2.5 text-gray-900 focus:ring-0 sm:text-sm"
                                 onBlur={() => {
-                                  setColorQuery("")
+                                  setColorQuery('');
                                 }}
                                 onChange={(event) => {
-                                  setColorQuery(event.target.value)
+                                  setColorQuery(event.target.value);
                                 }}
                                 placeholder="Select a color for your label"
                               />
@@ -186,11 +214,14 @@ export function LabelSelector<T, V extends boolean | undefined>({
                                 </ComboboxOptions>
                               )}
 
-                              {colorQuery !== "" && filteredColors.length === 0 && (
-                                <div className="px-4 py-14 text-center sm:px-14">
-                                  <p className="mt-4 text-sm text-gray-900">No color found.</p>
-                                </div>
-                              )}
+                              {colorQuery !== '' &&
+                                filteredColors.length === 0 && (
+                                  <div className="px-4 py-14 text-center sm:px-14">
+                                    <p className="mt-4 text-sm text-gray-900">
+                                      No color found.
+                                    </p>
+                                  </div>
+                                )}
                             </Combobox>
                           </FormControl>
                         </FormItem>
@@ -204,5 +235,5 @@ export function LabelSelector<T, V extends boolean | undefined>({
         </div>
       </MultiSelectComboboxOptions>
     </MultiSelectComboBox>
-  )
+  );
 }

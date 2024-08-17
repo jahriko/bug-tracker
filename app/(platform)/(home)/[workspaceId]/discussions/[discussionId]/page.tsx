@@ -1,21 +1,31 @@
-import { Avatar } from "@/components/catalyst/avatar"
-import { Button } from "@/components/catalyst/button"
-import { Heading } from "@/components/catalyst/heading"
-import { Text } from "@/components/catalyst/text"
-import { Textarea } from "@/components/catalyst/textarea"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { getCurrentUser } from "@/lib/get-current-user"
-import { getPrisma } from "@/lib/getPrisma"
-import { DateTime } from "luxon"
-import { notFound } from "next/navigation"
+import { Avatar } from '@/components/catalyst/avatar';
+import { Button } from '@/components/catalyst/button';
+import { Heading } from '@/components/catalyst/heading';
+import { Text } from '@/components/catalyst/text';
+import { Textarea } from '@/components/catalyst/textarea';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { getCurrentUser } from '@/lib/get-current-user';
+import { getPrisma } from '@/lib/getPrisma';
+import { DateTime } from 'luxon';
+import { notFound } from 'next/navigation';
 
-export default async function DiscussionPage({ params }: { params: { workspaceId: string; discussionId: string } }) {
-  const user = await getCurrentUser()
+export default async function DiscussionPage({
+  params,
+}: {
+  params: { workspaceId: string; discussionId: string };
+}) {
+  const user = await getCurrentUser();
   if (!user) {
-    return notFound()
+    return notFound();
   }
 
-  const prisma = getPrisma(user.userId)
+  const prisma = getPrisma(user.userId);
   const discussion = await prisma.discussion.findUnique({
     where: { id: Number(params.discussionId) },
     include: {
@@ -25,18 +35,18 @@ export default async function DiscussionPage({ params }: { params: { workspaceId
         include: {
           author: true,
         },
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: 'asc' },
       },
     },
-  })
+  });
 
   if (!discussion) {
-    return notFound()
+    return notFound();
   }
 
   const formatRelativeTime = (date: Date) => {
-    return DateTime.fromJSDate(date).toRelative()
-  }
+    return DateTime.fromJSDate(date).toRelative();
+  };
 
   return (
     <main className="flex flex-1 flex-col pb-2 lg:px-2">
@@ -54,7 +64,9 @@ export default async function DiscussionPage({ params }: { params: { workspaceId
               <div className="flex items-center space-x-1">
                 <Text>{discussion.author.name}</Text>
                 <span>⋅</span>
-                <Text color="subtle">{formatRelativeTime(discussion.createdAt)}</Text>
+                <Text color="subtle">
+                  {formatRelativeTime(discussion.createdAt)}
+                </Text>
               </div>
             </div>
             <div className="mt-6">
@@ -78,7 +90,9 @@ export default async function DiscussionPage({ params }: { params: { workspaceId
                       />
                       <div>
                         <Text>{post.author.name}</Text>
-                        <Text color="subtle">Posted {formatRelativeTime(post.createdAt)}</Text>
+                        <Text color="subtle">
+                          Posted {formatRelativeTime(post.createdAt)}
+                        </Text>
                       </div>
                     </div>
                   </CardHeader>
@@ -103,5 +117,5 @@ export default async function DiscussionPage({ params }: { params: { workspaceId
         </div>
       </div>
     </main>
-  )
+  );
 }

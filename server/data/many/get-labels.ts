@@ -1,5 +1,5 @@
-import prisma from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
+import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export const getLabels = async () => {
   const labels = await prisma.label.findMany({
@@ -8,9 +8,9 @@ export const getLabels = async () => {
       name: true,
       color: true,
     },
-  })
+  });
 
-  return labels
-}
+  return labels;
+};
 
-export type LabelsData = Prisma.PromiseReturnType<typeof getLabels>
+export type LabelsData = Prisma.PromiseReturnType<typeof getLabels>;

@@ -1,19 +1,20 @@
-/* eslint-disable @next/next/no-img-element */
-import { Avatar } from "@/components/catalyst/avatar"
-import { Button } from "@/components/catalyst/button"
-import { Divider } from "@/components/catalyst/divider"
-import { COLORS } from "@/lib/colors"
-import { getCurrentUser } from "@/lib/get-current-user"
-import { getPrisma } from "@/lib/getPrisma"
-import prisma from "@/lib/prisma"
-import { classNames } from "@/lib/utils"
-import { LockClosedIcon } from "@heroicons/react/24/outline"
-import dynamic from "next/dynamic"
-import { RedirectType, notFound, redirect } from "next/navigation"
-import { Suspense } from "react"
-import { ActivityFeed } from "./_components/activity-feed"
-import AddLabelButton from "./_components/add-label-button"
-import { DeleteIssueButton } from "./_components/delete-issue-button"
+import { LockClosedIcon } from '@heroicons/react/24/outline';
+import dynamic from 'next/dynamic';
+import { RedirectType, notFound, redirect } from 'next/navigation';
+import { Suspense } from 'react';
+
+import { Avatar } from '@/components/catalyst/avatar';
+import { Button } from '@/components/catalyst/button';
+import { Divider } from '@/components/catalyst/divider';
+import { COLORS } from '@/lib/colors';
+import { getCurrentUser } from '@/lib/get-current-user';
+import { getPrisma } from '@/lib/getPrisma';
+import prisma from '@/lib/prisma';
+import { classNames } from '@/lib/utils';
+
+import { ActivityFeed } from './_components/activity-feed';
+import AddLabelButton from './_components/add-label-button';
+import { DeleteIssueButton } from './_components/delete-issue-button';
 import {
   AddComment,
   AssigneeProperty,
@@ -21,65 +22,70 @@ import {
   PriorityProperty,
   ProjectProperty,
   StatusProperty,
-} from "./_components/issue-details"
-import { IssueActivityType, getActivities, getIssueByProject } from "./_data/issue"
-import { slugify } from "./helpers"
+} from './_components/issue-details';
+import {
+  type IssueActivityType,
+  getActivities,
+  getIssueByProject,
+} from './_data/issue';
+import { slugify } from './helpers';
 
-const Editor = dynamic(() => import("@/components/lexical_editor/editor"), {
+const Editor = dynamic(() => import('@/components/lexical_editor/editor'), {
   ssr: true,
-})
+});
 
 export default async function IssuePage({
   params,
 }: {
   params: {
-    slug: string[]
-    workspaceId: string
-  }
+    slug: string[];
+    workspaceId: string;
+  };
 }) {
-  const { slug, workspaceId } = params
+  const { slug, workspaceId } = params;
   if (slug.length > 3) {
-    return notFound()
+    return notFound();
   }
 
-  const session = await getCurrentUser()
+  const session = await getCurrentUser();
   if (!session) {
-    redirect("/login")
+    redirect('/login');
   }
 
-  const [, issueCode = "", title] = slug
-  const [projectId = "", issueId = ""] = issueCode.split("-")
+  const [, issueCode = '', title] = slug;
+  const [projectId = '', issueId = ''] = issueCode.split('-');
 
-  const issue = await getIssueByProject(session, projectId, issueId)
+  const issue = await getIssueByProject(session, projectId, issueId);
   if (!issue) {
-    notFound()
+    notFound();
   }
 
   const projects = await getPrisma(session.userId).project.findMany({
     where: {
       identifier: projectId,
     },
-  })
+  });
 
-  const labels = await prisma.label.findMany()
-  const issueLabels = issue.labels
+  const labels = await prisma.label.findMany();
+  const issueLabels = issue.labels;
 
   // Self-healing url
-  const issueSlug = slugify(issue.title)
+  const issueSlug = slugify(issue.title);
   if (issueSlug !== title) {
-    const redirectUrl = `/${workspaceId}/issue/${projectId}-${issueId}/${issueSlug}`
-    redirect(redirectUrl, RedirectType.replace)
+    const redirectUrl = `/${workspaceId}/issue/${projectId}-${issueId}/${issueSlug}`;
+    redirect(redirectUrl, RedirectType.replace);
   }
 
-  const activities = await getActivities(session.userId, issueId)
-  const labelActivities: Extract<IssueActivityType[number], { issueActivity: "LabelActivity" }>[] = activities.filter(
-    (a) => a.issueActivity === "LabelActivity",
-  )
-  const lastActivity = activities.at(-1) ?? { issueActivity: "None", id: -1 }
+  const activities = await getActivities(session.userId, issueId);
+  const labelActivities: Extract<
+    IssueActivityType[number],
+    { issueActivity: 'LabelActivity' }
+  >[] = activities.filter((a) => a.issueActivity === 'LabelActivity');
+  const lastActivity = activities.at(-1) ?? { issueActivity: 'None', id: -1 };
   const lastActivityInfo = {
     activityType: lastActivity.issueActivity,
     activityId: lastActivity.id,
-  }
+  };
 
   // Get all labels and labels that are set to the issue
 
@@ -98,7 +104,11 @@ export default async function IssuePage({
                         <div className="md:flex md:items-center md:justify-between md:space-x-4 xl:pb-2">
                           <div className="w-full">
                             <Suspense fallback={<div>Loading...</div>}>
-                              <Editor initialContent={issue.title} placeholderText="Enter title" type="title" />
+                              <Editor
+                                initialContent={issue.title}
+                                placeholderText="Enter title"
+                                type="title"
+                              />
                             </Suspense>
                           </div>
                         </div>
@@ -146,17 +156,25 @@ export default async function IssuePage({
                             </div>
                           </div>
                           <div className="mt-6 border-b border-t border-gray-200 py-6">
-                            <h2 className="text-sm font-medium text-gray-500">Labels</h2>
-                            <ul className="mt-2 flex flex-wrap gap-2 leading-8" role="list">
+                            <h2 className="text-sm font-medium text-gray-500">
+                              Labels
+                            </h2>
+                            <ul
+                              className="mt-2 flex flex-wrap gap-2 leading-8"
+                              role="list"
+                            >
                               {issueLabels.map((label) => {
-                                const labelInfo = labels.find((l) => l.id === label.label.id)
+                                const labelInfo = labels.find(
+                                  (l) => l.id === label.label.id,
+                                );
                                 return (
-                                  <li className="inline" key={label.label.id}>
+                                  <li key={label.label.id} className="inline">
                                     <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
                                       <div
                                         className={classNames(
-                                          COLORS[labelInfo?.color] || "bg-zinc-100",
-                                          "flex-none rounded-full p-1",
+                                          COLORS[labelInfo?.color] ||
+                                            'bg-zinc-100',
+                                          'flex-none rounded-full p-1',
                                         )}
                                       >
                                         <div className="size-2 rounded-full bg-current" />
@@ -164,7 +182,7 @@ export default async function IssuePage({
                                       {labelInfo?.name}
                                     </span>
                                   </li>
-                                )
+                                );
                               })}
                             </ul>
                             <div className="mt-2">
@@ -189,20 +207,29 @@ export default async function IssuePage({
                         </div>
                       </div>
                     </div>
-                    <section aria-labelledby="activity-title" className="mt-8 xl:mt-10">
+                    <section
+                      aria-labelledby="activity-title"
+                      className="mt-8 xl:mt-10"
+                    >
                       <div>
                         <div>
                           <Divider className="pb-4" />
                           <div className="pt-6">
                             {/* Activity feed*/}
-                            <ActivityFeed activities={activities} issue={issue} />
+                            <ActivityFeed
+                              activities={activities}
+                              issue={issue}
+                            />
                             <div className="mt-6">
                               <div className="flex space-x-3">
                                 <div className="min-w-0 flex-1">
                                   <label className="sr-only" htmlFor="comment">
                                     Comment
                                   </label>
-                                  <AddComment issueId={issue.id} lastActivity={lastActivityInfo} />
+                                  <AddComment
+                                    issueId={issue.id}
+                                    lastActivity={lastActivityInfo}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -224,12 +251,20 @@ export default async function IssuePage({
                   <div className="flex flex-col gap-4">
                     <div key="status">
                       <Suspense fallback={<p>Loading</p>}>
-                        <StatusProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.status} />
+                        <StatusProperty
+                          issueId={issue.id}
+                          lastActivity={lastActivityInfo}
+                          value={issue.status}
+                        />
                       </Suspense>
                     </div>
                     <div key="priority">
                       <Suspense fallback={<p>Loading</p>}>
-                        <PriorityProperty issueId={issue.id} lastActivity={lastActivityInfo} value={issue.priority} />
+                        <PriorityProperty
+                          issueId={issue.id}
+                          lastActivity={lastActivityInfo}
+                          value={issue.priority}
+                        />
                       </Suspense>
                     </div>
                     <div key="assigned_to">
@@ -244,17 +279,24 @@ export default async function IssuePage({
                     </div>
                     <div key="labels">
                       <div className="space-y-2">
-                        <span className="select-none text-xs font-medium text-zinc-400">Labels</span>
-                        <ul className="flex flex-wrap items-center gap-1.5" role="list">
+                        <span className="select-none text-xs font-medium text-zinc-400">
+                          Labels
+                        </span>
+                        <ul
+                          className="flex flex-wrap items-center gap-1.5"
+                          role="list"
+                        >
                           {issueLabels.map((label) => {
-                            const labelInfo = labels.find((l) => l.id === label.label.id)
+                            const labelInfo = labels.find(
+                              (l) => l.id === label.label.id,
+                            );
                             return (
-                              <li className="inline" key={label.label.id}>
+                              <li key={label.label.id} className="inline">
                                 <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
                                   <div
                                     className={classNames(
-                                      COLORS[labelInfo?.color] || "bg-zinc-100",
-                                      "flex-none rounded-full p-1",
+                                      COLORS[labelInfo?.color] || 'bg-zinc-100',
+                                      'flex-none rounded-full p-1',
                                     )}
                                   >
                                     <div className="size-2 rounded-full bg-current" />
@@ -262,7 +304,7 @@ export default async function IssuePage({
                                   {labelInfo?.name}
                                 </span>
                               </li>
-                            )
+                            );
                           })}
                           <li>
                             <AddLabelButton
@@ -277,20 +319,29 @@ export default async function IssuePage({
                     </div>
                     <div key="project">
                       <Suspense fallback={<p>Loading</p>}>
-                        <ProjectProperty issueId={issue.id} lastActivity={lastActivityInfo} projects={projects} />
+                        <ProjectProperty
+                          issueId={issue.id}
+                          lastActivity={lastActivityInfo}
+                          projects={projects}
+                        />
                       </Suspense>
                     </div>
                   </div>
 
                   <Divider className="my-4" />
                   <fieldset>
-                    <label className="select-none text-xs font-medium text-zinc-400">Participants</label>
+                    <label className="select-none text-xs font-medium text-zinc-400">
+                      Participants
+                    </label>
                     <ul className="mt-2 flex flex-wrap gap-2">
                       {Array.from(
                         new Set([
                           issue.owner,
                           ...activities
-                            .filter((activity) => activity.issueActivity === "CommentActivity")
+                            .filter(
+                              (activity) =>
+                                activity.issueActivity === 'CommentActivity',
+                            )
                             .map((activity) => activity.user),
                         ]),
                       ).map((user) => (
@@ -313,7 +364,10 @@ export default async function IssuePage({
                     </Button>
                   </div>
                   <div>
-                    <DeleteIssueButton issueId={issue.id} workspaceId={workspaceId} />
+                    <DeleteIssueButton
+                      issueId={issue.id}
+                      workspaceId={workspaceId}
+                    />
                   </div>
                 </div>
               </div>
@@ -322,5 +376,5 @@ export default async function IssuePage({
         </div>
       </div>
     </main>
-  )
+  );
 }

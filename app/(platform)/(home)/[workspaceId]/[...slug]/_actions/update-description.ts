@@ -1,8 +1,8 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 const schema = z.object({
   issueId: z.number(),
@@ -11,12 +11,15 @@ const schema = z.object({
     activityType: z.string(),
     activityId: z.number(),
   }),
-})
+});
 
 export const updateDescription = authActionClient
   .schema(schema)
   .action(
-    async ({ parsedInput: { issueId, description, lastActivity }, ctx: { userId } }) => {
+    async ({
+      parsedInput: { issueId, description, lastActivity },
+      ctx: { userId },
+    }) => {
       await getPrisma(userId).issue.update({
         where: {
           id: issueId,
@@ -24,7 +27,7 @@ export const updateDescription = authActionClient
         data: {
           description,
         },
-      })
+      });
 
       await getPrisma(userId).$transaction(async (tx) => {
         await tx.issue.update({
@@ -34,12 +37,12 @@ export const updateDescription = authActionClient
           data: {
             description,
           },
-        })
+        });
 
         await tx.descriptionActivity.upsert({
           where: {
             id:
-              lastActivity.activityType === "DescriptionActivity"
+              lastActivity.activityType === 'DescriptionActivity'
                 ? lastActivity.activityId
                 : -1,
           },
@@ -51,11 +54,11 @@ export const updateDescription = authActionClient
             issueId,
             body: description,
           },
-        })
+        });
 
-        console.log("Server action: Description updated!")
+        console.log('Server action: Description updated!');
 
-        revalidateTag(`issue-${issueId}`)
-      })
+        revalidateTag(`issue-${issueId}`);
+      });
     },
-  )
+  );

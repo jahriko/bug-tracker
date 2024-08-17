@@ -1,37 +1,44 @@
-"use client"
-import { Button } from "@/components/catalyst/button"
-import { Description, Field, FieldGroup, Fieldset, Label } from "@/components/catalyst/fieldset"
-import { Heading } from "@/components/catalyst/heading"
-import { Input } from "@/components/catalyst/input"
-import { Select } from "@/components/catalyst/select"
-import { Text } from "@/components/catalyst/text"
-import { Textarea } from "@/components/catalyst/textarea"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Workspace } from "@prisma/client"
-import { CircleDashed } from "lucide-react"
-import { useAction } from "next-safe-action/hooks"
-import { usePathname, useRouter } from "next/navigation"
-import { useState } from "react"
-import { Controller, useForm } from "react-hook-form"
-import { z } from "zod"
-import { createProject } from "./_actions/create-project"
+'use client';
+import { Button } from '@/components/catalyst/button';
+import {
+  Description,
+  Field,
+  FieldGroup,
+  Fieldset,
+  Label,
+} from '@/components/catalyst/fieldset';
+import { Heading } from '@/components/catalyst/heading';
+import { Input } from '@/components/catalyst/input';
+import { Select } from '@/components/catalyst/select';
+import { Text } from '@/components/catalyst/text';
+import { Textarea } from '@/components/catalyst/textarea';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Workspace } from '@prisma/client';
+import { CircleDashed } from 'lucide-react';
+import { useAction } from 'next-safe-action/hooks';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { createProject } from './_actions/create-project';
 
-import { flattenValidationErrors } from "next-safe-action"
-import { toast } from "sonner"
+import { flattenValidationErrors } from 'next-safe-action';
+import { toast } from 'sonner';
 
 const schema = z.object({
-  name: z.string().min(2, { message: "Project name is required" }),
-  projectId: z.string().min(1, { message: "Project ID is required" }).max(3),
+  name: z.string().min(2, { message: 'Project name is required' }),
+  projectId: z.string().min(1, { message: 'Project ID is required' }).max(3),
   description: z.string().optional(),
   workspace: z.string(),
-})
+});
 
-type FormData = z.infer<typeof schema>
+type FormData = z.infer<typeof schema>;
 
 const useProjectForm = () => {
-  const [isProjectIdManuallyEdited, setIsProjectIdManuallyEdited] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
+  const [isProjectIdManuallyEdited, setIsProjectIdManuallyEdited] =
+    useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const {
     control,
@@ -42,75 +49,75 @@ const useProjectForm = () => {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: "",
-      projectId: "",
-      description: "",
-      workspace: "Unassigned",
+      name: '',
+      projectId: '',
+      description: '',
+      workspace: 'Unassigned',
     },
-  })
+  });
 
-  const projectId = watch("projectId")
+  const projectId = watch('projectId');
 
   const generateProjectId = (name: string): string => {
-    const words = name.trim().split(/\s+/)
+    const words = name.trim().split(/\s+/);
     if (words.length === 1) {
-      return name.slice(0, 3).toUpperCase()
+      return name.slice(0, 3).toUpperCase();
     } else {
       return words
         .map((word) => word[0])
-        .join("")
+        .join('')
         .slice(0, 3)
-        .toUpperCase()
+        .toUpperCase();
     }
-  }
+  };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value.trim()
-    setValue("name", newValue)
+    const newValue = e.target.value.trim();
+    setValue('name', newValue);
 
     if (!isProjectIdManuallyEdited) {
-      setValue("projectId", generateProjectId(newValue))
+      setValue('projectId', generateProjectId(newValue));
     }
-  }
+  };
 
   const handleProjectIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsProjectIdManuallyEdited(true)
+    setIsProjectIdManuallyEdited(true);
     setValue(
-      "projectId",
+      'projectId',
       e.target.value
         .toUpperCase()
-        .replace(/[^A-Z0-9]/g, "")
+        .replace(/[^A-Z0-9]/g, '')
         .slice(0, 3),
-    )
-  }
+    );
+  };
 
-  const { execute, status, result } = useAction(createProject)
+  const { execute, status, result } = useAction(createProject);
 
   const onSubmit = (data: FormData) => {
     execute({
       identifier: data.projectId,
       name: data.name,
       description: data.description,
-      workspaceUrl: pathname.split("/")[1],
-    })
+      workspaceUrl: pathname.split('/')[1],
+    });
 
     if (result.validationErrors) {
-      const flattenedErrors = flattenValidationErrors(result.validationErrors)
+      const flattenedErrors = flattenValidationErrors(result.validationErrors);
       if (flattenedErrors.formErrors.length > 0) {
-        toast.error(flattenedErrors.formErrors[0])
+        toast.error(flattenedErrors.formErrors[0]);
       } else if (Object.keys(flattenedErrors.fieldErrors).length > 0) {
-        const firstFieldError = Object.values(flattenedErrors.fieldErrors)[0]
+        const firstFieldError = Object.values(flattenedErrors.fieldErrors)[0];
         if (Array.isArray(firstFieldError) && firstFieldError.length > 0) {
-          toast.error(firstFieldError[0])
+          toast.error(firstFieldError[0]);
         }
       }
-      return
+      return;
     }
 
     if (result.data?.success) {
-      router.push(`/${data.workspace}/${data.projectId}`)
+      router.push(`/${data.workspace}/${data.projectId}`);
     }
-  }
+  };
 
   return {
     control,
@@ -122,8 +129,8 @@ const useProjectForm = () => {
     onSubmit,
     status,
     result,
-  }
-}
+  };
+};
 
 const FormField = ({
   name,
@@ -131,21 +138,29 @@ const FormField = ({
   error,
   children,
 }: {
-  name: keyof FormData
-  label: string
-  error?: string | undefined
-  children: React.ReactNode
+  name: keyof FormData;
+  label: string;
+  error?: string | undefined;
+  children: React.ReactNode;
 }) => (
   <Field>
     <Label>{label}</Label>
     {children}
     {error ? <span className="text-sm text-red-500">{error}</span> : null}
   </Field>
-)
+);
 
 const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
-  const { control, handleSubmit, errors, projectId, handleNameChange, handleProjectIdChange, onSubmit, status } =
-    useProjectForm()
+  const {
+    control,
+    handleSubmit,
+    errors,
+    projectId,
+    handleNameChange,
+    handleProjectIdChange,
+    onSubmit,
+    status,
+  } = useProjectForm();
 
   return (
     <main className="relative isolate flex flex-1 flex-col bg-white pb-2 lg:px-2">
@@ -165,7 +180,12 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
             <path d="M.5 200V.5H200" fill="none" />
           </pattern>
         </defs>
-        <rect fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)" height="100%" strokeWidth={0} width="100%" />
+        <rect
+          fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)"
+          height="100%"
+          strokeWidth={0}
+          width="100%"
+        />
       </svg>
       <svg
         aria-hidden="true"
@@ -183,7 +203,12 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
             <path d="M.5 200V.5H200" fill="none" />
           </pattern>
         </defs>
-        <rect fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)" height="100%" strokeWidth={0} width="100%" />
+        <rect
+          fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)"
+          height="100%"
+          strokeWidth={0}
+          width="100%"
+        />
       </svg>
       <div className="grow p-6 lg:rounded-lg lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
         <div className="mx-auto max-w-6xl">
@@ -191,33 +216,51 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
             <div className="mx-auto max-w-xl">
               <Heading>Create Project</Heading>
               <Text className="mb-6">
-                Personalize your project to help other users understand its purpose and scope. You can update these
-                values from the General Info tab in the project settings if needed.
+                Personalize your project to help other users understand its
+                purpose and scope. You can update these values from the General
+                Info tab in the project settings if needed.
               </Text>
 
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Fieldset aria-label="Project details">
                   <FieldGroup>
-                    <FormField error={errors.name?.message} label="Name" name="name">
+                    <FormField
+                      error={errors.name?.message}
+                      label="Name"
+                      name="name"
+                    >
                       <Controller
                         control={control}
                         name="name"
                         render={({ field }) => (
-                          <Input {...field} onChange={handleNameChange} placeholder="Enter a name for your project" />
+                          <Input
+                            {...field}
+                            onChange={handleNameChange}
+                            placeholder="Enter a name for your project"
+                          />
                         )}
                       />
                     </FormField>
 
-                    <FormField error={errors.projectId?.message} label="Project ID" name="projectId">
+                    <FormField
+                      error={errors.projectId?.message}
+                      label="Project ID"
+                      name="projectId"
+                    >
                       <Controller
                         control={control}
                         name="projectId"
                         render={({ field }) => (
-                          <Input {...field} onChange={handleProjectIdChange} placeholder="Enter project ID" />
+                          <Input
+                            {...field}
+                            onChange={handleProjectIdChange}
+                            placeholder="Enter project ID"
+                          />
                         )}
                       />
                       <Description>
-                        Used as a prefix in IDs for issues and articles that belong to this project
+                        Used as a prefix in IDs for issues and articles that
+                        belong to this project
                       </Description>
                     </FormField>
 
@@ -227,11 +270,14 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
                         <div>
                           <div className="flex items-center gap-x-3 gap-y-4">
                             <CircleDashed className="size-[1.10rem] text-zinc-500 hover:text-black" />
-                            <div className="text-sm font-medium">Why does Next.js use caching by default?</div>
+                            <div className="text-sm font-medium">
+                              Why does Next.js use caching by default?
+                            </div>
                           </div>
                           <div className="text-xs text-zinc-500">
                             <span className="hover:text-zinc-700">
-                              {projectId ? `${projectId}-1` : "ID-1"} opened 1 minute ago by John Smith
+                              {projectId ? `${projectId}-1` : 'ID-1'} opened 1
+                              minute ago by John Smith
                             </span>
                           </div>
                         </div>
@@ -266,15 +312,16 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
                         )}
                       />
                       <Description>
-                        Groups this project with other projects under the same umbrella organization
+                        Groups this project with other projects under the same
+                        umbrella organization
                       </Description>
                     </FormField>
                   </FieldGroup>
                 </Fieldset>
 
                 <div className="mx-auto mt-6 flex justify-center">
-                  <Button className="w-full" disabled={status === "executing"}>
-                    {status === "executing" ? "Creating..." : "Create"}
+                  <Button className="w-full" disabled={status === 'executing'}>
+                    {status === 'executing' ? 'Creating...' : 'Create'}
                   </Button>
                 </div>
               </form>
@@ -283,7 +330,7 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
         </div>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default CreateProjectForm
+export default CreateProjectForm;

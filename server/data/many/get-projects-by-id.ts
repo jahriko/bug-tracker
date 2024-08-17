@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getProjectsById = async (workspaceId: string) => {
   const workspaceProjects = await prisma.workspace
@@ -16,9 +16,9 @@ export const getProjectsById = async (workspaceId: string) => {
         },
       },
     })
-    .then((workspaceProjects) => workspaceProjects?.projects ?? [])
+    .then((workspaceProjects) => workspaceProjects?.projects ?? []);
 
-  return workspaceProjects
-}
+  return workspaceProjects;
+};
 
-export type ProjectsIdData = Prisma.PromiseReturnType<typeof getProjectsById>
+export type ProjectsIdData = Prisma.PromiseReturnType<typeof getProjectsById>;

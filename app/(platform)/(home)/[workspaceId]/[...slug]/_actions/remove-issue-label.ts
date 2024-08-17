@@ -1,8 +1,8 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const removeIssueLabel = authActionClient
   .schema(
@@ -28,17 +28,17 @@ export const removeIssueLabel = authActionClient
             },
           },
         },
-      })
+      });
 
       await tx.labelActivity.create({
         data: {
-          action: "remove",
+          action: 'remove',
           issueId,
           labelName: issueLabel.label.name,
           labelColor: issueLabel.label.color,
         },
-      })
+      });
 
-      revalidateTag(`issue-${issueId}`)
-    })
-  })
+      revalidateTag(`issue-${issueId}`);
+    });
+  });

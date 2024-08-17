@@ -1,36 +1,38 @@
-import { useState } from "react"
-import { toggle } from "radash"
-import { useFormContext } from "react-hook-form"
-import { CheckIcon } from "@radix-ui/react-icons"
-import { Tag } from "lucide-react"
+import { CheckIcon } from '@radix-ui/react-icons';
+import { Tag } from 'lucide-react';
+import { toggle } from 'radash';
+import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+
+import { type Labels } from '@/app/(platform)/(home)/layout';
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover"
-import {
-  CommandInput,
-  CommandList,
+  Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
-  Command,
+  CommandList,
   CommandSeparator,
-} from "@/components/ui/command"
-import { Labels } from "@/app/(platform)/(home)/layout"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { FormField, FormItem, FormControl } from "@/components/ui/form"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { IssueLabelsData } from "@/server/data/many/get-issue-labels"
-import { LabelsData } from "@/server/data/many/get-labels"
+} from '@/components/ui/command';
+import { FormControl, FormField, FormItem } from '@/components/ui/form';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
+import { type IssueLabelsData } from '@/server/data/many/get-issue-labels';
+import { type LabelsData } from '@/server/data/many/get-labels';
 
-export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
-  const { control, setValue } = useFormContext()
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+
+export const LabelBox = ({ issueLabels }: { issueLabels: IssueLabelsData }) => {
+  const { control, setValue } = useFormContext();
   // const [background, setBackground] = useState("#B4D455")
 
-  const [selectedValues, setSelectedValues] = useState<LabelsData>([])
+  const [selectedValues, setSelectedValues] = useState<LabelsData>([]);
 
   return (
     <FormField
@@ -71,8 +73,8 @@ export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
                             )
                             .map((label) => (
                               <Badge
-                                className="rounded-sm px-1 font-normal"
                                 key={label.name}
+                                className="rounded-sm px-1 font-normal"
                                 variant="secondary"
                               >
                                 {label.name}
@@ -95,33 +97,33 @@ export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
                       const isSelected = selectedValues.find(
                         (label) =>
                           label.name.toLowerCase() === l.name.toLowerCase(),
-                      )
+                      );
                       return (
                         <CommandItem
                           key={l.name.toLowerCase()}
+                          value={l.name.toLowerCase()}
                           onSelect={(value: string) => {
                             const index = issueLabels.find(
                               (label) => label.name.toLowerCase() === value,
-                            )
+                            );
                             const newSelectedValues = toggle(
                               selectedValues,
                               index,
-                            )
+                            );
                             setSelectedValues(
                               newSelectedValues.filter(
                                 (value): value is Labels => value !== undefined,
                               ),
-                            )
-                            setValue("labels", newSelectedValues)
+                            );
+                            setValue('labels', newSelectedValues);
                           }}
-                          value={l.name.toLowerCase()}
                         >
                           <div
                             className={cn(
-                              "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                              'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
                               isSelected
-                                ? "bg-primary text-primary-foreground"
-                                : "opacity-50 [&_svg]:invisible",
+                                ? 'bg-primary text-primary-foreground'
+                                : 'opacity-50 [&_svg]:invisible',
                             )}
                           >
                             <CheckIcon className="h-4 w-4" />
@@ -138,7 +140,7 @@ export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
                             {l.name}
                           </span>
                         </CommandItem>
-                      )
+                      );
                     })}
                   </CommandGroup>
                   {/* NOTE: Add Picker */}
@@ -157,8 +159,8 @@ export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
                         <CommandItem
                           className="justify-center text-center"
                           onSelect={() => {
-                            selectedValues.clear()
-                            setValue("label", "")
+                            selectedValues.clear();
+                            setValue('label', '');
                           }}
                         >
                           Clear
@@ -173,5 +175,5 @@ export function LabelBox({ issueLabels }: { issueLabels: IssueLabelsData }) {
         </FormItem>
       )}
     />
-  )
-}
+  );
+};

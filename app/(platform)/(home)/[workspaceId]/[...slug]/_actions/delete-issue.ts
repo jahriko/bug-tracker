@@ -1,9 +1,9 @@
-"use server"
+'use server';
 
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const deleteIssue = authActionClient
   .schema(
@@ -16,9 +16,9 @@ export const deleteIssue = authActionClient
       where: {
         id: issueId,
       },
-    })
+    });
 
-    revalidateTag(`issue-${issueId}`)
+    revalidateTag(`issue-${issueId}`);
 
-    return { success: true }
-  })
+    return { success: true };
+  });

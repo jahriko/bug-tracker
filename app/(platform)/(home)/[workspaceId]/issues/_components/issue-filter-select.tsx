@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import { Select } from "@/components/catalyst/select"
+import { Select } from '@/components/catalyst/select';
 import {
   Combobox,
   ComboboxButton,
@@ -10,37 +10,37 @@ import {
   Popover,
   PopoverButton,
   PopoverPanel,
-} from "@headlessui/react"
-import { useRouter, useSearchParams } from "next/navigation"
+} from '@headlessui/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-import { CheckIcon, ChevronDownIcon } from "@heroicons/react/20/solid"
-import clsx from "clsx"
-import { useState } from "react"
+import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
+import clsx from 'clsx';
+import { useState } from 'react';
 
 const people = [
-  { id: 1, name: "Tom Cook" },
-  { id: 2, name: "Wade Cooper" },
-  { id: 3, name: "Tanya Fox" },
-  { id: 4, name: "Arlene Mccoy" },
-  { id: 5, name: "Devon Webb" },
-]
+  { id: 1, name: 'Tom Cook' },
+  { id: 2, name: 'Wade Cooper' },
+  { id: 3, name: 'Tanya Fox' },
+  { id: 4, name: 'Arlene Mccoy' },
+  { id: 5, name: 'Devon Webb' },
+];
 function IssueFilterSelect() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const filter = searchParams.get("filter") ?? "all"
-  const status = searchParams.get("status") ?? "all"
-  const priority = searchParams.get("priority") ?? "all"
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const filter = searchParams.get('filter') ?? 'all';
+  const status = searchParams.get('status') ?? 'all';
+  const priority = searchParams.get('priority') ?? 'all';
 
   const handleParamChange = (paramName: string, value: string) => {
-    const params = new URLSearchParams(searchParams)
-    if (value === "all") {
-      params.delete(paramName)
+    const params = new URLSearchParams(searchParams);
+    if (value === 'all') {
+      params.delete(paramName);
     } else {
-      params.set(paramName, value)
+      params.set(paramName, value);
     }
-    params.delete("page")
-    router.push(`?${params.toString()}`)
-  }
+    params.delete('page');
+    router.push(`?${params.toString()}`);
+  };
 
   return (
     <div className="flex gap-4">
@@ -48,7 +48,7 @@ function IssueFilterSelect() {
         aria-label="Filter issues"
         className="w-48"
         onChange={(e) => {
-          handleParamChange("filter", e.target.value)
+          handleParamChange('filter', e.target.value);
         }}
         value={filter}
       >
@@ -60,7 +60,7 @@ function IssueFilterSelect() {
         aria-label="Filter by status"
         className="w-48"
         onChange={(e) => {
-          handleParamChange("status", e.target.value)
+          handleParamChange('status', e.target.value);
         }}
         value={status}
       >
@@ -75,7 +75,7 @@ function IssueFilterSelect() {
         aria-label="Filter by priority"
         className="w-48"
         onChange={(e) => {
-          handleParamChange("priority", e.target.value)
+          handleParamChange('priority', e.target.value);
         }}
         value={priority}
       >
@@ -86,19 +86,25 @@ function IssueFilterSelect() {
         <option value="HIGH">High</option>
       </Select>
     </div>
-  )
+  );
 }
 
-function MultiSelectionFilterOption<T>({ options, label }: { options: T[]; label: string }) {
-  const [query, setQuery] = useState("")
-  const [selected, setSelected] = useState(options[1])
+function MultiSelectionFilterOption<T>({
+  options,
+  label,
+}: {
+  options: T[];
+  label: string;
+}) {
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState(options[1]);
 
   const filteredOptions =
-    query === ""
+    query === ''
       ? options
       : options.filter((option: T) => {
-          return option.name.toLowerCase().includes(query.toLowerCase())
-        })
+          return option.name.toLowerCase().includes(query.toLowerCase());
+        });
 
   return (
     <Popover className="relative">
@@ -113,22 +119,22 @@ function MultiSelectionFilterOption<T>({ options, label }: { options: T[]; label
         <Combobox
           multiple
           onChange={(value) => {
-            setSelected(value)
+            setSelected(value);
           }}
           onClose={() => {
-            setQuery("")
+            setQuery('');
           }}
           value={selected}
         >
           <div className="relative">
             <ComboboxInput
               className={clsx(
-                "w-full rounded-lg border-none bg-white/5 py-1.5 pl-3 pr-8 text-sm/6 text-white",
-                "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
+                'w-full rounded-lg border-none bg-white/5 py-1.5 pl-3 pr-8 text-sm/6 text-white',
+                'focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25',
               )}
               displayValue={(person) => person?.name}
               onChange={(event) => {
-                setQuery(event.target.value)
+                setQuery(event.target.value);
               }}
             />
             <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
@@ -139,8 +145,8 @@ function MultiSelectionFilterOption<T>({ options, label }: { options: T[]; label
           <ComboboxOptions
             anchor="bottom"
             className={clsx(
-              "w-[var(--input-width)] rounded-xl border border-white/5 bg-white/5 p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
-              "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0",
+              'w-[var(--input-width)] rounded-xl border border-white/5 bg-white/5 p-1 [--anchor-gap:var(--spacing-1)] empty:invisible',
+              'transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0',
             )}
             transition
           >
@@ -158,7 +164,7 @@ function MultiSelectionFilterOption<T>({ options, label }: { options: T[]; label
         </Combobox>
       </PopoverPanel>
     </Popover>
-  )
+  );
 }
 
-export default IssueFilterSelect
+export default IssueFilterSelect;

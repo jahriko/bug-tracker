@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getIssuesById = async (projectId: string) => {
   const getProjectIdByName = await prisma.project.findFirst({
@@ -9,10 +9,10 @@ export const getIssuesById = async (projectId: string) => {
     where: {
       title: projectId,
     },
-  })
+  });
 
   if (!getProjectIdByName) {
-    return []
+    return [];
   }
 
   const issues = await prisma.issue.findMany({
@@ -48,9 +48,9 @@ export const getIssuesById = async (projectId: string) => {
         },
       },
     },
-  })
+  });
 
-  return issues
-}
+  return issues;
+};
 
-export type IssuesData = Prisma.PromiseReturnType<typeof getIssuesById>
+export type IssuesData = Prisma.PromiseReturnType<typeof getIssuesById>;

@@ -30,5 +30,5 @@ export function SolarBugBoldDuotone(props: SVGProps<SVGSVGElement>) {
         fillRule="evenodd"
       />
     </svg>
-  )
+  );
 }

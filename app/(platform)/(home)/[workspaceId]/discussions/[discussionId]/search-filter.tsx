@@ -1,42 +1,50 @@
-"use client"
+'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Project } from "@prisma/client"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Project } from '@prisma/client';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function SearchFilter({
   projects,
   workspaceMembers,
 }: {
-  projects: Project[]
+  projects: Project[];
   workspaceMembers: {
     user: {
-      id: string
-      name: string
-      email: string
-      image: string | null
-    }
-  }[]
+      id: string;
+      name: string;
+      email: string;
+      image: string | null;
+    };
+  }[];
 }) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [project, setProject] = useState(searchParams.get("project") || "all")
-  const [user, setUser] = useState(searchParams.get("user") || "all")
-  const [timeFilter, setTimeFilter] = useState(searchParams.get("time") || "all")
+  const [project, setProject] = useState(searchParams.get('project') || 'all');
+  const [user, setUser] = useState(searchParams.get('user') || 'all');
+  const [timeFilter, setTimeFilter] = useState(
+    searchParams.get('time') || 'all',
+  );
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams)
-    if (project !== "all") params.set("project", project)
-    else params.delete("project")
-    if (user !== "all") params.set("user", user)
-    else params.delete("user")
-    if (timeFilter !== "all") params.set("time", timeFilter)
-    else params.delete("time")
+    const params = new URLSearchParams(searchParams);
+    if (project !== 'all') params.set('project', project);
+    else params.delete('project');
+    if (user !== 'all') params.set('user', user);
+    else params.delete('user');
+    if (timeFilter !== 'all') params.set('time', timeFilter);
+    else params.delete('time');
 
-    router.push(`?${params.toString()}`)
-  }, [project, user, timeFilter, router, searchParams])
+    router.push(`?${params.toString()}`);
+  }, [project, user, timeFilter, router, searchParams]);
 
   return (
     <div className="flex space-x-4">
@@ -81,5 +89,5 @@ export default function SearchFilter({
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }

@@ -1,32 +1,32 @@
-"use client"
-import { Input, InputGroup } from "@/components/catalyst/input"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
-import { useDebounce } from "use-debounce"
+'use client';
+import { Input, InputGroup } from '@/components/catalyst/input';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { useDebounce } from 'use-debounce';
 
-export default function SearchInput({ workspaceId, initialSearch = "" }) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [search, setSearch] = useState(initialSearch)
-  const [debouncedSearch] = useDebounce(search, 300)
+export default function SearchInput({ workspaceId, initialSearch = '' }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch] = useDebounce(search, 300);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams)
+      const params = new URLSearchParams(searchParams);
       if (value) {
-        params.set(name, value)
+        params.set(name, value);
       } else {
-        params.delete(name)
+        params.delete(name);
       }
-      return params.toString()
+      return params.toString();
     },
     [searchParams],
-  )
+  );
 
   useEffect(() => {
-    const queryString = createQueryString("search", debouncedSearch)
-    router.push(`/${workspaceId}/issues?${queryString}`, { scroll: false })
-  }, [debouncedSearch, router, workspaceId, createQueryString])
+    const queryString = createQueryString('search', debouncedSearch);
+    router.push(`/${workspaceId}/issues?${queryString}`, { scroll: false });
+  }, [debouncedSearch, router, workspaceId, createQueryString]);
 
   return (
     <InputGroup className="w-full">
@@ -34,11 +34,11 @@ export default function SearchInput({ workspaceId, initialSearch = "" }) {
         aria-label="Search"
         name="search"
         onChange={(e) => {
-          setSearch(e.target.value)
+          setSearch(e.target.value);
         }}
         placeholder="Search&hellip;"
         value={search}
       />
     </InputGroup>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getComments = async (issueId: number) => {
   const comments = await prisma.comment.findMany({
@@ -17,9 +17,9 @@ export const getComments = async (issueId: number) => {
         },
       },
     },
-  })
+  });
 
-  return comments
-}
+  return comments;
+};
 
-export type IssueLabelsData = Prisma.PromiseReturnType<typeof getComments>
+export type IssueLabelsData = Prisma.PromiseReturnType<typeof getComments>;

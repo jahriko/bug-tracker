@@ -1,8 +1,8 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { revalidateTag } from "next/cache"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { revalidateTag } from 'next/cache';
+import { z } from 'zod';
 
 export const addComment = authActionClient
   .schema(
@@ -16,7 +16,10 @@ export const addComment = authActionClient
     }),
   )
   .action(
-    async ({ parsedInput: { issueId, commentBody, lastActivity }, ctx: { userId } }) => {
+    async ({
+      parsedInput: { issueId, commentBody, lastActivity },
+      ctx: { userId },
+    }) => {
       await getPrisma(userId).$transaction(async (tx) => {
         const comment = await tx.comment.create({
           data: {
@@ -24,7 +27,7 @@ export const addComment = authActionClient
             authorId: userId,
             issueId,
           },
-        })
+        });
 
         await tx.commentActivity.create({
           data: {
@@ -32,9 +35,9 @@ export const addComment = authActionClient
             userId,
             issueId,
           },
-        })
+        });
 
-        revalidateTag(`issue-${issueId}`)
-      })
+        revalidateTag(`issue-${issueId}`);
+      });
     },
-  )
+  );

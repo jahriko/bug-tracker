@@ -1,4 +1,3 @@
-
 export default {
   code: 'editor-code',
   heading: {

@@ -1,13 +1,13 @@
-"use server"
-import { getPrisma } from "@/lib/getPrisma"
-import { authActionClient } from "@/lib/safe-action"
-import { z } from "zod"
+'use server';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
+import { z } from 'zod';
 
 const schema = z.object({
   issueId: z.number(),
   labelsToAdd: z.array(z.number()),
   labelsToRemove: z.array(z.number()),
-})
+});
 
 export const updateLabels = authActionClient
   .schema(schema)
@@ -35,6 +35,6 @@ export const updateLabels = authActionClient
             },
           },
         },
-      })
+      });
     },
-  )
+  );

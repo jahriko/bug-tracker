@@ -1,11 +1,11 @@
-"use server"
+'use server';
 
-import { signIn } from "@/auth"
-import prisma from "@/lib/prisma"
-import { actionClient } from "@/lib/safe-action"
-import { z } from "zod"
+import { signIn } from '@/auth';
+import prisma from '@/lib/prisma';
+import { actionClient } from '@/lib/safe-action';
+import { z } from 'zod';
 
-const schema = z.object({})
+const schema = z.object({});
 
 export const loginDemo = actionClient.schema(schema).action(
   async () => {
@@ -13,14 +13,14 @@ export const loginDemo = actionClient.schema(schema).action(
       where: {
         workspaceMembers: {
           some: {
-            role: "ADMIN",
+            role: 'ADMIN',
           },
         },
       },
       include: {
         workspaceMembers: {
           where: {
-            role: "ADMIN",
+            role: 'ADMIN',
           },
           select: {
             workspace: {
@@ -31,26 +31,28 @@ export const loginDemo = actionClient.schema(schema).action(
           },
         },
       },
-    })
+    });
 
     if (!demoUser) {
-      throw new Error("Demo admin user not found. Please ensure the database is seeded with demo data.")
+      throw new Error(
+        'Demo admin user not found. Please ensure the database is seeded with demo data.',
+      );
     }
 
-    const lastWorkspaceUsed = demoUser.lastWorkspaceUrl ?? "create-workspace"
+    const lastWorkspaceUsed = demoUser.lastWorkspaceUrl ?? 'create-workspace';
 
-    await signIn("credentials", {
+    await signIn('credentials', {
       email: demoUser.email,
-      password: "12345678",
+      password: '12345678',
       redirectTo: `/${lastWorkspaceUsed}/issues`,
-    })
+    });
 
-    return { success: true }
+    return { success: true };
   },
   {
     onError: (error) => {
-      console.error("Demo login error:", error)
-      throw new Error("Failed to log in as demo user. Please try again later.")
+      console.error('Demo login error:', error);
+      throw new Error('Failed to log in as demo user. Please try again later.');
     },
   },
-)
+);

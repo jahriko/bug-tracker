@@ -1,43 +1,45 @@
-/* eslint-disable @next/next/no-img-element */
-import { InputGroup } from "@/components/catalyst/input"
+import { MagnifyingGlassIcon } from '@heroicons/react/16/solid';
+import { type Priority, type Prisma, type Status } from '@prisma/client';
+import { notFound } from 'next/navigation';
+import { InputGroup } from '@/components/catalyst/input';
 import {
   Pagination,
   PaginationList,
   PaginationNext,
   PaginationPage,
   PaginationPrevious,
-} from "@/components/catalyst/pagination"
-import { getCurrentUser } from "@/lib/get-current-user"
-import { getPrisma } from "@/lib/getPrisma"
-import prisma from "@/lib/prisma"
-import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import { Priority, Prisma, Status } from "@prisma/client"
-import { notFound } from "next/navigation"
-import NewIssueDialog from "../_components/new-issue-dialog"
-import IssueTable from "./_components/issue-table"
-import SearchInput from "./_components/search-input"
+} from '@/components/catalyst/pagination';
+import { getCurrentUser } from '@/lib/get-current-user';
+import { getPrisma } from '@/lib/getPrisma';
+import prisma from '@/lib/prisma';
+import IssueTable from './_components/issue-table';
+import NewIssueDialog from './_components/new-issue-dialog';
+import SearchInput from './_components/search-input';
 
 export default async function IssuePage({
   params,
   searchParams,
 }: {
-  params: { workspaceId: string }
-  searchParams: Record<string, string | string[] | undefined>
+  params: { workspaceId: string };
+  searchParams: Record<string, string | string[] | undefined>;
 }) {
-  const session = await getCurrentUser()
-  await updateLastWorkspaceUrl(session, params.workspaceId)
+  const session = await getCurrentUser();
+  await updateLastWorkspaceUrl(session, params.workspaceId);
 
-  const page = Number(searchParams.page) || 1
-  const pageSize = 20
-  const filter = searchParams.filter as string | undefined
-  const status = searchParams.status as Status | undefined
-  const priority = searchParams.priority as Priority | undefined
-  const search = searchParams.search as string | undefined
+  const page = Number(searchParams.page) || 1;
+  const pageSize = 20;
+  const filter = searchParams.filter as string | undefined;
+  const status = searchParams.status as Status | undefined;
+  const priority = searchParams.priority as Priority | undefined;
+  const search = searchParams.search as string | undefined;
 
-  const workspaceData = await getWorkspaceData(session.userId, params.workspaceId)
-  if (!workspaceData) notFound()
+  const workspaceData = await getWorkspaceData(
+    session.userId,
+    params.workspaceId,
+  );
+  if (!workspaceData) notFound();
 
-  const projectIds = workspaceData.projects.map((p) => p.id)
+  const projectIds = workspaceData.projects.map((p) => p.id);
   const { issues, totalIssues } = await getIssuesData(
     session.userId,
     projectIds,
@@ -47,13 +49,15 @@ export default async function IssuePage({
     status,
     priority,
     search,
-  )
+  );
 
-  const projectMembers = workspaceData.projects.flatMap((p) => p.members.map((m) => m.user))
+  const projectMembers = workspaceData.projects.flatMap((p) =>
+    p.members.map((m) => m.user),
+  );
 
-  const labels = await prisma.label.findMany()
+  const labels = await prisma.label.findMany();
 
-  const paginationData = getPaginationData(page, totalIssues, pageSize)
+  const paginationData = getPaginationData(page, totalIssues, pageSize);
 
   return (
     <main className="flex flex-1 flex-col pb-2 lg:px-2">
@@ -65,7 +69,10 @@ export default async function IssuePage({
             <div className="flex-grow">
               <InputGroup className="w-full">
                 <MagnifyingGlassIcon />
-                <SearchInput initialSearch={search} workspaceId={params.workspaceId} />
+                <SearchInput
+                  initialSearch={search}
+                  workspaceId={params.workspaceId}
+                />
               </InputGroup>
             </div>
             <NewIssueDialog
@@ -87,7 +94,10 @@ export default async function IssuePage({
                 </div> */}
                 {issues.length > 0 ? (
                   <>
-                    <IssueTable issues={issues} workspaceId={params.workspaceId} />
+                    <IssueTable
+                      issues={issues}
+                      workspaceId={params.workspaceId}
+                    />
                     <TablePagination {...paginationData} />
                   </>
                 ) : (
@@ -101,25 +111,29 @@ export default async function IssuePage({
         </div>
       </div>
     </main>
-  )
+  );
 }
 
 function NoIssuesFound({ search }: { search: string | undefined }) {
   return (
     <div className="mt-8 text-center">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">No issues found</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        No issues found
+      </h3>
       {search ? (
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          No issues match the search term `{search}`. Try a different search or clear the filter.
+          No issues match the search term `{search}`. Try a different search or
+          clear the filter.
         </p>
       ) : null}
       {!search && (
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          There are no issues in this workspace yet. Create a new issue to get started.
+          There are no issues in this workspace yet. Create a new issue to get
+          started.
         </p>
       )}
     </div>
-  )
+  );
 }
 
 function TablePagination({
@@ -129,45 +143,49 @@ function TablePagination({
   hasPreviousPage,
   createPageUrl,
 }: {
-  currentPage: number
-  totalPages: number
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-  createPageUrl: (pageNum: number) => string
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  createPageUrl: (pageNum: number) => string;
 }) {
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <Pagination aria-label="Page navigation" className="mt-6">
       <PaginationPrevious
         aria-disabled={!hasPreviousPage}
-        className={!hasPreviousPage ? "pointer-events-none opacity-50" : ""}
-        href={hasPreviousPage ? createPageUrl(currentPage - 1) : "#"}
+        className={!hasPreviousPage ? 'pointer-events-none opacity-50' : ''}
+        href={hasPreviousPage ? createPageUrl(currentPage - 1) : '#'}
       >
         Previous
       </PaginationPrevious>
       <PaginationList>
         {pageNumbers.map((pageNum) => (
-          <PaginationPage current={currentPage === pageNum} href={createPageUrl(pageNum)} key={pageNum}>
+          <PaginationPage
+            key={pageNum}
+            current={currentPage === pageNum}
+            href={createPageUrl(pageNum)}
+          >
             {pageNum}
           </PaginationPage>
         ))}
       </PaginationList>
       <PaginationNext
         aria-disabled={!hasNextPage}
-        className={!hasNextPage ? "pointer-events-none opacity-50" : ""}
-        href={hasNextPage ? createPageUrl(currentPage + 1) : "#"}
+        className={!hasNextPage ? 'pointer-events-none opacity-50' : ''}
+        href={hasNextPage ? createPageUrl(currentPage + 1) : '#'}
       >
         Next
       </PaginationNext>
     </Pagination>
-  )
+  );
 }
 
 async function updateLastWorkspaceUrl(
   session: {
-    userId: string
-    lastWorkspaceUrl: string
+    userId: string;
+    lastWorkspaceUrl: string;
   },
   workspaceId: string,
 ) {
@@ -175,7 +193,7 @@ async function updateLastWorkspaceUrl(
     await prisma.user.update({
       where: { id: session.userId },
       data: { lastWorkspaceUrl: workspaceId },
-    })
+    });
   }
 }
 
@@ -201,7 +219,7 @@ async function getWorkspaceData(userId: string, workspaceId: string) {
         },
       },
     },
-  })
+  });
 }
 
 async function getIssuesData(
@@ -210,32 +228,32 @@ async function getIssuesData(
   page: number,
   pageSize: number,
   filter?: string,
-  status?: Status | "all",
-  priority?: Priority | "all",
+  status?: Status | 'all',
+  priority?: Priority | 'all',
   search?: string,
 ) {
-  const skip = (page - 1) * pageSize
+  const skip = (page - 1) * pageSize;
 
-  const whereClause: Prisma.IssueWhereInput = { projectId: { in: projectIds } }
+  const whereClause: Prisma.IssueWhereInput = { projectId: { in: projectIds } };
 
   if (filter) {
-    if (filter === "owned") {
-      whereClause.ownerId = userId
+    if (filter === 'owned') {
+      whereClause.ownerId = userId;
     } else {
-      whereClause.ownerId = filter
+      whereClause.ownerId = filter;
     }
   }
 
-  if (status && status !== "all") {
-    whereClause.status = status
+  if (status && status !== 'all') {
+    whereClause.status = status;
   }
 
-  if (priority && priority !== "all") {
-    whereClause.priority = priority
+  if (priority && priority !== 'all') {
+    whereClause.priority = priority;
   }
 
   if (search) {
-    whereClause.OR = [{ title: { contains: search, mode: "insensitive" } }]
+    whereClause.OR = [{ title: { contains: search, mode: 'insensitive' } }];
   }
 
   const [issues, totalIssues] = await Promise.all([
@@ -243,7 +261,7 @@ async function getIssuesData(
       where: whereClause,
       skip,
       take: pageSize,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         createdAt: true,
@@ -261,13 +279,17 @@ async function getIssuesData(
       },
     }),
     prisma.issue.count({ where: whereClause }),
-  ])
+  ]);
 
-  return { issues, totalIssues }
+  return { issues, totalIssues };
 }
 
-function getPaginationData(currentPage: number, totalIssues: number, pageSize: number) {
-  const totalPages = Math.ceil(totalIssues / pageSize)
+function getPaginationData(
+  currentPage: number,
+  totalIssues: number,
+  pageSize: number,
+) {
+  const totalPages = Math.ceil(totalIssues / pageSize);
 
   return {
     currentPage,
@@ -275,5 +297,5 @@ function getPaginationData(currentPage: number, totalIssues: number, pageSize: n
     hasNextPage: currentPage < totalPages,
     hasPreviousPage: currentPage > 1,
     createPageUrl: (pageNum: number) => `?page=${pageNum}`,
-  }
+  };
 }

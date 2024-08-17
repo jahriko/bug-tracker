@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getUsers = async () => {
   const users = await prisma.user.findMany({
@@ -8,9 +8,9 @@ export const getUsers = async () => {
       name: true,
       image: true,
     },
-  })
+  });
 
-  return users
-}
+  return users;
+};
 
-export type UsersData = Prisma.PromiseReturnType<typeof getUsers>
+export type UsersData = Prisma.PromiseReturnType<typeof getUsers>;

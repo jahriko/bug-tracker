@@ -1,12 +1,16 @@
-import { getPrisma } from "@/lib/getPrisma"
-import { Prisma } from "@prisma/client"
-import { unstable_cache } from "next/cache"
+import { getPrisma } from '@/lib/getPrisma';
+import { Prisma } from '@prisma/client';
+import { unstable_cache } from 'next/cache';
 
 interface User {
-  userId: string
+  userId: string;
 }
 
-export const getIssueByProject = async (user: User, projectId: string, id: string) => {
+export const getIssueByProject = async (
+  user: User,
+  projectId: string,
+  id: string,
+) => {
   return unstable_cache(
     () => {
       const issue = getPrisma(user.userId).issue.findUnique({
@@ -63,17 +67,17 @@ export const getIssueByProject = async (user: User, projectId: string, id: strin
             },
           },
         },
-      })
-      return issue
+      });
+      return issue;
     },
-    ["issue", id],
+    ['issue', id],
     {
-      tags: ["issue", `issue-${id}`],
+      tags: ['issue', `issue-${id}`],
     },
-  )()
-}
+  )();
+};
 
-export type IssueType = Prisma.PromiseReturnType<typeof getIssueByProject>
+export type IssueType = Prisma.PromiseReturnType<typeof getIssueByProject>;
 
 export async function getActivities(userId, issueId) {
   const issueActivities = await getPrisma(userId).issueActivity.findMany({
@@ -81,7 +85,7 @@ export async function getActivities(userId, issueId) {
       issueId: Number(issueId),
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: 'asc',
     },
     include: {
       user: {
@@ -91,21 +95,21 @@ export async function getActivities(userId, issueId) {
         },
       },
     },
-  })
+  });
 
-  return issueActivities
+  return issueActivities;
 }
 
 export type IssueActivityType =
   | Prisma.PromiseReturnType<typeof getActivities>
   | {
-      id: string
-      issueActivity: "GroupedLabelActivity"
-      addedLabels: { name: string; color: string }[]
-      removedLabels: { name: string; color: string }[]
+      id: string;
+      issueActivity: 'GroupedLabelActivity';
+      addedLabels: { name: string; color: string }[];
+      removedLabels: { name: string; color: string }[];
       user: {
-        name: string
-        image: string | null
-      }
-      createdAt: Date
-    }[]
+        name: string;
+        image: string | null;
+      };
+      createdAt: Date;
+    }[];

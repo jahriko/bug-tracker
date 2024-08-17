@@ -1,49 +1,55 @@
-"use client"
-import { classNames } from "@/lib/utils"
-import { Dialog, Disclosure, Menu, Popover, Transition } from "@headlessui/react"
-import { ChevronDownIcon } from "@heroicons/react/20/solid"
-import { XMarkIcon } from "@heroicons/react/24/outline"
-import { Fragment, useState } from "react"
+'use client';
+import { classNames } from '@/lib/utils';
+import {
+  Dialog,
+  Disclosure,
+  Menu,
+  Popover,
+  Transition,
+} from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { Fragment, useState } from 'react';
 
 const sortOptions = [
-  { name: "Newest", href: "#" },
-  { name: "Oldest", href: "#" },
-  { name: "Most Replies", href: "#" },
-]
+  { name: 'Newest', href: '#' },
+  { name: 'Oldest', href: '#' },
+  { name: 'Most Replies', href: '#' },
+];
 const filters = [
   {
-    id: "project",
-    name: "Project",
+    id: 'project',
+    name: 'Project',
     options: [
-      { value: "clothing-company", label: "Clothing Company" },
-      { value: "fashion-inc", label: "Fashion Inc." },
-      { value: "shoes-n-more", label: "Shoes 'n More" },
+      { value: 'clothing-company', label: 'Clothing Company' },
+      { value: 'fashion-inc', label: 'Fashion Inc.' },
+      { value: 'shoes-n-more', label: "Shoes 'n More" },
     ],
   },
   {
-    id: "author",
-    name: "Author",
+    id: 'author',
+    name: 'Author',
     options: [
-      { value: "white", label: "White" },
-      { value: "black", label: "Black" },
-      { value: "grey", label: "Grey" },
+      { value: 'white', label: 'White' },
+      { value: 'black', label: 'Black' },
+      { value: 'grey', label: 'Grey' },
     ],
   },
   {
-    id: "state",
-    name: "State",
+    id: 'state',
+    name: 'State',
     options: [
-      { value: "open", label: "Open" },
-      { value: "closed", label: "Closed" },
-      { value: "archived", label: "Archived" },
-      { value: "answered", label: "Answered" },
-      { value: "unanswered", label: "Unanswered" },
+      { value: 'open', label: 'Open' },
+      { value: 'closed', label: 'Closed' },
+      { value: 'archived', label: 'Archived' },
+      { value: 'answered', label: 'Answered' },
+      { value: 'unanswered', label: 'Unanswered' },
     ],
   },
-]
+];
 
 export default function DiscussionFilter() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -78,7 +84,7 @@ export default function DiscussionFilter() {
                   <button
                     className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     onClick={() => {
-                      setOpen(false)
+                      setOpen(false);
                     }}
                     type="button"
                   >
@@ -90,16 +96,25 @@ export default function DiscussionFilter() {
                 {/* Filters */}
                 <form className="mt-4">
                   {filters.map((section) => (
-                    <Disclosure as="div" className="border-t border-gray-200 px-4 py-6" key={section.name}>
+                    <Disclosure
+                      as="div"
+                      className="border-t border-gray-200 px-4 py-6"
+                      key={section.name}
+                    >
                       {({ open }) => (
                         <>
                           <h3 className="-mx-2 -my-3 flow-root">
                             <Disclosure.Button className="flex w-full items-center justify-between bg-white px-2 py-3 text-sm text-gray-400">
-                              <span className="font-medium text-gray-900">{section.name}</span>
+                              <span className="font-medium text-gray-900">
+                                {section.name}
+                              </span>
                               <span className="ml-6 flex items-center">
                                 <ChevronDownIcon
                                   aria-hidden="true"
-                                  className={classNames(open ? "-rotate-180" : "rotate-0", "h-5 w-5 transform")}
+                                  className={classNames(
+                                    open ? '-rotate-180' : 'rotate-0',
+                                    'h-5 w-5 transform',
+                                  )}
                                 />
                               </span>
                             </Disclosure.Button>
@@ -107,7 +122,10 @@ export default function DiscussionFilter() {
                           <Disclosure.Panel className="pt-6">
                             <div className="space-y-6">
                               {section.options.map((option, optionIdx) => (
-                                <div className="flex items-center" key={option.value}>
+                                <div
+                                  className="flex items-center"
+                                  key={option.value}
+                                >
                                   <input
                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                     defaultValue={option.value}
@@ -164,8 +182,8 @@ export default function DiscussionFilter() {
                     {({ active }) => (
                       <a
                         className={classNames(
-                          active ? "bg-gray-100" : "",
-                          "block px-4 py-2 text-sm font-medium text-gray-900",
+                          active ? 'bg-gray-100' : '',
+                          'block px-4 py-2 text-sm font-medium text-gray-900',
                         )}
                         href={option.href}
                       >
@@ -182,7 +200,7 @@ export default function DiscussionFilter() {
         <button
           className="inline-block text-sm font-medium text-gray-700 hover:text-gray-900 sm:hidden"
           onClick={() => {
-            setOpen(true)
+            setOpen(true);
           }}
           type="button"
         >
@@ -248,5 +266,5 @@ export default function DiscussionFilter() {
         </Popover.Group>
       </div>
     </>
-  )
+  );
 }

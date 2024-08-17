@@ -1,26 +1,26 @@
-"use client"
-import * as Headless from "@headlessui/react"
-import clsx from "clsx"
-import React from "react"
-import { TouchTarget } from "./button"
-import { Link } from "./link"
+'use client';
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import React from 'react';
+import { TouchTarget } from './button';
+import { Link } from './link';
 
 interface AvatarProps {
-  src?: string | null
-  square?: boolean
-  initials?: string
-  alt?: string
-  className?: string
+  src?: string | null;
+  square?: boolean;
+  initials?: string;
+  alt?: string;
+  className?: string;
 }
 
 export function Avatar({
   src = null,
   square = false,
   initials,
-  alt = "",
+  alt = '',
   className,
   ...props
-}: AvatarProps & React.ComponentPropsWithoutRef<"span">) {
+}: AvatarProps & React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
       data-slot="avatar"
@@ -28,17 +28,17 @@ export function Avatar({
       className={clsx(
         className,
         // Basic layout
-        "inline-grid shrink-0 align-middle [--avatar-radius:20%] [--ring-opacity:20%] *:col-start-1 *:row-start-1",
-        "outline outline-1 -outline-offset-1 outline-black/[--ring-opacity] dark:outline-white/[--ring-opacity]",
+        'inline-grid shrink-0 align-middle [--avatar-radius:20%] [--ring-opacity:20%] *:col-start-1 *:row-start-1',
+        'outline outline-1 -outline-offset-1 outline-black/[--ring-opacity] dark:outline-white/[--ring-opacity]',
         // Add the correct border radius
         square
-          ? "rounded-[--avatar-radius] *:rounded-[--avatar-radius]"
-          : "rounded-full *:rounded-full",
+          ? 'rounded-[--avatar-radius] *:rounded-[--avatar-radius]'
+          : 'rounded-full *:rounded-full',
       )}
     >
       {initials ? (
         <svg
-          aria-hidden={alt ? undefined : "true"}
+          aria-hidden={alt ? undefined : 'true'}
           className="select-none fill-current text-[48px] font-medium uppercase"
           viewBox="0 0 100 100"
         >
@@ -57,7 +57,7 @@ export function Avatar({
       ) : null}
       {src ? <img alt={alt} src={src} /> : null}
     </span>
-  )
+  );
 }
 
 export const AvatarButton = React.forwardRef(function AvatarButton(
@@ -70,18 +70,18 @@ export const AvatarButton = React.forwardRef(function AvatarButton(
     ...props
   }: AvatarProps &
     (
-      | Omit<Headless.ButtonProps, "className">
-      | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
+      | Omit<Headless.ButtonProps, 'className'>
+      | Omit<React.ComponentPropsWithoutRef<typeof Link>, 'className'>
     ),
   ref: React.ForwardedRef<HTMLElement>,
 ) {
   const classes = clsx(
     className,
-    square ? "rounded-[20%]" : "rounded-full",
-    "relative focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500",
-  )
+    square ? 'rounded-[20%]' : 'rounded-full',
+    'relative focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500',
+  );
 
-  return "href" in props ? (
+  return 'href' in props ? (
     <Link
       {...props}
       className={classes}
@@ -97,5 +97,5 @@ export const AvatarButton = React.forwardRef(function AvatarButton(
         <Avatar alt={alt} initials={initials} square={square} src={src} />
       </TouchTarget>
     </Headless.Button>
-  )
-})
+  );
+});

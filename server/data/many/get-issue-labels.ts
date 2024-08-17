@@ -1,7 +1,7 @@
 // eslint-disable-next-line camelcase
-import { unstable_cache } from "next/cache"
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { unstable_cache } from 'next/cache';
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getIssueLabels = unstable_cache(
   async (issueId: number) => {
@@ -18,18 +18,18 @@ export const getIssueLabels = unstable_cache(
           },
         },
       },
-    })
+    });
 
     return issueLabels.map((item) => ({
       id: item.label.id,
       name: item.label.name,
       color: item.label.color,
-    }))
+    }));
   },
-  ["issue-labels"],
+  ['issue-labels'],
   {
-    tags: ["issue-labels"],
+    tags: ['issue-labels'],
   },
-)
+);
 
-export type IssueLabelsData = Prisma.PromiseReturnType<typeof getIssueLabels>
+export type IssueLabelsData = Prisma.PromiseReturnType<typeof getIssueLabels>;

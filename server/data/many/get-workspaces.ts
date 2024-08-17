@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client"
-import prisma from "@/lib/prisma"
+import { Prisma } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 export const getWorkspaces = async () => {
   const workspaces = await prisma.workspace.findMany({
@@ -7,9 +7,9 @@ export const getWorkspaces = async () => {
       id: true,
       name: true,
     },
-  })
+  });
 
-  return workspaces
-}
+  return workspaces;
+};
 
-export type WorkspacesData = Prisma.PromiseReturnType<typeof getWorkspaces>
+export type WorkspacesData = Prisma.PromiseReturnType<typeof getWorkspaces>;
