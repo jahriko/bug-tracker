@@ -6,20 +6,11 @@ import { XMarkIcon } from "@heroicons/react/24/outline"
 import { Fragment, useState } from "react"
 
 const sortOptions = [
-  { name: "Most Popular", href: "#" },
-  { name: "Best Rating", href: "#" },
   { name: "Newest", href: "#" },
+  { name: "Oldest", href: "#" },
+  { name: "Most Replies", href: "#" },
 ]
 const filters = [
-  // {
-  //   id: "category",
-  //   name: "Category",
-  //   options: [
-  //     { value: "tees", label: "Tees" },
-  //     { value: "crewnecks", label: "Crewnecks" },
-  //     { value: "hats", label: "Hats" },
-  //   ],
-  // },
   {
     id: "project",
     name: "Project",
