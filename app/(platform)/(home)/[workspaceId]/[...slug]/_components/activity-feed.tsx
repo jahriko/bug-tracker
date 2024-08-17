@@ -193,12 +193,14 @@ const processAndGroupLabelActivities = (activities: IssueActivityType) => {
   return result;
 };
 
-const ActivityFeed = ({
+function ActivityFeed({
   issue,
   activities,
   children,
-}: ActivityFeedContextType & { children: ReactNode }) => {
+}: ActivityFeedContextType & { children: ReactNode }) {
   const processedLabelActivities = processAndGroupLabelActivities(activities);
+
+  console.log(processedLabelActivities);
 
   return (
     <ActivityFeedContext.Provider
@@ -249,7 +251,9 @@ const ActivityFeed = ({
               {item.issueActivity === 'AssignedActivity' && (
                 <AssignedActivity item={item} />
               )}
-              <LabelActivity item={item} />
+              {(item.issueActivity === 'LabelActivity' || item.issueActivity === 'GroupedLabelActivity') && (
+                <LabelActivity item={item} />
+              )}
               {item.issueActivity === 'CommentActivity' && (
                 <CommentActivity comments={issue.comments} item={item} />
               )}
@@ -259,15 +263,15 @@ const ActivityFeed = ({
       </div>
     </ActivityFeedContext.Provider>
   );
-};
+}
 
-const ActivityItem = ({
+function ActivityItem({
   children,
   itemIdx,
 }: {
   children: ReactNode;
   itemIdx?: number;
-}) => {
+}) {
   const { activities } = useActivityFeed();
   return (
     <li className="relative flex gap-x-4">
@@ -282,13 +286,13 @@ const ActivityItem = ({
       {children}
     </li>
   );
-};
+}
 
-const TitleActivity = ({
+function TitleActivity({
   item,
 }: {
   item: Extract<IssueActivityType[number], { issueActivity: 'TitleActivity' }>;
-}) => {
+}) {
   return (
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
@@ -309,16 +313,16 @@ const TitleActivity = ({
       </div>
     </>
   );
-};
+}
 
-const DescriptionActivity = ({
+function DescriptionActivity({
   item,
 }: {
   item: Extract<
     IssueActivityType[number],
     { issueActivity: 'DescriptionActivity' }
   >;
-}) => {
+}) {
   return (
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
@@ -339,13 +343,13 @@ const DescriptionActivity = ({
       </div>
     </>
   );
-};
+}
 
-const StatusActivity = ({
+function StatusActivity({
   item,
 }: {
   item: Extract<IssueActivityType[number], { issueActivity: 'StatusActivity' }>;
-}) => {
+}) {
   return (
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
@@ -387,16 +391,16 @@ const StatusActivity = ({
       </div>
     </>
   );
-};
+}
 
-const PriorityActivity = ({
+function PriorityActivity({
   item,
 }: {
   item: Extract<
     IssueActivityType[number],
     { issueActivity: 'PriorityActivity' }
   >;
-}) => {
+}) {
   return (
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center bg-white">
@@ -435,16 +439,16 @@ const PriorityActivity = ({
       </div>
     </>
   );
-};
+}
 
-const AssignedActivity = ({
+function AssignedActivity({
   item,
 }: {
   item: Extract<
     IssueActivityType[number],
     { issueActivity: 'AssignedActivity' }
   >;
-}) => {
+}) {
   return (
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
@@ -479,16 +483,16 @@ const AssignedActivity = ({
       </div>
     </>
   );
-};
+}
 
-const LabelActivity = ({
+function LabelActivity({
   item,
 }: {
   item: Extract<
     IssueActivityType[number],
     { issueActivity: 'LabelActivity' | 'GroupedLabelActivity' }
   >;
-}) => {
+}) {
   let addedLabels: { name: string; color: string }[] = [];
   let removedLabels: { name: string; color: string }[] = [];
 
@@ -548,10 +552,10 @@ const LabelActivity = ({
       </div>
     </>
   );
-};
+}
 
 // Helper component for rendering label badges
-const LabelBadge = ({ color, name }: { color: string; name: string }) => {
+function LabelBadge({ color, name }: { color: string; name: string }) {
   return (
     <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
       <div
@@ -565,9 +569,9 @@ const LabelBadge = ({ color, name }: { color: string; name: string }) => {
       {name}
     </span>
   );
-};
+}
 
-const CommentActivity = ({
+function CommentActivity({
   item,
   comments,
 }: {
@@ -576,7 +580,7 @@ const CommentActivity = ({
     { issueActivity: 'CommentActivity' }
   >;
   comments: { id: number; content: string }[];
-}) => {
+}) {
   return (
     <>
       <div className="relative mt-3 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
@@ -628,7 +632,7 @@ const CommentActivity = ({
       </div>
     </>
   );
-};
+}
 
 export {
   ActivityFeed,
