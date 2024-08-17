@@ -8,7 +8,7 @@ import { Input, InputGroup } from '@/components/catalyst/input';
 import { getCurrentUser } from '@/lib/get-current-user';
 
 import DiscussionFilter from './_components/discussion-filter';
-import { getDiscussions, getCategories } from './discussions.data';
+import { getDiscussions, getCategories } from './discussions';
 
 export default async function Discussions({
   params,
