@@ -206,8 +206,7 @@ model Issue {
     @@index([projectId, assignedUserId, status])
 }
 
-/// @@allow('read', check(issue))
-/// @@allow('create', check(issue))
+/// @@allow('read,create', check(issue))
 /// @@allow('delete', auth() == author || issue.project.workspace.members?[user == auth() && role == 'ADMIN'])
 model Comment {
     id Int @id() @default(autoincrement())
@@ -227,8 +226,7 @@ model Comment {
 }
 
 /// @@delegate(issueActivity)
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model IssueActivity {
     id Int @id() @default(autoincrement())
     createdAt DateTime @default(now())
@@ -249,40 +247,35 @@ model IssueActivity {
     @@index([issueId, createdAt])
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model StatusActivity {
     id Int @id()
     statusName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model PriorityActivity {
     id Int @id()
     priorityName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model TitleActivity {
     id Int @id()
     title String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model DescriptionActivity {
     id Int @id()
     body String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model AssignedActivity {
     id Int @id()
     assignedUsername String
@@ -290,8 +283,7 @@ model AssignedActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 model LabelActivity {
     id Int @id()
     labelName String
@@ -300,8 +292,7 @@ model LabelActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('all', true)
-/// @@allow('read', check(issue))
+/// @@allow('read,create', check(issue))
 /// @@deny('all', auth() == null)
 /// @@allow('read', true && !issue.project.workspace.private)
 /// @@allow('create', issue.project.workspace.members?[user == auth()])
@@ -344,12 +335,12 @@ model Discussion {
     category DiscussionCategory @relation(fields: [categoryId], references: [id])
     categoryId Int
     posts DiscussionPost[]
-    likes DiscussionLike[]
     isResolved Boolean @default(false)
     viewCount Int @default(0)
     likeCount Int @default(0)
     workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId Int
+    likes DiscussionLike[]
 
     @@index([projectId, createdAt])
     @@index([projectId, isResolved])
@@ -357,15 +348,14 @@ model Discussion {
     @@index([likeCount])
 }
 
-/// @@allow('create,delete', auth() == user && discussion.project.members?[user == auth()])
-/// @@allow('read', auth() != null && discussion.project.members?[user == auth()])
+/// @@allow('read', check(discussion))
+/// @@allow('create,delete', discussion.workspace.members?[user == auth()])
 model DiscussionLike {
     id Int @id() @default(autoincrement())
     discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
     discussionId Int
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
-    createdAt DateTime @default(now())
 
     @@unique([discussionId, userId])
     @@index([discussionId])

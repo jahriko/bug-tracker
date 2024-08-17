@@ -274,11 +274,8 @@ model Comment {
 
   @@index([issueId])
 
-  // can be read by everyone within the project
-  @@allow('read', check(issue))
-
-  // can be created by anyone within the project
-  @@allow('create', check(issue))
+  // can be read/created by everyone within the project
+  @@allow('read,create', check(issue))
 
   // can be deleted by the user who created the comment or admin
   @@allow('delete', auth() == author || issue.project.workspace.members?[user == auth() && (role == 'ADMIN')])
@@ -300,15 +297,12 @@ model IssueActivity {
   @@delegate(issueActivity)
 
   //temporary
-  @@allow('all', true)
+  // @@allow('all', true)
 
   @@index([issueId, createdAt])
 
-  // can be read by everyone if the project is not private
-  @@allow('read', check(issue))
-
-  // can be created by the user who created the issue, admin, and project manager
-  // @@allow('create', issue.project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+  // can be read/created by everyone if the project is not private
+  @@allow('read,create', check(issue))
 }
 
 model StatusActivity extends IssueActivity {
@@ -357,7 +351,7 @@ model DiscussionCategory {
   id          Int          @id @default(autoincrement())
   name        String
   description String?
-  emoji       String?     
+  emoji       String?
   project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId   Int
   discussions Discussion[]
@@ -383,17 +377,16 @@ model Discussion {
   category    DiscussionCategory @relation(fields: [categoryId], references: [id])
   categoryId  Int
   posts       DiscussionPost[]
-  likes       DiscussionLike[]
   isResolved  Boolean            @default(false)
   viewCount   Int                @default(0)
   likeCount   Int                @default(0)
   workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId Int
+  likes       DiscussionLike[]
 
   @@index([projectId, createdAt])
   @@index([projectId, isResolved])
   @@index([categoryId])
-  @@index([likeCount])
 
   // Permissions
   @@allow('read', check(project))
@@ -408,15 +401,16 @@ model DiscussionLike {
   discussionId Int
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
-  createdAt    DateTime   @default(now())
 
   @@unique([discussionId, userId])
   @@index([discussionId])
   @@index([userId])
 
   // Permissions
-  @@allow('create,delete', auth() == user && discussion.project.members?[user == auth()])
-  @@allow('read', auth() != null && discussion.project.members?[user == auth()])
+  @@allow('read', check(discussion))
+
+  // can be created/deleted by anyone within the workspace
+  @@allow('create,delete', discussion.workspace.members?[user == auth()])
 }
 
 model DiscussionPost {
