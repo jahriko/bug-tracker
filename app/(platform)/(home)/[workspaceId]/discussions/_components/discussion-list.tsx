@@ -145,6 +145,7 @@ export default function DiscussionList({
                     <span className="h-full w-px bg-current" />
                   </span>
                   <Link
+                    prefetch={false}
                     className="text-sm text-wrap font-semibold leading-6 text-gray-900 dark:text-gray-100 hover:underline"
                     href={`/${workspaceId}/discussions/${discussion.id}`}
                   >

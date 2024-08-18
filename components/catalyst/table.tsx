@@ -175,10 +175,11 @@ export function TableCell({
     >
       {href ? (
         <Link
+          data-row-link
           aria-label={title}
           className="absolute inset-0 focus:outline-none"
-          data-row-link
           href={href}
+          prefetch={false}
           tabIndex={cellRef?.previousElementSibling === null ? 0 : -1}
           target={target}
         />

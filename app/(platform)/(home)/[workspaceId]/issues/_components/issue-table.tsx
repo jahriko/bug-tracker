@@ -205,6 +205,7 @@ export default function IssueTable({
                     <Link
                       className="cursor-pointer text-wrap font-medium leading-tight hover:text-blue-700"
                       href={`/${workspaceId}/issue/${issue.project.identifier}-${issue.id}`}
+                      prefetch={false}
                     >
                       {issue.title}
                     </Link>
