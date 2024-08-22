@@ -1,6 +1,6 @@
+import { notFound } from 'next/navigation';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
-import { notFound } from 'next/navigation';
 import CreateProjectForm from './create-project-form';
 
 export default async function CreateProjectPage() {

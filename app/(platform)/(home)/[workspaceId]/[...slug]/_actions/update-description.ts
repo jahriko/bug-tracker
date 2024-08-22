@@ -1,8 +1,8 @@
 'use server';
-import { getPrisma } from '@/lib/getPrisma';
-import { authActionClient } from '@/lib/safe-action';
 import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
 
 const schema = z.object({
   issueId: z.number(),
@@ -20,15 +20,6 @@ export const updateDescription = authActionClient
       parsedInput: { issueId, description, lastActivity },
       ctx: { userId },
     }) => {
-      await getPrisma(userId).issue.update({
-        where: {
-          id: issueId,
-        },
-        data: {
-          description,
-        },
-      });
-
       await getPrisma(userId).$transaction(async (tx) => {
         await tx.issue.update({
           where: {
@@ -55,8 +46,6 @@ export const updateDescription = authActionClient
             body: description,
           },
         });
-
-        console.log('Server action: Description updated!');
 
         revalidateTag(`issue-${issueId}`);
       });

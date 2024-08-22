@@ -117,6 +117,8 @@ module.exports = {
         '*.config.{mjs,ts}',
         'app/**/{page,layout,not-found,*error,opengraph-image,apple-icon}.tsx',
         'app/**/{sitemap,robots}.ts',
+        'app/**/{_components, _data, _hooks, _utils}/**/*.ts',
+        'vitest.config.integration.ts',
       ],
       rules: {
         'import/no-default-export': 'off',

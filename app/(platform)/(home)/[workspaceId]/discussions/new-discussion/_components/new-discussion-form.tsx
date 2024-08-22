@@ -1,5 +1,13 @@
 'use client';
 
+import { PencilSquareIcon } from '@heroicons/react/16/solid';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type Project } from '@prisma/client';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '@/components/catalyst/button';
 import {
   Field,
@@ -11,14 +19,6 @@ import { Input } from '@/components/catalyst/input';
 import { Select } from '@/components/catalyst/select';
 import { Textarea } from '@/components/catalyst/textarea';
 import { Icons } from '@/components/icons';
-import { PencilSquareIcon } from '@heroicons/react/16/solid';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { type Project } from '@prisma/client';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
 import { createDiscussion } from '../_actions/create-discussion';
 
 const discussionSchema = z.object({

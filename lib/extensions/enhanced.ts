@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable guard-for-in */
-import prisma from '@/lib/prisma';
+
 import { enhance } from '@zenstackhq/runtime';
+import prisma from '@/lib/prisma';
 import 'server-only';
 
 const enhanced = enhance(prisma);

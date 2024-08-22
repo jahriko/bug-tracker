@@ -34,13 +34,13 @@ export default function SettingsLayout({
                   return (
                     <li key={item.name}>
                       <a
+                        href={`/${workspaceId}/settings/${item.href}`}
                         className={classNames(
                           isActive
                             ? 'bg-gray-50 text-indigo-600'
                             : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
                           'group flex gap-x-3 rounded-md py-2 pl-2 pr-3 text-sm font-semibold leading-6',
                         )}
-                        href={`/${workspaceId}/settings/${item.href}`}
                       >
                         <item.icon
                           aria-hidden="true"

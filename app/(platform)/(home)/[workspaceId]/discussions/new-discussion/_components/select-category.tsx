@@ -36,11 +36,11 @@ export default function CategorySelector({
   );
 
   return (
-    <ul className="flex flex-nowrap md:mr-0 md:block">
+    <ul className="flex flex-col space-y-1">
       {categories.map((category) => {
         const isSelected = initialCategory === category.name;
         return (
-          <li className="mr-0.5 md:mb-0.5 md:mr-0 md:-ml-2" key={category.id}>
+          <li key={category.id}>
             <button
               className={`flex w-full items-center justify-between whitespace-nowrap rounded-lg p-2 ${
                 isSelected ? 'bg-zinc-100 text-zinc-950' : 'hover:bg-zinc-100'
@@ -57,9 +57,9 @@ export default function CategorySelector({
                   {category.name}
                 </span>
               </div>
-              {isSelected && (
+              {isSelected ? (
                 <XMarkIcon className="h-4 w-4 text-zinc-400 hover:text-zinc-500" />
-              )}
+              ) : null}
             </button>
           </li>
         );

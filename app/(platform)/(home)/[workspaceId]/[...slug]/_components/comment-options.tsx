@@ -1,5 +1,12 @@
 'use client';
 import {
+  EllipsisHorizontalIcon,
+  TrashIcon,
+  UserCircleIcon,
+} from '@heroicons/react/16/solid';
+import { DateTime } from 'luxon';
+import { useState } from 'react';
+import {
   Alert,
   AlertActions,
   AlertDescription,
@@ -15,13 +22,6 @@ import {
   DropdownMenu,
 } from '@/components/catalyst/dropdown';
 import Editor from '@/components/lexical_editor/editor';
-import {
-  EllipsisHorizontalIcon,
-  TrashIcon,
-  UserCircleIcon,
-} from '@heroicons/react/16/solid';
-import { DateTime } from 'luxon';
-import { useState } from 'react';
 import { deleteComment } from '../_actions/delete-comment';
 
 function timeAgo(dateTime: DateTime) {
@@ -32,9 +32,8 @@ function timeAgo(dateTime: DateTime) {
     return 'just now';
   } else if (diffInSeconds < 120) {
     return 'a minute ago';
-  } else {
-    return dateTime.toRelative(now);
   }
+  return dateTime.toRelative(now);
 }
 
 export default function CommentOptions({ item, comment }) {
@@ -42,7 +41,7 @@ export default function CommentOptions({ item, comment }) {
   return (
     <>
       <Dropdown>
-        <DropdownButton aria-label="More options" plain>
+        <DropdownButton plain aria-label="More options">
           <EllipsisHorizontalIcon />
         </DropdownButton>
         <DropdownMenu>
@@ -57,7 +56,7 @@ export default function CommentOptions({ item, comment }) {
         </DropdownMenu>
       </Dropdown>
 
-      <Alert onClose={setIsOpen} open={isOpen}>
+      <Alert open={isOpen} onClose={setIsOpen}>
         <AlertTitle>Are you sure you want to delete this comment?</AlertTitle>
         <AlertDescription>
           <div className="relative flex gap-x-4">
@@ -95,10 +94,10 @@ export default function CommentOptions({ item, comment }) {
         </AlertDescription>
         <AlertActions>
           <Button
+            plain
             onClick={() => {
               setIsOpen(false);
             }}
-            plain
           >
             Cancel
           </Button>

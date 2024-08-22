@@ -1,6 +1,5 @@
-// eslint-disable-next-line camelcase
+import { type Prisma } from '@prisma/client';
 import { unstable_cache } from 'next/cache';
-import { Prisma } from '@prisma/client';
 import prisma from '@/lib/prisma';
 
 export const getIssueLabels = unstable_cache(

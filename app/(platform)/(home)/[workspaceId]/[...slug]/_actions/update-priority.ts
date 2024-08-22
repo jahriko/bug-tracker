@@ -1,9 +1,9 @@
 'use server';
-import { getPrisma } from '@/lib/getPrisma';
-import { authActionClient } from '@/lib/safe-action';
 import { Priority } from '@prisma/client';
 import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
 
 const schema = z.object({
   issueId: z.number(),

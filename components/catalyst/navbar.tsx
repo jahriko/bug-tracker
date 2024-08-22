@@ -100,18 +100,18 @@ export const NavbarItem = React.forwardRef(function NavbarItem(
       {'href' in props ? (
         <Link
           {...props}
+          ref={ref as React.ForwardedRef<HTMLAnchorElement>}
           className={classes}
           data-current={current ? 'true' : undefined}
-          ref={ref as React.ForwardedRef<HTMLAnchorElement>}
         >
           <TouchTarget>{children}</TouchTarget>
         </Link>
       ) : (
         <Headless.Button
           {...props}
+          ref={ref}
           className={clsx('cursor-default', classes)}
           data-current={current ? 'true' : undefined}
-          ref={ref}
         >
           <TouchTarget>{children}</TouchTarget>
         </Headless.Button>

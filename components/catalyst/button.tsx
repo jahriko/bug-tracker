@@ -185,16 +185,16 @@ export const Button = React.forwardRef(function Button(
   return 'href' in props ? (
     <Link
       {...props}
-      className={classes}
       ref={ref as React.ForwardedRef<HTMLAnchorElement>}
+      className={classes}
     >
       <TouchTarget>{children}</TouchTarget>
     </Link>
   ) : (
     <Headless.Button
       {...props}
-      className={clsx(classes, 'cursor-default')}
       ref={ref}
+      className={clsx(classes, 'cursor-default')}
     >
       <TouchTarget>{children}</TouchTarget>
     </Headless.Button>

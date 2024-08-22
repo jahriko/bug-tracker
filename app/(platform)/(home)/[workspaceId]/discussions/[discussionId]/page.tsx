@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+import { notFound } from 'next/navigation';
 import { Avatar } from '@/components/catalyst/avatar';
 import { Button } from '@/components/catalyst/button';
 import { Heading } from '@/components/catalyst/heading';
@@ -12,8 +14,6 @@ import {
 } from '@/components/ui/card';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
-import { DateTime } from 'luxon';
-import { notFound } from 'next/navigation';
 
 export default async function DiscussionPage({
   params,
@@ -79,7 +79,7 @@ export default async function DiscussionPage({
             <div className="mt-8">
               <Heading level={2}>Replies</Heading>
               {discussion.posts.map((post) => (
-                <Card className="mt-4" key={post.id}>
+                <Card key={post.id} className="mt-4">
                   <CardHeader>
                     <div className="flex items-center space-x-4">
                       <Avatar

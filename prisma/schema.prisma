@@ -28,7 +28,6 @@ enum Priority {
 
 enum Role {
     ADMIN
-    PROJECT_MANAGER
     MEMBER
 }
 
@@ -91,11 +90,8 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
-/// @@allow('read', !private)
-/// @@deny('all', auth() == null)
-/// @@allow('create', true)
-/// @@allow('read', members?[user == auth()])
-/// @@allow('update', members?[user == auth() && role == 'ADMIN'])
+/// @@allow('read', !private || members?[user == auth()])
+/// @@allow('create,update', members?[user == auth() && role == 'ADMIN'])
 /// @@allow('all', owner == auth())
 model Workspace {
     id Int @id() @default(autoincrement())
@@ -113,9 +109,8 @@ model Workspace {
     @@index([ownerId])
 }
 
-/// @@deny('all', auth() == null)
+/// @@allow('read', !workspace.private || workspace.members?[user == auth()])
 /// @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
-/// @@allow('read', workspace.members?[user == auth()])
 model WorkspaceMember {
     workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId Int
@@ -126,9 +121,8 @@ model WorkspaceMember {
     @@id([workspaceId, userId])
 }
 
-/// @@deny('all', auth() == null)
-/// @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
-/// @@allow('read', members?[user == auth()] || !workspace.private)
+/// @@allow('all', check(workspace) || workspace.members?[user == auth() && role == 'ADMIN'])
+/// @@allow('read', check(workspace) || members?[user == auth()])
 model Project {
     id Int @id() @default(autoincrement())
     identifier String @unique()
@@ -141,8 +135,8 @@ model Project {
     issues Issue[]
     discussions Discussion[]
     discussionCategories DiscussionCategory[]
-    workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-    workspaceId Int?
+    workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+    workspaceId Int
 
     @@index([archivedAt, workspaceId])
 }
@@ -180,8 +174,9 @@ model IssueLabel {
     @@id([issueId, labelId])
 }
 
-/// @@allow('read', check(project) || !project.workspace.private || auth() == owner)
-/// @@allow('create,update,delete', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+/// @@allow('read', check(project))
+/// @@allow('create', check(project))
+/// @@allow('update,delete', check(project) || auth() == owner)
 /// @@deny('update', future().owner != owner)
 model Issue {
     id Int @id() @default(autoincrement())
@@ -203,7 +198,9 @@ model Issue {
     activityLogs IssueActivity[]
     comments Comment[]
 
-    @@index([projectId, assignedUserId, status])
+    @@index([status])
+    @@index([priority])
+    @@index([createdAt])
 }
 
 /// @@allow('read,create', check(issue))
@@ -222,11 +219,12 @@ model Comment {
     parentId Int?
     children Comment[] @relation("ChildComments")
 
-    @@index([issueId])
+    @@index([authorId])
+    @@index([createdAt])
 }
 
 /// @@delegate(issueActivity)
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model IssueActivity {
     id Int @id() @default(autoincrement())
     createdAt DateTime @default(now())
@@ -243,39 +241,40 @@ model IssueActivity {
     delegate_aux_assignedActivity AssignedActivity?
     delegate_aux_labelActivity LabelActivity?
     delegate_aux_commentActivity CommentActivity?
+    delegate_aux_projectActivity ProjectActivity?
 
     @@index([issueId, createdAt])
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model StatusActivity {
     id Int @id()
     statusName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model PriorityActivity {
     id Int @id()
     priorityName String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model TitleActivity {
     id Int @id()
     title String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model DescriptionActivity {
     id Int @id()
     body String
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model AssignedActivity {
     id Int @id()
     assignedUsername String
@@ -283,7 +282,7 @@ model AssignedActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 model LabelActivity {
     id Int @id()
     labelName String
@@ -292,7 +291,7 @@ model LabelActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-/// @@allow('read,create,update', check(issue))
+/// @@allow('all', check(issue))
 /// @@deny('all', auth() == null)
 /// @@allow('read', true && !issue.project.workspace.private)
 /// @@allow('create', issue.project.workspace.members?[user == auth()])
@@ -303,8 +302,15 @@ model CommentActivity {
     delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+/// @@allow('all', check(issue))
+model ProjectActivity {
+    id Int @id()
+    projectName String
+    delegate_aux_issueActivity IssueActivity @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
 /// @@allow('read', check(project))
-/// @@allow('create,update,delete', project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+/// @@allow('create,update,delete', project.workspace.members?[user == auth() && role == 'ADMIN'])
 model DiscussionCategory {
     id Int @id() @default(autoincrement())
     name String
@@ -320,10 +326,10 @@ model DiscussionCategory {
 
 /// @@allow('read', check(project))
 /// @@allow('create', auth() != null && project.members?[user == auth()])
-/// @@allow('update', auth() == author || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
-/// @@allow('delete', project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+/// @@allow('update', auth() == author || project.workspace.members?[user == auth() && role == 'ADMIN'])
+/// @@allow('delete', project.workspace.members?[user == auth() && role == 'ADMIN'])
 model Discussion {
-    id Int @id() @default(autoincrement())
+    id String @id() @default(uuid(7))
     title String
     content String @db.Text()
     createdAt DateTime @default(now())
@@ -341,9 +347,10 @@ model Discussion {
     workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
     workspaceId Int
     likes DiscussionLike[]
+    pinnedAt DateTime?
 
-    @@index([projectId, createdAt])
-    @@index([projectId, isResolved])
+    @@index([projectId])
+    @@index([createdAt])
     @@index([categoryId])
 }
 
@@ -352,7 +359,7 @@ model Discussion {
 model DiscussionLike {
     id Int @id() @default(autoincrement())
     discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-    discussionId Int
+    discussionId String
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
 
@@ -364,14 +371,14 @@ model DiscussionLike {
 /// @@allow('read', check(discussion))
 /// @@allow('create', auth() != null && discussion.project.members?[user == auth()])
 /// @@allow('update', auth() == author)
-/// @@allow('delete', auth() == author || discussion.project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+/// @@allow('delete', auth() == author || discussion.project.workspace.members?[user == auth() && role == 'ADMIN'])
 model DiscussionPost {
     id Int @id() @default(autoincrement())
     content String @db.Text()
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt()
     discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-    discussionId Int
+    discussionId String
     author User @relation("DiscussionPostAuthor", fields: [authorId], references: [id])
     authorId String
     parent DiscussionPost? @relation("Replies", fields: [parentId], references: [id])
@@ -380,5 +387,4 @@ model DiscussionPost {
     isAccepted Boolean @default(false)
 
     @@index([discussionId])
-    @@index([parentId])
 }

@@ -13,6 +13,7 @@ export const Select = forwardRef(function Select(
 ) {
   return (
     <span
+      data-slot="control"
       className={clsx([
         className,
         // Basic layout
@@ -26,11 +27,10 @@ export const Select = forwardRef(function Select(
         // Disabled state
         'has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none',
       ])}
-      data-slot="control"
     >
       <Headless.Select
-        multiple={multiple}
         ref={ref}
+        multiple={multiple}
         {...props}
         className={clsx([
           // Basic layout

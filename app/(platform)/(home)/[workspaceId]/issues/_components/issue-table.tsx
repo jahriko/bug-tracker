@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
+import { type Status } from '@prisma/client';
 import {
   Ban,
   CheckCircle2,
@@ -10,7 +11,7 @@ import {
 } from 'lucide-react';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Checkbox } from '@/components/catalyst/checkbox';
 import {
@@ -28,46 +29,31 @@ import {
 } from '@/components/ui/tooltip';
 import { COLORS } from '@/lib/colors';
 import { classNames } from '@/lib/utils';
+import { type IssueDataType } from '../_data/issue-data';
 
 export default function IssueTable({
   issues,
   workspaceId,
 }: {
-  issues: any[];
+  issues: IssueDataType[];
   workspaceId: string;
 }) {
-  const checkbox = useRef<HTMLInputElement>(null);
-  const [checked, setChecked] = useState(false);
-  const [indeterminate, setIndeterminate] = useState(false);
   const [selectedIssues, setSelectedIssues] = useState<any[]>([]);
-  const [hoveredIssueId, setHoveredIssueId] = useState<string | null>(null);
 
-  useLayoutEffect(() => {
-    const isIndeterminate =
-      selectedIssues.length > 0 && selectedIssues.length < issues.length;
-    setChecked(selectedIssues.length === issues.length);
-    setIndeterminate(isIndeterminate);
-    if (checkbox.current) {
-      checkbox.current.indeterminate = isIndeterminate;
-    }
-  }, [selectedIssues, issues]);
+  const toggleAll = (checked: boolean) => {
+    setSelectedIssues(checked ? issues : []);
+  };
 
-  function toggleAll() {
-    setSelectedIssues(checked || indeterminate ? [] : issues);
-    setChecked(!checked && !indeterminate);
-    setIndeterminate(false);
-  }
+  const toggleIssue = useCallback((issue: any, checked: boolean) => {
+    setSelectedIssues((prev) => {
+      return checked ? [...prev, issue] : prev.filter((i) => i.id !== issue.id);
+    });
+  }, []);
 
   const handleBulkAction = (action: string) => {
     // Implement bulk action logic here
     console.log(`Bulk ${action} for issues:`, selectedIssues);
   };
-
-  const toggleIssue = useCallback((issue: any) => {
-    setSelectedIssues((prev) =>
-      prev.includes(issue) ? prev.filter((i) => i !== issue) : [...prev, issue],
-    );
-  }, []);
 
   return (
     <Table className="mt-2 [--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
@@ -75,9 +61,12 @@ export default function IssueTable({
         <TableRow>
           <TableCell className="w-0">
             <Checkbox
-              checked={checked}
-              indeterminate={indeterminate}
-              onChange={toggleAll}
+              checked={selectedIssues.length > 0}
+              indeterminate={
+                selectedIssues.length > 0 &&
+                selectedIssues.length < issues.length
+              }
+              onChange={(checked) => toggleAll(checked)}
             />
           </TableCell>
           <TableCell className="h-14">
@@ -85,27 +74,24 @@ export default function IssueTable({
               <div className="flex items-center gap-x-6">
                 <button
                   className="flex items-center gap-1 text-xs font-semibold text-gray-900"
-                  onClick={() => {
-                    handleBulkAction('status');
-                  }}
+                  type="button"
+                  onClick={() => handleBulkAction('status')}
                 >
                   Status
                   <ChevronDownIcon className="size-4" />
                 </button>
                 <button
                   className="flex items-center gap-1 text-xs font-semibold text-gray-900"
-                  onClick={() => {
-                    handleBulkAction('assign');
-                  }}
+                  type="button"
+                  onClick={() => handleBulkAction('assign')}
                 >
                   Assign
                   <ChevronDownIcon className="size-4" />
                 </button>
                 <button
                   className="flex items-center gap-1 text-xs font-semibold text-gray-900"
-                  onClick={() => {
-                    handleBulkAction('priority');
-                  }}
+                  type="button"
+                  onClick={() => handleBulkAction('priority')}
                 >
                   Priority
                   <ChevronDownIcon className="size-4" />
@@ -171,28 +157,11 @@ export default function IssueTable({
       </TableHead>
       <TableBody>
         {issues.map((issue) => (
-          <TableRow
-            key={issue.id}
-            className="group"
-            onMouseEnter={() => {
-              setHoveredIssueId(issue.id);
-            }}
-            onMouseLeave={() => {
-              setHoveredIssueId(null);
-            }}
-          >
+          <TableRow key={issue.id} className="group">
             <TableCell>
               <Checkbox
-                checked={selectedIssues.includes(issue)}
-                className={classNames(
-                  hoveredIssueId === issue.id || selectedIssues.includes(issue)
-                    ? 'opacity-100'
-                    : 'opacity-0',
-                  'transition-opacity duration-75',
-                )}
-                onChange={() => {
-                  toggleIssue(issue);
-                }}
+                checked={selectedIssues.some((i) => i.id === issue.id)}
+                onChange={(checked) => toggleIssue(issue, checked)}
               />
             </TableCell>
             <TableCell>
@@ -243,7 +212,7 @@ export default function IssueTable({
   );
 }
 
-function renderStatus(status: string) {
+function renderStatus(status: Status) {
   switch (status) {
     case 'BACKLOG':
       return <CircleDashed className="size-[1.10rem] text-zinc-500" />;

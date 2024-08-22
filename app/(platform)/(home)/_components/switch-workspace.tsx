@@ -1,5 +1,12 @@
 'use client';
 
+import {
+  ChevronDownIcon,
+  Cog6ToothIcon,
+  PlusIcon,
+} from '@heroicons/react/16/solid';
+import { type Workspace } from '@prisma/client';
+import { usePathname } from 'next/navigation';
 import { Avatar } from '@/components/catalyst/avatar';
 import {
   Dropdown,
@@ -10,13 +17,6 @@ import {
   DropdownMenu,
 } from '@/components/catalyst/dropdown';
 import { NavbarItem, NavbarLabel } from '@/components/catalyst/navbar';
-import {
-  ChevronDownIcon,
-  Cog6ToothIcon,
-  PlusIcon,
-} from '@heroicons/react/16/solid';
-import { Workspace } from '@prisma/client';
-import { usePathname } from 'next/navigation';
 
 export default function SwitchWorkspace({
   workspaces,
@@ -34,22 +34,22 @@ export default function SwitchWorkspace({
     <Dropdown>
       <DropdownButton as={NavbarItem} className="max-lg:hidden">
         <Avatar
+          square
           className="bg-zinc-900 text-white dark:bg-white dark:text-black"
           initials={workspaceUrlToName?.substring(0, 2) ?? ''}
           slot="icon"
-          square
         />
         <NavbarLabel>{workspaceUrlToName}</NavbarLabel>
         <ChevronDownIcon />
       </DropdownButton>
       <DropdownMenu anchor="bottom start" className="min-w-80 lg:min-w-64">
         {workspaces.map((workspace) => (
-          <DropdownItem href={`/${workspace.url}`} key={workspace.id}>
+          <DropdownItem key={workspace.id} href={`/${workspace.url}`}>
             <Avatar
+              square
               className="bg-zinc-900 text-white dark:bg-white dark:text-black"
               initials={workspace.name.substring(0, 2)}
               slot="icon"
-              square
             />
             <DropdownLabel>{workspace.name}</DropdownLabel>
           </DropdownItem>

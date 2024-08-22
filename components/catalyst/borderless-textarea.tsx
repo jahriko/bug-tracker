@@ -23,7 +23,7 @@ export const BorderlessTextarea = forwardRef(function Textarea(
     const updateTextareaHeight = () => {
       if (ref) {
         ref.style.height = 'auto';
-        ref.style.height = ref.scrollHeight + 'px';
+        ref.style.height = `${ref.scrollHeight}px`;
       }
     };
 
@@ -34,6 +34,7 @@ export const BorderlessTextarea = forwardRef(function Textarea(
   }, []);
   return (
     <span
+      data-slot="control"
       className={clsx([
         className,
         // Basic layout
@@ -41,7 +42,6 @@ export const BorderlessTextarea = forwardRef(function Textarea(
         // Disabled state
         'has-[[data-disabled]]:opacity-50',
       ])}
-      data-slot="control"
     >
       <Headless.Textarea
         ref={mergeRefs([texteAreaRef, ref])}

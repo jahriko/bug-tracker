@@ -5,13 +5,11 @@ import { getPrisma } from '@/lib/getPrisma';
 export async function getDiscussions(
   userId: string,
   workspaceId: string,
-  searchParams: Record<string, string | string[] | undefined>,
+  page: number,
+  pageSize: number,
+  category?: string,
+  search?: string,
 ) {
-  const categoryFilter = searchParams.category as string | undefined;
-  const page = Number(searchParams.page) || 1;
-  const pageSize = 10;
-  const project = searchParams.project as string | undefined;
-  const search = searchParams.search as string | undefined;
   const skip = (page - 1) * pageSize;
 
   const whereClause: Prisma.DiscussionWhereInput = {
@@ -23,22 +21,20 @@ export async function getDiscussions(
   };
 
   if (search) {
-    whereClause.OR = [{ title: { contains: search, mode: 'insensitive' } }];
+    whereClause.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { content: { contains: search, mode: 'insensitive' } },
+      { author: { name: { contains: search, mode: 'insensitive' } } },
+    ];
   }
 
-  if (project) {
-    whereClause.project = {
-      identifier: project,
-    };
-  }
-
-  if (categoryFilter) {
+  if (category) {
     whereClause.category = {
-      name: categoryFilter,
+      name: category,
     };
   }
 
-  return getPrisma(userId).discussion.findMany({
+  const discussions = await getPrisma(userId).discussion.findMany({
     where: whereClause,
     skip,
     take: pageSize,
@@ -49,6 +45,7 @@ export async function getDiscussions(
       projectId: true,
       likeCount: true,
       isResolved: true,
+      content: true,
       likes: {
         where: {
           userId,
@@ -76,7 +73,15 @@ export async function getDiscussions(
     },
     orderBy: [{ id: 'desc' }],
   });
+
+  const totalDiscussions = await getPrisma(userId).discussion.count({
+    where: whereClause,
+  });
+
+  return { discussions, totalDiscussions };
 }
+
+export type DiscussionType = Awaited<ReturnType<typeof getDiscussions>>['discussions'][number];
 
 export async function getCategories(userId: string, workspaceId: string) {
   return getPrisma(userId).discussionCategory.findMany({
@@ -94,3 +99,5 @@ export async function getCategories(userId: string, workspaceId: string) {
     },
   });
 }
+
+export type CategoryType = Awaited<ReturnType<typeof getCategories>>[number];

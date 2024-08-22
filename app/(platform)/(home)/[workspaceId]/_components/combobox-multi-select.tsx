@@ -15,13 +15,14 @@ import {
 } from '@heroicons/react/16/solid';
 import clsx from 'clsx';
 import React, { Fragment, forwardRef } from 'react';
-import { InputGroup } from '../../../../../components/catalyst/input';
-
 import { Badge } from '@/components/catalyst/badge';
+import { InputGroup } from '../../../../../components/catalyst/input';
 
 const DefaultIssueLabelButton = forwardRef(function (props, ref) {
   return (
     <button
+      ref={ref}
+      data-slot="control"
       className={clsx([
         // Basic layout
         'group relative block w-full',
@@ -36,8 +37,6 @@ const DefaultIssueLabelButton = forwardRef(function (props, ref) {
         // Disabled state
         'data-[disabled]:opacity-50 before:data-[disabled]:bg-zinc-950/5 before:data-[disabled]:shadow-none',
       ])}
-      data-slot="control"
-      ref={ref}
       {...props}
     />
   );
@@ -142,6 +141,7 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
         )}
       </PopoverButton>
       <PopoverPanel
+        focus
         anchor="bottom start"
         className={clsx(
           // Anchor positioning
@@ -157,7 +157,6 @@ export default function MultiSelectComboBox<T, V extends boolean | undefined>({
           // Shadows
           'shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10',
         )}
-        focus
       >
         <Combobox {...props} as="div">
           <InputGroup>
@@ -220,14 +219,14 @@ export function MultiSelectComboBoxOption<T>({
         >
           <svg
             aria-hidden="true"
+            fill="none"
+            viewBox="0 0 16 16"
             className={clsx(
               'relative col-start-1 size-5 self-center stroke-current sm:size-4',
               selected
                 ? 'inline'
                 : 'hidden group-data-[selected]/option:inline',
             )}
-            fill="none"
-            viewBox="0 0 16 16"
           >
             <path
               d="M4 8.5l3 3L12 4"
@@ -268,6 +267,7 @@ const CustomMultiSelectInput = forwardRef(function Input(
 ) {
   return (
     <span
+      data-slot="control"
       className={clsx([
         className,
         // Basic layout
@@ -283,7 +283,6 @@ const CustomMultiSelectInput = forwardRef(function Input(
         // Invalid state
         'before:has-[[data-invalid]]:shadow-red-500/10',
       ])}
-      data-slot="control"
     >
       <Headless.Input
         ref={ref}

@@ -1,9 +1,9 @@
 'use server';
 
+import { revalidateTag } from 'next/cache';
 import { getPrisma } from '@/lib/getPrisma';
 import { authActionClient } from '@/lib/safe-action';
 import { IssueSchema } from '@/lib/validations';
-import { revalidateTag } from 'next/cache';
 
 export const createIssue = authActionClient
   .schema(IssueSchema)

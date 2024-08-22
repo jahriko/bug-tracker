@@ -1,7 +1,7 @@
 'use client';
-import { logout } from '@/app/(platform)/(auth)/_actions/logout';
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/react/16/solid';
 import { useRouter } from 'next/navigation';
+import { logout } from '@/app/(platform)/(auth)/_actions/logout';
 import {
   DropdownItem,
   DropdownLabel,

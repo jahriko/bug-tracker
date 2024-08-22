@@ -1,10 +1,9 @@
-/* eslint-disable no-underscore-dangle */
 'use client';
 
-import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
+import { Fragment } from 'react';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -53,11 +52,11 @@ export default function ProjectCard(project: ProjectCardProps) {
                 <Menu.Item>
                   {({ active }) => (
                     <a
+                      href="#"
                       className={classNames(
                         active ? 'bg-gray-50' : '',
                         'block px-3 py-1 text-sm leading-6 text-gray-900',
                       )}
-                      href="#"
                     >
                       View<span className="sr-only">, {project.title}</span>
                     </a>
@@ -66,11 +65,11 @@ export default function ProjectCard(project: ProjectCardProps) {
                 <Menu.Item>
                   {({ active }) => (
                     <a
+                      href="#"
                       className={classNames(
                         active ? 'bg-gray-50' : '',
                         'block px-3 py-1 text-sm leading-6 text-gray-900',
                       )}
-                      href="#"
                     >
                       Edit<span className="sr-only">, {project.title}</span>
                     </a>

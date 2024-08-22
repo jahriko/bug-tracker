@@ -1,7 +1,5 @@
 'use client';
-import { TextNode, type EditorThemeClasses } from 'lexical';
 
-import { cn } from '@/lib/utils';
 import { CodeNode } from '@lexical/code';
 import { LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
@@ -17,8 +15,15 @@ import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPl
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { $createParagraphNode, EditorState, RootNode } from 'lexical';
+import {
+  $createParagraphNode,
+  type EditorState,
+  type EditorThemeClasses,
+  RootNode,
+  TextNode,
+} from 'lexical';
 import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 const theme: EditorThemeClasses = {
   ltr: 'ltr',
@@ -90,6 +95,7 @@ export default function Editor({
           ErrorBoundary={LexicalErrorBoundary}
           contentEditable={
             <ContentEditable
+              spellCheck={false}
               className={cn(
                 type !== 'title' && type !== 'comment' && 'min-h-[100px]',
                 type === 'title' && 'text-xl font-semibold',
@@ -111,7 +117,6 @@ export default function Editor({
                 ],
                 'lexical prose resize-none caret-gray-900 outline-none',
               )}
-              spellCheck={false}
             />
           }
           placeholder={
@@ -167,7 +172,7 @@ export function SingleLinePlugin(): null {
 
   useEffect(() => {
     return editor.registerNodeTransform(RootNode, (rootNode: RootNode) => {
-      const nodes = rootNode.getAllTextNodes();
+      const nodes = rootNode.getChildren();
       const textContent = rootNode.getTextContent();
 
       if (newlinesRegex.test(textContent)) {

@@ -6,8 +6,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { ArrowUpCircleIcon as ArrowUpCircleIconSolid } from '@heroicons/react/24/solid';
 import { DateTime } from 'luxon';
-import { useOptimisticAction } from 'next-safe-action/hooks';
 import Link from 'next/link';
+import { useOptimisticAction } from 'next-safe-action/hooks';
 import { toast } from 'sonner';
 
 import {
@@ -25,37 +25,17 @@ import {
 import { timeAgo } from '@/lib/utils';
 
 import { likeDiscussion } from '../_actions/like';
+import { type DiscussionType } from '../_data/discussions';
 
-interface Discussion {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  projectId: number;
-  authorId: string;
-  categoryId: number;
-  isResolved: boolean;
-  viewCount: number;
-  likeCount: number;
-  workspaceId: number;
-  likes: { userId: string }[];
-  author: { name: string };
-  category?: { name: string; emoji: string };
-  _count: { posts: number };
-}
-
-interface DiscussionListProps {
-  discussions: Discussion[];
-  workspaceId: string;
-  currentUserId: string;
-}
-
-export default function DiscussionList({
+export function DiscussionList({
   discussions,
   workspaceId,
   currentUserId,
-}: DiscussionListProps) {
+}: {
+  discussions: DiscussionType[];
+  workspaceId: string;
+  currentUserId: string;
+}) {
   const { execute, result, optimisticState } = useOptimisticAction(
     likeDiscussion,
     {
@@ -86,7 +66,7 @@ export default function DiscussionList({
     },
   );
 
-  const handleLikeToggle = (discussionId: number) => {
+  const handleLikeToggle = (discussionId: string) => {
     execute({ discussionId, workspaceUrl: workspaceId });
 
     if (result.serverError) {
@@ -95,12 +75,12 @@ export default function DiscussionList({
   };
 
   return (
-    <Table>
+    <Table className="mt-2 [--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
       <TableBody>
         {optimisticState.discussions.map((discussion) => (
           <TableRow key={discussion.id}>
-            <TableCell className="align-top">
-              <div className="flex flex-col items-center">
+            <TableCell className="align-top w-16">
+              <div className="flex flex-col items-center gap-1">
                 <button
                   className="text-gray-400 hover:text-gray-500"
                   type="button"
@@ -117,63 +97,58 @@ export default function DiscussionList({
                     <ArrowUpCircleIcon aria-hidden="true" className="size-6" />
                   )}
                 </button>
-                <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {discussion.likeCount}
                 </span>
               </div>
             </TableCell>
             <TableCell>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  {discussion.category ? (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="flex select-none items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                            <span className="inline-block text-sm">
-                              {discussion.category.emoji}
-                            </span>
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{discussion.category.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ) : null}
-                  <span className="flex items-center self-stretch text-gray-300 dark:text-gray-600">
-                    <span className="h-full w-px bg-current" />
-                  </span>
+              <div className="flex items-start gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-lg bg-zinc-100 fill-current text-sm text-emerald-500">
+                        {discussion.category.emoji}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{discussion.category.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <div className="flex flex-col min-w-0">
                   <Link
-                    prefetch={false}
-                    className="text-sm text-wrap font-semibold leading-6 text-gray-900 dark:text-gray-100 hover:underline"
+                    className="text-sm text-wrap font-semibold leading-normal text-gray-900 dark:text-gray-100 hover:underline truncate"
                     href={`/${workspaceId}/discussions/${discussion.id}`}
+                    prefetch={false}
                   >
                     {discussion.title}
                   </Link>
-                </div>
-                <div className="mt-1 flex items-center gap-x-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                  Started by
-                  <span className="underline underline-offset-2 hover:text-zinc-400">
-                    {discussion.author.name}
-                  </span>
-                  {/* <svg className="h-0.5 w-0.5 fill-current" viewBox="0 0 2 2">
-                    <circle cx={1} cy={1} r={1} />
-                  </svg> */}
-                  <time dateTime={discussion.createdAt.toISOString()}>
-                    {timeAgo(
-                      DateTime.fromJSDate(new Date(discussion.createdAt)),
-                    )}
-                  </time>
-                  <span>in {discussion.category?.name}</span>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                    <span>Started by</span>
+                    <span className="underline underline-offset-2 hover:text-zinc-400">
+                      {discussion.author.name}
+                    </span>
+                    <time dateTime={discussion.createdAt.toISOString()}>
+                      {timeAgo(
+                        DateTime.fromJSDate(new Date(discussion.createdAt)),
+                      )}
+                    </time>
+                    {discussion.category ? (
+                      <>
+                        <span>in</span>
+                        <span>{discussion.category.name}</span>
+                      </>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </TableCell>
-            <TableCell className="w-24">
-              <div className="flex w-16 gap-x-2.5">
+            <TableCell className="w-20">
+              <div className="flex items-center gap-x-1.5">
                 <ChatBubbleLeftIcon
                   aria-hidden="true"
-                  className="h-6 w-6 text-gray-400"
+                  className="size-6 text-gray-400"
                 />{' '}
                 <span className="text-sm leading-6 text-gray-900 dark:text-gray-100">
                   {discussion._count.posts}

@@ -1,8 +1,8 @@
 'use server';
+import { z } from 'zod';
 import { signIn } from '@/auth';
 import { actionClient } from '@/lib/safe-action';
 import { getUserByEmail } from '@/lib/user';
-import { z } from 'zod';
 
 const schema = z.object({
   email: z.string().email(),

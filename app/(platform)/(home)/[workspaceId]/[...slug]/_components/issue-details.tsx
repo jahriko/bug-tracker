@@ -1,17 +1,9 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 'use client';
-import { Avatar } from '@/components/catalyst/avatar';
-import { Button } from '@/components/catalyst/button';
-import { Field } from '@/components/catalyst/fieldset';
-import {
-  MdiSignalCellular1,
-  MdiSignalCellular2,
-  MdiSignalCellular3,
-  TablerLineDashed,
-} from '@/components/icons';
-import Editor from '@/components/lexical_editor/editor';
+import * as Headless from '@headlessui/react';
+import { Square3Stack3DIcon } from '@heroicons/react/16/solid';
 import { $convertToMarkdownString, TRANSFORMERS } from '@lexical/markdown';
-import { EditorState } from 'lexical';
+import { type Project } from '@prisma/client';
+import { type EditorState } from 'lexical';
 import {
   Ban,
   CheckCircle2,
@@ -22,16 +14,25 @@ import {
 import { useAction } from 'next-safe-action/hooks';
 import { debounce } from 'radash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Avatar } from '@/components/catalyst/avatar';
+import { Button } from '@/components/catalyst/button';
+import { Field } from '@/components/catalyst/fieldset';
+import {
+  MdiSignalCellular1,
+  MdiSignalCellular2,
+  MdiSignalCellular3,
+  TablerLineDashed,
+} from '@/components/icons';
+import Editor from '@/components/lexical_editor/editor';
 import { addComment } from '../_actions/add-comment';
 import { updateAssignee } from '../_actions/update-assignee';
 import { updateDescription } from '../_actions/update-description';
 import { updatePriority } from '../_actions/update-priority';
+import { updateProject } from '../_actions/update-project';
 import { updateStatus } from '../_actions/update-status';
+import { updateTitle } from '../_actions/update-title';
 import { CustomListbox, CustomListboxOption } from './custom-listbox';
 // https://stackoverflow.com/questions/63466463/how-to-submit-react-form-fields-on-onchange-rather-than-on-submit-using-react-ho
-import * as Headless from '@headlessui/react';
-import { Square3Stack3DIcon } from '@heroicons/react/16/solid';
-import { Project } from '@prisma/client';
 
 export type Status = 'BACKLOG' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED';
 export type Priority = 'NO_PRIORITY' | 'LOW' | 'MEDIUM' | 'HIGH';
@@ -117,7 +118,7 @@ export function StatusProperty({
       <Headless.Label className="select-none text-xs font-medium text-zinc-400">
         Status
       </Headless.Label>
-      <CustomListbox aria-label="Status" onChange={handleChange} value={value}>
+      <CustomListbox aria-label="Status" value={value} onChange={handleChange}>
         {options.map(({ value, icon, label }) => (
           <CustomListboxOption key={value} value={value}>
             <div className="flex items-center space-x-2">
@@ -130,6 +131,69 @@ export function StatusProperty({
     </Field>
   );
 }
+
+export function TitleField({
+  issueId,
+  value,
+  lastActivity,
+}: PropertyProps<string>) {
+  const [title, setTitle] = useState(value ?? '');
+  const debouncedUpdateRef = useRef<ReturnType<typeof debounce>>();
+  const { execute, result } = useAction(updateTitle);
+
+  const updateFunc = useCallback(
+    (currentTitle: string) => {
+      try {
+        execute({
+          issueId,
+          title: currentTitle,
+          lastActivity,
+        });
+
+        if (result.serverError) {
+          console.error('Server error: ', result.serverError);
+        }
+      } catch (error) {
+        handleServerError(error as Error);
+      }
+    },
+    [issueId, lastActivity, result.serverError, execute],
+  );
+
+  useEffect(() => {
+    debouncedUpdateRef.current = debounce({ delay: 1000 }, updateFunc);
+    return () => {
+      debouncedUpdateRef.current?.cancel();
+    };
+  }, [updateFunc]);
+
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newTitle = event.target.value;
+      setTitle(newTitle);
+      if (debouncedUpdateRef.current && newTitle !== value) {
+        debouncedUpdateRef.current(newTitle);
+      }
+    },
+    [value],
+  );
+
+  return (
+    <Field>
+      <Headless.Label className="select-none text-xs font-medium text-zinc-400">
+        Title
+      </Headless.Label>
+      <Input
+        type="text"
+        value={title}
+        onChange={handleChange}
+        placeholder="Enter issue title"
+        className="w-full"
+      />
+    </Field>
+  );
+}
+
 
 export function DescriptionField({
   issueId,
@@ -182,8 +246,8 @@ export function DescriptionField({
   return (
     <Editor
       initialContent={description}
-      onChange={handleChange}
       placeholderText="Describe the issue..."
+      onChange={handleChange}
     />
   );
 }
@@ -331,14 +395,14 @@ export function AssigneeProperty({
       </Headless.Label>
       <CustomListbox
         aria-label="AssignedUser"
-        onChange={handleChange}
+        value={value ? findUserById(value) : undefined}
         placeholder={
           <div className="flex items-center gap-x-2">
             <UserPlus className="size-4 flex-shrink-0" />
             Assign
           </div>
         }
-        value={value ? findUserById(value) : undefined}
+        onChange={handleChange}
       >
         {projectMembers.map(({ user: { id, name, image } }) => (
           <CustomListboxOption key={id} value={findUserById(id)}>
@@ -367,10 +431,10 @@ export function AddComment({ issueId, lastActivity }: PropertyProps<string>) {
   return (
     <>
       <Editor
-        onChange={handleChange}
+        withBorder
         placeholderText="Write a comment"
         type="commentBox"
-        withBorder
+        onChange={handleChange}
       />
       <div className="mt-6 flex items-center justify-end">
         <Button
@@ -394,11 +458,22 @@ export function ProjectProperty({
   value,
   lastActivity,
   projects,
-}: PropertyProps<string> & { projects: Project[] }) {
-  // const { execute, result } = useAction(updateProject)
-  const handleChange = (project: Project) => {
-    console.log(project);
+}: PropertyProps<number> & { projects: Project[] }) {
+  console.log('projects', projects);
+  console.log('project of issue', value);
+  const { execute, result } = useAction(updateProject);
+  const handleChange = (projectId: number) => {
+    execute({ issueId, projectId, lastActivity });
+
+    if (result.serverError) {
+      console.error('Server error: ', result.serverError);
+    }
   };
+
+  const findProjectById = (id: number) => {
+    return projects.find((project) => project.id === id);
+  };
+
   return (
     <Field>
       <Headless.Label className="select-none text-xs font-medium text-zinc-400">
@@ -406,19 +481,20 @@ export function ProjectProperty({
       </Headless.Label>
       <CustomListbox
         aria-label="Project"
-        onChange={handleChange}
+        value={value ? findProjectById(value) : undefined}
         placeholder={
           <div className="flex items-center gap-x-2">
             <Square3Stack3DIcon className="size-4 flex-shrink-0" />
             Project
           </div>
         }
-        value={value}
+        onChange={handleChange}
       >
-        {projects.map(({ id, title }) => (
-          <CustomListboxOption key={id} value={id}>
+        {projects.map((project) => (
+          <CustomListboxOption key={project.id} value={project}>
             <div className="flex items-center space-x-2">
-              <span className="font-medium">{title}</span>
+              <Avatar className="size-6" initials={project.title.slice(0, 2)} />
+              <span className="font-medium">{project.title}</span>
             </div>
           </CustomListboxOption>
         ))}

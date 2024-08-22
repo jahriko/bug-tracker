@@ -27,6 +27,7 @@ export const BorderlessInput = forwardRef(function Input(
 ) {
   return (
     <span
+      data-slot="control"
       className={clsx([
         className,
         // Basic layout
@@ -42,7 +43,6 @@ export const BorderlessInput = forwardRef(function Input(
         // Invalid state
         'before:has-[[data-invalid]]:shadow-red-500/10',
       ])}
-      data-slot="control"
     >
       <Headless.Input
         ref={ref}

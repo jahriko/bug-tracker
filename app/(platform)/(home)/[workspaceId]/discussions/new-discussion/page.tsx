@@ -1,7 +1,7 @@
-import { getCurrentUser } from '@/lib/get-current-user';
-import { getPrisma } from '@/lib/getPrisma';
 import { redirect } from 'next/navigation';
 import { toast } from 'sonner';
+import { getCurrentUser } from '@/lib/get-current-user';
+import { getPrisma } from '@/lib/getPrisma';
 import { NewDiscussionForm } from './_components/new-discussion-form';
 
 export default async function NewDiscussionPage({
@@ -48,9 +48,9 @@ export default async function NewDiscussionPage({
         <div className="mx-auto max-w-3xl">
           <h1 className="mb-4 text-2xl font-bold">New Discussion</h1>
           <NewDiscussionForm
-            workspaceUrl={params.workspaceId}
-            projects={projects}
             category={category}
+            projects={projects}
+            workspaceUrl={params.workspaceId}
           />
         </div>
       </div>

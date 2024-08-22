@@ -63,14 +63,14 @@ export function SidebarSection({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'div'>) {
-  let id = useId();
+  const id = useId();
 
   return (
     <LayoutGroup id={id}>
       <div
         {...props}
-        data-slot="section"
         className={clsx(className, 'flex flex-col gap-0.5')}
+        data-slot="section"
       />
     </LayoutGroup>
   );
@@ -131,7 +131,7 @@ export const SidebarItem = React.forwardRef(function SidebarItem(
   ),
   ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  let classes = clsx(
+  const classes = clsx(
     // Base
     'flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-zinc-950 sm:py-2 sm:text-sm/5',
     // Leading icon/icon-only
@@ -155,28 +155,28 @@ export const SidebarItem = React.forwardRef(function SidebarItem(
 
   return (
     <span className={clsx(className, 'relative')}>
-      {current && (
+      {current ? (
         <motion.span
-          layoutId="current-indicator"
           className="absolute inset-y-2 -left-4 w-0.5 rounded-full bg-zinc-950 dark:bg-white"
+          layoutId="current-indicator"
         />
-      )}
+      ) : null}
       {'href' in props ? (
         <Headless.CloseButton
           as={Link}
           {...props}
+          ref={ref}
           className={classes}
           data-current={current ? 'true' : undefined}
-          ref={ref}
         >
           <TouchTarget>{children}</TouchTarget>
         </Headless.CloseButton>
       ) : (
         <Headless.Button
           {...props}
+          ref={ref}
           className={clsx('cursor-default', classes)}
           data-current={current ? 'true' : undefined}
-          ref={ref}
         >
           <TouchTarget>{children}</TouchTarget>
         </Headless.Button>

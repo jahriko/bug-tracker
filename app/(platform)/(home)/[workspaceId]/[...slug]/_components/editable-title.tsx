@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { BorderlessInput } from './borderless-input';
 import { BorderlessTextarea } from '@/components/catalyst/borderless-textarea';
+import { BorderlessInput } from './borderless-input';
 
-export const EditableTitle = ({ initialTitle, onSave }) => {
+export function EditableTitle({ initialTitle, onSave }) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
 
@@ -31,15 +31,15 @@ export const EditableTitle = ({ initialTitle, onSave }) => {
     <div onClick={handleClick}>
       <BorderlessTextarea
         className="dark:text-white [&>*]:w-full [&>*]:text-xl [&>*]:font-semibold"
-        onBlur={handleBlur}
+        readOnly={!isEditing}
         resizable={false}
+        value={title}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
         onChange={(e) => {
           setTitle(e.target.value);
         }}
-        onKeyDown={handleKeyDown}
-        readOnly={!isEditing}
-        value={title}
       />
     </div>
   );
-};
+}

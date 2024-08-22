@@ -1,8 +1,8 @@
 'use client';
-import { Input, InputGroup } from '@/components/catalyst/input';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
+import { Input, InputGroup } from '@/components/catalyst/input';
 
 export default function SearchInput({ workspaceId, initialSearch = '' }) {
   const router = useRouter();
@@ -33,11 +33,11 @@ export default function SearchInput({ workspaceId, initialSearch = '' }) {
       <Input
         aria-label="Search"
         name="search"
+        placeholder="Search&hellip;"
+        value={search}
         onChange={(e) => {
           setSearch(e.target.value);
         }}
-        placeholder="Search&hellip;"
-        value={search}
       />
     </InputGroup>
   );

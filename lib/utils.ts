@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from 'clsx';
+import { type ClassValue, clsx } from 'clsx';
 import { DateTime } from 'luxon';
 import { twMerge } from 'tailwind-merge';
 

@@ -1,7 +1,7 @@
-import { auth } from '@/auth';
-import { Toaster } from '@/components/ui/sonner';
 import { SessionProvider } from 'next-auth/react';
 import React from 'react';
+import { auth } from '@/auth';
+import { Toaster } from '@/components/ui/sonner';
 
 export default async function PlatformLayout({
   children,

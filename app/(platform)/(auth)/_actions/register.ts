@@ -1,13 +1,13 @@
 'use server';
 
-import bcrypt from 'bcryptjs';
-import {
-  type RegisterSchema as RegisterSchemaType,
-  RegisterSchema,
-} from '@/lib/validations';
-import { getUserByEmail } from '@/lib/user';
-import prisma from '@/lib/prisma';
 import { faker } from '@faker-js/faker';
+import bcrypt from 'bcryptjs';
+import prisma from '@/lib/prisma';
+import { getUserByEmail } from '@/lib/user';
+import {
+  RegisterSchema,
+  type RegisterSchema as RegisterSchemaType,
+} from '@/lib/validations';
 
 export const register = async (values: RegisterSchemaType) => {
   const validatedFields = RegisterSchema.safeParse(values);

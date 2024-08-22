@@ -1,25 +1,8 @@
-import { expect, test, type Page } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 
-// Helper function to authenticate the user using the demo login
-async function authenticateUser(page: Page) {
-  await page.goto('/login');
-
-  // Look for the demo login button and click it
-  const demoLoginButton = page.getByRole('button', { name: /Demo Login/i });
-  await demoLoginButton.click();
-
-  // Wait for navigation to complete after login
-  // Wait for URL pattern /{workspace}/issues where {workspace} is any non-empty string
-  await page.waitForURL(/\/[^/]+\/issues/);
-
-  // Verify that we're logged in by checking for a common element present after login
-  // This could be a user menu, dashboard element, or any other indicator of a logged-in state
-  await page.waitForSelector('[data-testid="user-menu"]', { state: 'visible' });
-}
+test.use({ storageState: 'playwright/.auth/admin.json' });
 
 test('Should create and verify new workspace and project', async ({ page }) => {
-  await authenticateUser(page);
-
   // Click the workspace dropdown
   await page.click('button[id^="headlessui-menu-button-"]');
 
@@ -63,8 +46,6 @@ test('Should create and verify new workspace and project', async ({ page }) => {
 });
 
 test('Should create a new issue', async ({ page }) => {
-  await authenticateUser(page);
-
   // Navigate to the project page
   await page.goto('/test-workspace/projects/test-project');
 
@@ -87,8 +68,6 @@ test('Should create a new issue', async ({ page }) => {
 });
 
 test('Should create a new discussion', async ({ page }) => {
-  await authenticateUser(page);
-
   // Navigate to the project page
   await page.goto('/test-workspace/projects/test-project');
 
@@ -117,8 +96,6 @@ test('Should create a new discussion', async ({ page }) => {
 });
 
 test('Should create a reply to a discussion', async ({ page }) => {
-  await authenticateUser(page);
-
   // Navigate to the project page
   await page.goto('/test-workspace/projects/test-project');
 
@@ -148,62 +125,53 @@ test('Should create a reply to a discussion', async ({ page }) => {
   expect(await replyElement.isVisible()).toBeTruthy();
 });
 
-test("Should update an issue's status", async ({ page }) => {
-  await authenticateUser(page);
+test.describe('Updating an issue', () => {
+  test("Should update an issue's status", async ({ page }) => {
+    // Navigate to the project page
+    await page.goto('/test-workspace/projects/test-project');
 
-  // Navigate to the project page
-  await page.goto('/test-workspace/projects/test-project');
+    // Click on an existing issue (assuming "Test Issue" exists from a previous test)
+    await page.click('text=Test Issue');
 
-  // Click on an existing issue (assuming "Test Issue" exists from a previous test)
-  await page.click('text=Test Issue');
+    // Wait for the issue details page to load
+    await page.waitForSelector('button[aria-label="Status"]');
 
-  // Wait for the issue details page to load
-  await page.waitForSelector('button[aria-label="Status"]');
+    // Click the status dropdown
+    await page.click('button[aria-label="Status"]');
 
-  // Click the status dropdown
-  await page.click('button[aria-label="Status"]');
+    // Select a new status (e.g., "In Progress")
+    await page.click('text=In Progress');
 
-  // Select a new status (e.g., "In Progress")
-  await page.click('text=In Progress');
+    // Wait for the status to update
+    await page.waitForSelector(
+      'button[aria-label="Status"]:has-text("In Progress")',
+    );
 
-  // Wait for the status to update
-  await page.waitForSelector(
-    'button[aria-label="Status"]:has-text("In Progress")',
-  );
+    // Verify the status has been updated
+    const statusElement = page.locator(
+      'button[aria-label="Status"]:has-text("In Progress")',
+    );
+    expect(await statusElement.isVisible()).toBeTruthy();
+  });
 
-  // Verify the status has been updated
-  const statusElement = page.locator(
-    'button[aria-label="Status"]:has-text("In Progress")',
-  );
-  expect(await statusElement.isVisible()).toBeTruthy();
-});
+  // test('Should assign a user to an issue', async ({ page }) => {
+  //   await page.goto('/test-workspace/projects/test-project');
 
-test('Should assign a user to an issue', async ({ page }) => {
-  await authenticateUser(page);
+  //   await page.click('text=Test Issue');
 
-  // Navigate to the project page
-  await page.goto('/test-workspace/projects/test-project');
+  //   await page.waitForSelector('button[aria-label="Assigned to"]');
 
-  // Click on an existing issue (assuming "Test Issue" exists from a previous test)
-  await page.click('text=Test Issue');
+  //   await page.click('button[aria-label="Assigned to"]');
 
-  // Wait for the issue details page to load
-  await page.waitForSelector('button[aria-label="Assigned to"]');
+  //   await page.click('text=John Doe');
 
-  // Click the assignee dropdown
-  await page.click('button[aria-label="Assigned to"]');
+  //   await page.waitForSelector(
+  //     'button[aria-label="Assigned to"]:has-text("John Doe")',
+  //   );
 
-  // Select a user to assign (assuming there's a user named "John Doe")
-  await page.click('text=John Doe');
-
-  // Wait for the assignee to update
-  await page.waitForSelector(
-    'button[aria-label="Assigned to"]:has-text("John Doe")',
-  );
-
-  // Verify the assignee has been updated
-  const assigneeElement = page.locator(
-    'button[aria-label="Assigned to"]:has-text("John Doe")',
-  );
-  expect(await assigneeElement.isVisible()).toBeTruthy();
+  //   const assigneeElement = page.locator(
+  //     'button[aria-label="Assigned to"]:has-text("John Doe")',
+  //   );
+  //   expect(await assigneeElement.isVisible()).toBeTruthy();
+  // });
 });

@@ -1,9 +1,9 @@
+import { PlusIcon } from '@heroicons/react/16/solid';
+import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/catalyst/avatar';
 import { Link } from '@/components/catalyst/link';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
-import { PlusIcon } from '@heroicons/react/16/solid';
-import { redirect } from 'next/navigation';
 import TeamSettings from './_components/team-settings';
 
 export default async function ProjectsPage({
@@ -77,8 +77,8 @@ export default async function ProjectsPage({
             </li>
             {projects.map((project) => (
               <li
-                className="flex overflow-hidden rounded-xl border border-gray-200"
                 key={project.id}
+                className="flex overflow-hidden rounded-xl border border-gray-200"
               >
                 <div className="flex w-full flex-col">
                   <div className="relative m-1 flex h-28 gap-x-4">
@@ -112,7 +112,7 @@ export default async function ProjectsPage({
   );
 }
 
-const AvatarGroup = ({ avatars, limit = 4 }) => {
+function AvatarGroup({ avatars, limit = 4 }) {
   const visibleAvatars = avatars.slice(0, limit);
   const remainingCount = Math.max(avatars.length - limit, 0);
 
@@ -135,4 +135,4 @@ const AvatarGroup = ({ avatars, limit = 4 }) => {
       </div>
     </dd>
   );
-};
+}

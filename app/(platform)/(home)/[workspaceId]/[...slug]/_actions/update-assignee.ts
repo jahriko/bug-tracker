@@ -1,8 +1,8 @@
 'use server';
-import { getPrisma } from '@/lib/getPrisma';
-import { authActionClient } from '@/lib/safe-action';
 import { revalidateTag } from 'next/cache';
 import { z } from 'zod';
+import { getPrisma } from '@/lib/getPrisma';
+import { authActionClient } from '@/lib/safe-action';
 
 export const updateAssignee = authActionClient
   .schema(

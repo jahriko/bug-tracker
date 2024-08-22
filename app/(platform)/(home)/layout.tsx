@@ -1,3 +1,6 @@
+import { UserCircleIcon, UserIcon } from '@heroicons/react/16/solid';
+import { redirect } from 'next/navigation';
+import React from 'react';
 import LogoutButton from '@/app/(platform)/(auth)/_components/logout-button';
 import {
   Dropdown,
@@ -25,8 +28,6 @@ import {
 import { StackedLayout } from '@/components/catalyst/stacked-layout';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
-import { UserCircleIcon, UserIcon } from '@heroicons/react/16/solid';
-import React from 'react';
 import NavbarLinks from './_components/navbar-links';
 import SwitchWorkspace from './_components/switch-workspace';
 
@@ -41,6 +42,10 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await getCurrentUser();
+
+  if (!session) {
+    redirect('/login');
+  }
 
   const workspaces = await getPrisma(session.userId).workspace.findMany({
     select: {
@@ -62,7 +67,7 @@ export default async function DashboardLayout({
           <NavbarSpacer />
           <NavbarSection>
             <Dropdown>
-              <DropdownButton as={NavbarItem} data-testid="user-menu">
+              <DropdownButton as={NavbarItem}>
                 <UserCircleIcon />
               </DropdownButton>
               <DropdownMenu anchor="bottom end" className="min-w-64">
@@ -95,7 +100,7 @@ export default async function DashboardLayout({
           <SidebarBody>
             <SidebarSection>
               {navItems.map(({ label, url }) => (
-                <SidebarItem href={url} key={label}>
+                <SidebarItem key={label} href={url}>
                   {label}
                 </SidebarItem>
               ))}

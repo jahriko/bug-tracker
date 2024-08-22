@@ -1,9 +1,9 @@
 'use client';
 
-import { Button } from '@/components/catalyst/button';
 import { RadioGroup } from '@headlessui/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from '@/components/catalyst/button';
 
 interface Category {
   id: number;
@@ -38,13 +38,15 @@ export function CategorySelector({
 
   return (
     <div>
-      <RadioGroup onChange={setSelected} value={selected}>
+      <RadioGroup value={selected} onChange={setSelected}>
         <RadioGroup.Label className="sr-only">
           Discussion category
         </RadioGroup.Label>
         <div className="space-y-4">
           {categories.map((category) => (
             <RadioGroup.Option
+              key={category.id}
+              value={category}
               className={({ checked, active }) =>
                 classNames(
                   checked ? 'border-transparent' : 'border-gray-300',
@@ -52,8 +54,6 @@ export function CategorySelector({
                   'relative block cursor-pointer rounded-lg border bg-white px-6 py-4 shadow-sm focus:outline-none sm:flex sm:justify-between',
                 )
               }
-              key={category.id}
-              value={category}
             >
               {({ active, checked }) => (
                 <>
@@ -96,8 +96,8 @@ export function CategorySelector({
         <Button
           className="w-full"
           disabled={!selected}
-          onClick={handleContinue}
           type="button"
+          onClick={handleContinue}
         >
           Continue
         </Button>

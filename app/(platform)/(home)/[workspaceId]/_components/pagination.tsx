@@ -3,11 +3,11 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Pagination,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationList,
-  PaginationPage,
   PaginationGap,
+  PaginationList,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
 } from '@/components/catalyst/pagination';
 
 export default function PaginationClient({
@@ -31,10 +31,10 @@ export default function PaginationClient({
   return (
     <Pagination className="mt-6">
       <PaginationPrevious
+        disabled={currentPage === 1}
         onClick={() =>
           router.push(`?${createQueryString('page', String(currentPage - 1))}`)
         }
-        disabled={currentPage === 1}
       />
       <PaginationList>
         {paginationPages.map((page, index) =>
@@ -43,10 +43,10 @@ export default function PaginationClient({
           ) : (
             <PaginationPage
               key={page}
+              current={currentPage === page}
               onClick={() =>
                 router.push(`?${createQueryString('page', String(page))}`)
               }
-              current={currentPage === page}
             >
               {page}
             </PaginationPage>
@@ -54,10 +54,10 @@ export default function PaginationClient({
         )}
       </PaginationList>
       <PaginationNext
+        disabled={currentPage === totalPages}
         onClick={() =>
           router.push(`?${createQueryString('page', String(currentPage + 1))}`)
         }
-        disabled={currentPage === totalPages}
       />
     </Pagination>
   );

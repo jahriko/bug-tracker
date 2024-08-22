@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable guard-for-in */
-import prisma from '@/lib/prisma';
+
 import { faker } from '@faker-js/faker';
-import { Priority, Status } from '@prisma/client';
+import { type Priority, type Status } from '@prisma/client';
 import { hash } from 'bcrypt';
+import prisma from '@/lib/prisma';
 
 const slugify = (str: string) => {
   return str
@@ -54,7 +54,7 @@ async function main() {
         .createManyAndReturn({
           data: await Promise.all(
             Array.from({ length: 15 }, async () => ({
-              image: faker.image.avatar(),
+              image: faker.image.avatarGitHub,
               name: `${faker.person.firstName()} ${faker.person.lastName()}`,
               email: faker.internet.exampleEmail(),
               hashedPassword: await hash('12345678', 13),

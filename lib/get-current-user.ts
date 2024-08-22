@@ -1,15 +1,10 @@
-import { auth } from '@/auth';
-import { Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 import { cache } from 'react';
+import { auth } from '@/auth';
 
 export const getCurrentUser = cache(async () => {
-  try {
-    const session = await auth();
-
-    return session?.user ?? null;
-  } catch (error) {
-    throw new Error('Failed to get logged user');
-  }
+  const session = await auth();
+  return session?.user ?? null;
 });
 
 export type User = Prisma.PromiseReturnType<typeof getCurrentUser>;

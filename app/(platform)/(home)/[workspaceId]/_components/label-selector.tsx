@@ -1,18 +1,4 @@
 'use client';
-import MultiSelectComboBox, {
-  MultiSelectComboBoxLabel,
-  MultiSelectComboBoxOption,
-  MultiSelectComboboxOptions,
-  MultiSelectComboBoxProps,
-} from '@/app/(platform)/(home)/[workspaceId]/_components/combobox-multi-select';
-import { BadgeProps } from '@/components/catalyst/badge';
-import { BorderlessInput } from '@/components/catalyst/borderless-input';
-import { Button } from '@/components/catalyst/button';
-import { Dialog, DialogBody } from '@/components/catalyst/dialog';
-import { Divider } from '@/components/catalyst/divider';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { classNames } from '@/lib/utils';
-import { LabelsData } from '@/server/data/many/get-labels';
 import {
   Combobox,
   ComboboxInput,
@@ -24,8 +10,22 @@ import { useOptimisticAction } from 'next-safe-action/hooks';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { createLabel } from '../_actions/create-label';
+import MultiSelectComboBox, {
+  MultiSelectComboBoxLabel,
+  MultiSelectComboBoxOption,
+  type MultiSelectComboBoxProps,
+  MultiSelectComboboxOptions,
+} from '@/app/(platform)/(home)/[workspaceId]/_components/combobox-multi-select';
+import { type BadgeProps } from '@/components/catalyst/badge';
+import { BorderlessInput } from '@/components/catalyst/borderless-input';
+import { Button } from '@/components/catalyst/button';
+import { Dialog, DialogBody } from '@/components/catalyst/dialog';
+import { Divider } from '@/components/catalyst/divider';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { COLORS } from '@/lib/colors';
+import { classNames } from '@/lib/utils';
+import { type LabelsData } from '@/server/data/many/get-labels';
+import { createLabel } from '../_actions/create-label';
 
 export function LabelSelector<T, V extends boolean | undefined>({
   labels,
@@ -91,19 +91,19 @@ export function LabelSelector<T, V extends boolean | undefined>({
 
   const renderColorOption = (color: string) => (
     <ComboboxOption
+      key={color}
+      value={color}
       className={({ active }) =>
         classNames(
           'flex cursor-default select-none items-center gap-x-3 rounded-md px-4 py-3',
           active ? 'bg-gray-100' : '',
         )
       }
-      key={color}
       onClick={() =>
         form.handleSubmit(() => {
           handleCreateLabel(color);
         })()
       }
-      value={color}
     >
       <div
         className={classNames(
@@ -122,7 +122,7 @@ export function LabelSelector<T, V extends boolean | undefined>({
       {...rest}
       multiple
       name="labels"
-      onQueryChange={setQuery}
+      renderButtonAsIcon={renderButtonAsIcon}
       placeholder={
         renderButtonAsIcon ?? (
           <div className="flex items-center gap-x-2 text-zinc-500 lg:text-xs">
@@ -131,14 +131,14 @@ export function LabelSelector<T, V extends boolean | undefined>({
           </div>
         )
       }
-      renderButtonAsIcon={renderButtonAsIcon}
+      onQueryChange={setQuery}
     >
       <MultiSelectComboboxOptions hold static>
         <div className="p-1">
           {filteredLabels.map((label) => (
             <MultiSelectComboBoxOption
-              disabled={label.available}
               key={label.id}
+              disabled={label.available}
               value={label}
             >
               <div
@@ -159,6 +159,7 @@ export function LabelSelector<T, V extends boolean | undefined>({
           {filteredLabels.length === 0 && (
             <>
               <Button
+                plain
                 className="relative w-full"
                 onClick={() => {
                   setCreateLabelDialogOpen(true);
@@ -166,7 +167,6 @@ export function LabelSelector<T, V extends boolean | undefined>({
                 onMouseDown={(event: React.MouseEvent) => {
                   event.preventDefault();
                 }}
-                plain
               >
                 <PlusIcon />
                 <span className="font-medium">Create new label</span>
@@ -175,11 +175,11 @@ export function LabelSelector<T, V extends boolean | undefined>({
 
               <Dialog
                 className="!p-4"
+                open={isCreateLabelDialogOpen}
                 onClose={() => {
                   setQuery('');
                   setCreateLabelDialogOpen(false);
                 }}
-                open={isCreateLabelDialogOpen}
               >
                 <DialogBody className="!mt-0">
                   <Form {...form}>
@@ -191,24 +191,24 @@ export function LabelSelector<T, V extends boolean | undefined>({
                           <FormControl>
                             <Combobox {...field} as="div">
                               <ComboboxInput
-                                as={BorderlessInput}
                                 autoFocus
+                                as={BorderlessInput}
                                 className="w-full border-0 px-4 py-2.5 text-gray-900 focus:ring-0 sm:text-sm"
+                                placeholder="Select a color for your label"
                                 onBlur={() => {
                                   setColorQuery('');
                                 }}
                                 onChange={(event) => {
                                   setColorQuery(event.target.value);
                                 }}
-                                placeholder="Select a color for your label"
                               />
 
                               <Divider />
 
                               {Object.keys(COLORS).length > 0 && (
                                 <ComboboxOptions
-                                  className="-mb-2 max-h-72 scroll-py-6 overflow-y-auto py-2 text-sm text-gray-800"
                                   static
+                                  className="-mb-2 max-h-72 scroll-py-6 overflow-y-auto py-2 text-sm text-gray-800"
                                 >
                                   {filteredColors.map(renderColorOption)}
                                 </ComboboxOptions>

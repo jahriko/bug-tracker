@@ -1,6 +1,6 @@
-import { getPrisma } from '@/lib/getPrisma';
-import { Prisma } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 import { unstable_cache } from 'next/cache';
+import { getPrisma } from '@/lib/getPrisma';
 
 interface User {
   userId: string;
@@ -53,6 +53,8 @@ export const getIssueByProject = async (
           createdAt: true,
           project: {
             select: {
+              id: true,
+              title: true,
               members: {
                 select: {
                   user: {

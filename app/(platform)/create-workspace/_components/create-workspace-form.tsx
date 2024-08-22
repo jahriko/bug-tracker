@@ -1,5 +1,10 @@
 'use client';
-import { createWorkspace } from '@/app/(platform)/create-workspace/create-workspace';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '@/components/catalyst/button';
 import { Input } from '@/components/catalyst/input';
 import {
@@ -9,13 +14,8 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAction } from 'next-safe-action/hooks';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
 import { Icons } from '../../../../components/icons';
+import { createWorkspace } from '@/app/(platform)/create-workspace/create-workspace';
 
 const schema = z.object({
   name: z.string().min(2, { message: 'Workspace name is required.' }),
@@ -43,7 +43,7 @@ export function CreateWorkspace() {
 
     form.reset();
 
-    router.push(`${result?.data?.workspaceName}`);
+    router.push(`${result.data?.workspaceName}`);
 
     return toast.success('Workspace created');
   }
@@ -104,8 +104,8 @@ export function CreateWorkspace() {
 
             <Button
               className="ml-4 flex-shrink-0 px-3 py-2"
-              type="submit"
               disabled={isExecuting}
+              type="submit"
             >
               {isExecuting ? (
                 <Icons.spinner className="size-4 animate-spin" />

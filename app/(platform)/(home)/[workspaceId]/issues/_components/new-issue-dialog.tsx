@@ -12,6 +12,7 @@ import { flattenValidationErrors } from 'next-safe-action';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { toast } from 'sonner';
 import { Avatar } from '@/components/catalyst/avatar';
 import { Button } from '@/components/catalyst/button';
 import {
@@ -31,7 +32,6 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { type IssueSchema } from '@/lib/validations.js';
 import { type LabelsData } from '@/server/data/many/get-labels';
 import { type UsersData } from '@/server/data/many/get-users';
-import { toast } from 'sonner';
 
 import { createIssue } from '../../_actions/create-issue';
 import {
@@ -40,6 +40,7 @@ import {
   CustomListboxOption,
 } from '../../_components/custom-listbox';
 import { LabelSelector } from '../../_components/label-selector';
+import { type WorkspaceDataType } from '../_data/workspace-data';
 
 const Editor = dynamic(() => import('@/components/lexical_editor/editor'), {
   ssr: false,
@@ -124,7 +125,7 @@ export default function NewIssueDialog({
   assignees: UsersData;
   labels: LabelsData;
   hasProjects: boolean;
-  projects: Project[];
+  projects: WorkspaceDataType['projects'];
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -134,7 +135,6 @@ export default function NewIssueDialog({
     defaultValues: {
       title: '',
       description: '',
-      projectId: projects[0]?.id,
       status: 'BACKLOG',
       priority: 'NO_PRIORITY',
       labels: [],

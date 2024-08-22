@@ -1,4 +1,12 @@
 'use client';
+import * as Headless from '@headlessui/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '@/components/catalyst/button';
 import {
   Field,
@@ -9,14 +17,6 @@ import {
 import { Input } from '@/components/catalyst/input';
 import { Icons } from '@/components/icons';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import * as Headless from '@headlessui/react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAction } from 'next-safe-action/hooks';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
-import { z } from 'zod';
 import { createWorkspace } from './_actions/create-workspace';
 
 const schema = z.object({
@@ -173,6 +173,7 @@ export default function CreateWorkspacePage() {
                                 {...field}
                                 id="workspace-name"
                                 name="workspace-name"
+                                onChange={handleNameChange}
                                 onBlur={(e) => {
                                   e.preventDefault();
                                   form.setValue(
@@ -182,7 +183,6 @@ export default function CreateWorkspacePage() {
                                       : workspaceUrlValue,
                                   );
                                 }}
-                                onChange={handleNameChange}
                               />
                             </Headless.Field>
                           </FormControl>
@@ -206,13 +206,13 @@ export default function CreateWorkspacePage() {
                                 {...field}
                                 id="url"
                                 name="url"
+                                onChange={handleUrlChange}
                                 onBlur={(e) => {
                                   form.setValue(
                                     'url',
                                     e.target.value.replace(/-+$/, ''),
                                   );
                                 }}
-                                onChange={handleUrlChange}
                               />
                             </Headless.Field>
                           </FormControl>

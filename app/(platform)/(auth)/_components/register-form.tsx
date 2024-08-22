@@ -1,7 +1,13 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { register } from '@/app/(platform)/(auth)/_actions/register';
 import { Button } from '@/components/catalyst/button';
+import { Input } from '@/components/catalyst/input';
 import { Icons } from '@/components/icons';
 import {
   Form,
@@ -11,15 +17,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/catalyst/input';
 import { RegisterSchema } from '@/lib/validations';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useTransition } from 'react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
-const RegisterForm = () => {
+function RegisterForm() {
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -143,6 +143,6 @@ const RegisterForm = () => {
       </div>
     </div>
   );
-};
+}
 
 export default RegisterForm;

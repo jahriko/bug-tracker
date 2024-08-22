@@ -1,10 +1,10 @@
 'use client';
-import { LabelsData } from '@/server/data/many/get-labels';
 import { useState } from 'react';
+import { type LabelsData } from '@/server/data/many/get-labels';
 import { LabelSelector } from '../../_components/label-selector';
 import { addIssueLabel } from '../_actions/add-issue-label';
 import { removeIssueLabel } from '../_actions/remove-issue-label';
-import { IssueActivityType } from '../_data/issue';
+import { type IssueActivityType } from '../_data/issue';
 
 export default function AddLabelButton({
   labels,
@@ -45,10 +45,10 @@ export default function AddLabelButton({
 
   return (
     <LabelSelector
-      labels={labels}
-      onChange={handleLabelChange}
       renderButtonAsIcon
+      labels={labels}
       value={selected}
+      onChange={handleLabelChange}
     />
   );
 }

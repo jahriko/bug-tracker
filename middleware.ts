@@ -1,12 +1,12 @@
+import NextAuth from 'next-auth';
 import { authConfig } from '@/auth.config';
 import { apiAuthPrefix, authRoutes, publicRoutes } from '@/routes';
-import NextAuth from 'next-auth';
 
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+  const isLoggedIn = Boolean(req.auth);
   const user = req.auth?.user;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
@@ -43,9 +43,8 @@ export default auth((req) => {
   if (isLoggedIn && nextUrl.pathname === '/') {
     if (lastWorkspaceUsed) {
       return Response.redirect(new URL(`/${lastWorkspaceUsed}`, nextUrl));
-    } else {
-      return Response.redirect(new URL('/create-workspace', nextUrl));
     }
+    return Response.redirect(new URL('/create-workspace', nextUrl));
   }
 
   // Handle workspace root redirect

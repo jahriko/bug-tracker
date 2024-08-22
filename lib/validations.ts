@@ -6,7 +6,7 @@ export const IssueSchema = z.object({
   description: z.string(),
   status: z.nativeEnum(Status),
   priority: z.nativeEnum(Priority),
-  assigneeId: z.string().optional(),
+  assigneeId: z.string(),
   labels: z.array(
     z.object({ id: z.number(), name: z.string(), color: z.string() }),
   ),

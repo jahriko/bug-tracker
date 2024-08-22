@@ -1,6 +1,6 @@
+import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import prisma from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
 
 export async function getUserByEmail(email: string) {
   try {

@@ -1,12 +1,12 @@
-import { Button } from '@/components/catalyst/button';
-import { getCurrentUser } from '@/lib/get-current-user';
-import { getPrisma } from '@/lib/getPrisma';
 import {
   LockClosedIcon,
   LockOpenIcon,
   PencilIcon,
 } from '@heroicons/react/24/outline';
 import { notFound } from 'next/navigation';
+import { Button } from '@/components/catalyst/button';
+import { getCurrentUser } from '@/lib/get-current-user';
+import { getPrisma } from '@/lib/getPrisma';
 
 export default async function SettingsPage({
   params,

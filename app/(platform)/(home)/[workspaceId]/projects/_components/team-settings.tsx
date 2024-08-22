@@ -1,14 +1,5 @@
 'use client';
 
-import { Avatar } from '@/components/catalyst/avatar';
-import { Button } from '@/components/catalyst/button';
-import {
-  Dialog,
-  DialogActions,
-  DialogBody,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/catalyst/dialog';
 import {
   Combobox,
   ComboboxInput,
@@ -20,9 +11,18 @@ import {
   UserCircleIcon,
   UserPlusIcon,
 } from '@heroicons/react/16/solid';
-import { Project } from '@prisma/client';
+import { type Project } from '@prisma/client';
 import clsx from 'clsx';
 import { Fragment, useState } from 'react';
+import { Avatar } from '@/components/catalyst/avatar';
+import { Button } from '@/components/catalyst/button';
+import {
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/catalyst/dialog';
 
 export default function TeamSettings({
   projectMembers,
@@ -59,7 +59,7 @@ export default function TeamSettings({
         {projectDetails.title}
       </p>
 
-      <Dialog onClose={setIsOpen} open={isOpen} size="3xl">
+      <Dialog open={isOpen} size="3xl" onClose={setIsOpen}>
         <DialogTitle>{projectDetails.title}</DialogTitle>
         <DialogDescription>
           Project overview and team management for {projectDetails.title}.
@@ -80,8 +80,8 @@ export default function TeamSettings({
             <ul className="divide-y divide-gray-100" role="list">
               {projectMembers.map((member) => (
                 <li
-                  className="flex items-center justify-between gap-x-4 py-5"
                   key={member.user.email}
+                  className="flex items-center justify-between gap-x-4 py-5"
                 >
                   <div className="flex items-center gap-x-4">
                     {member.user.image ? (
@@ -121,10 +121,10 @@ export default function TeamSettings({
         </DialogBody>
         <DialogActions>
           <Button
+            plain
             onClick={() => {
               setIsOpen(false);
             }}
-            plain
           >
             Close
           </Button>
@@ -164,11 +164,11 @@ function SearchCombobox({
 
   return (
     <Combobox
+      value={selected}
       onChange={setSelected}
       onClose={() => {
         setQuery('');
       }}
-      value={selected}
     >
       <div className="relative">
         <div className="relative">
@@ -182,6 +182,7 @@ function SearchCombobox({
             <UserCircleIcon className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-zinc-500" />
           )}
           <ComboboxInput
+            placeholder="Search..."
             className={clsx(
               'w-full rounded-lg py-[calc(theme(spacing[2.5])-1px)] pl-10 pr-3 sm:py-[calc(theme(spacing[1.5])-1px)]',
               'min-h-11 sm:min-h-9',
@@ -196,7 +197,6 @@ function SearchCombobox({
             onChange={(event) => {
               setQuery(event.target.value);
             }}
-            placeholder="Search..."
           />
         </div>
       </div>
@@ -217,7 +217,7 @@ function SearchCombobox({
         )}
       >
         {filteredPeople.map((person) => (
-          <ComboboxOption as={Fragment} key={person.id} value={person}>
+          <ComboboxOption key={person.id} as={Fragment} value={person}>
             {({ active, selected }) => (
               <div
                 className={clsx(

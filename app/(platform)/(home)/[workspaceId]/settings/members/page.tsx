@@ -1,14 +1,13 @@
+import { UserPlusIcon } from '@heroicons/react/16/solid';
+import { type Role } from '@prisma/client';
+import { notFound, redirect } from 'next/navigation';
 import { Button } from '@/components/catalyst/button';
 import { getCurrentUser } from '@/lib/get-current-user';
 import prisma from '@/lib/prisma';
-import { UserPlusIcon } from '@heroicons/react/16/solid';
-import { Role } from '@prisma/client';
-import { notFound, redirect } from 'next/navigation';
 
 // Helper function to determine role order
 const roleOrder: Record<Role, number> = {
   ADMIN: 1,
-  PROJECT_MANAGER: 2,
   MEMBER: 3,
 };
 
@@ -73,8 +72,8 @@ export default async function MembersPage({
       <ul className="mt-6 divide-y divide-gray-100" role="list">
         {sortedMembers.map((member) => (
           <li
-            className="flex items-center gap-x-4 py-5"
             key={member.user.email}
+            className="flex items-center gap-x-4 py-5"
           >
             <img
               alt=""

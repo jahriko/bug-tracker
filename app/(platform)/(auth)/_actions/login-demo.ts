@@ -1,9 +1,9 @@
 'use server';
 
+import { z } from 'zod';
 import { signIn } from '@/auth';
 import prisma from '@/lib/prisma';
 import { actionClient } from '@/lib/safe-action';
-import { z } from 'zod';
 
 const schema = z.object({});
 

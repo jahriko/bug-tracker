@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { DateTime } from 'luxon';
 import dynamic from 'next/dynamic';
-import { createContext, useContext, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 import { Avatar } from '@/components/catalyst/avatar';
 import {
@@ -31,29 +31,10 @@ const Editor = dynamic(() => import('@/components/lexical_editor/editor'), {
   ssr: true,
 });
 
-interface ActivityFeedContextType {
-  issue: IssueType;
-  activities: IssueActivityType;
-}
-
 type GroupedLabelActivityType = Extract<
   IssueActivityType[number],
   { issueActivity: 'GroupedLabelActivity' }
 >;
-
-const ActivityFeedContext = createContext<ActivityFeedContextType | undefined>(
-  undefined,
-);
-
-function useActivityFeed() {
-  const context = useContext(ActivityFeedContext);
-  if (!context) {
-    throw new Error(
-      'ActivityFeed components must be used within an ActivityFeed',
-    );
-  }
-  return context;
-}
 
 /**
  * The time threshold (in milliseconds) used to determine if consecutive label activities should be grouped.
@@ -81,7 +62,6 @@ const createNewLabelGroup = (
  * Updates a label group with a new label activity.
  * @param currentGroup - The current group to update.
  * @param activity - The new label activity to add to the group.
- * @returns The updated GroupedLabelActivityType object.
  */
 const updateLabelGroup = (
   currentGroup: GroupedLabelActivityType,
@@ -115,7 +95,6 @@ const updateLabelGroup = (
 /**
  * Determines if a new label group should be started based on specific conditions.
  *
- * This function checks three conditions:
  * 1. If there's no current group (indicating this is the first label activity).
  * 2. If the user of the current activity is different from the user of the current group.
  * 3. If the time difference between the current activity and the previous activity
@@ -124,7 +103,6 @@ const updateLabelGroup = (
  * @param currentGroup - The current label group, if any.
  * @param prevActivity - The previous activity in the stream, if any.
  * @param activity - The current label activity being processed.
- * @returns A boolean indicating whether a new group should be started (true) or not (false).
  */
 const shouldStartNewLabelGroup = (
   currentGroup: GroupedLabelActivityType | null,
@@ -196,96 +174,110 @@ const processAndGroupLabelActivities = (activities: IssueActivityType) => {
 function ActivityFeed({
   issue,
   activities,
-  children,
-}: ActivityFeedContextType & { children: ReactNode }) {
-  const processedLabelActivities = processAndGroupLabelActivities(activities);
-
-  console.log(processedLabelActivities);
+}: {
+  issue: IssueType;
+  activities: IssueActivityType;
+}) {
+  const processedActivities = processAndGroupLabelActivities(activities);
 
   return (
-    <ActivityFeedContext.Provider
-      value={{ issue, activities: processedLabelActivities }}
-    >
-      <div className="flow-root">
-        <ul className="space-y-6">
-          <ActivityItem>
-            <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
-              <Avatar
-                alt={issue?.owner?.name ?? 'User'}
-                className="size-5"
-                src={issue?.owner?.image ?? ''}
-              />
-            </div>
-            <div className="flex gap-x-2">
-              <div className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
-                <span className="font-medium text-gray-900">
-                  {issue?.owner?.name}
-                </span>{' '}
-                created this issue{' '}
-              </div>
-              <span>⋅</span>
-              <time
-                className="flex-none py-0.5 text-xs leading-5 text-gray-500"
-                dateTime={new Date(issue?.createdAt).toISOString()}
-              >
-                {timeAgo(
-                  DateTime.fromISO(new Date(issue?.createdAt).toISOString()),
-                )}
-              </time>
-            </div>
+    <div className="flow-root">
+      <ul className="space-y-6">
+        <ActivityItem>
+          <IssueCreationActivity issue={issue} />
+        </ActivityItem>
+        {processedActivities.map((item, itemIdx) => (
+          <ActivityItem
+            key={item.id}
+            activitiesLength={processedActivities.length}
+            itemIdx={itemIdx}
+          >
+            {renderActivityContent(item, issue.comments)}
           </ActivityItem>
-          {processedLabelActivities.map((item, itemIdx) => (
-            <ActivityItem key={item.id} itemIdx={itemIdx}>
-              {item.issueActivity === 'TitleActivity' && (
-                <TitleActivity item={item} />
-              )}
-              {item.issueActivity === 'DescriptionActivity' && (
-                <DescriptionActivity item={item} />
-              )}
-              {item.issueActivity === 'StatusActivity' && (
-                <StatusActivity item={item} />
-              )}
-              {item.issueActivity === 'PriorityActivity' && (
-                <PriorityActivity item={item} />
-              )}
-              {item.issueActivity === 'AssignedActivity' && (
-                <AssignedActivity item={item} />
-              )}
-              {(item.issueActivity === 'LabelActivity' || item.issueActivity === 'GroupedLabelActivity') && (
-                <LabelActivity item={item} />
-              )}
-              {item.issueActivity === 'CommentActivity' && (
-                <CommentActivity comments={issue.comments} item={item} />
-              )}
-            </ActivityItem>
-          ))}
-        </ul>
-      </div>
-    </ActivityFeedContext.Provider>
+        ))}
+      </ul>
+    </div>
   );
 }
 
 function ActivityItem({
   children,
   itemIdx,
+  activitiesLength,
 }: {
   children: ReactNode;
   itemIdx?: number;
+  activitiesLength?: number;
 }) {
-  const { activities } = useActivityFeed();
   return (
     <li className="relative flex gap-x-4">
-      <div
-        className={classNames(
-          itemIdx === activities.length - 1 ? 'h-6' : '-bottom-6',
-          'absolute left-0 top-0 flex w-6 justify-center',
-        )}
-      >
-        <div className="w-px bg-gray-200" />
-      </div>
+      {itemIdx !== undefined && activitiesLength !== undefined && (
+        <div
+          className={classNames(
+            itemIdx === activitiesLength - 1 ? 'h-6' : '-bottom-6',
+            'absolute left-0 top-0 flex w-6 justify-center',
+          )}
+        >
+          <div className="w-px bg-gray-200" />
+        </div>
+      )}
       {children}
     </li>
   );
+}
+
+function IssueCreationActivity({ issue }: { issue: IssueType }) {
+  return (
+    <>
+      <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
+        <Avatar
+          alt={issue?.owner?.name ?? 'User'}
+          className="size-5"
+          src={issue?.owner?.image ?? ''}
+        />
+      </div>
+      <div className="flex gap-x-2">
+        <div className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
+          <span className="font-medium text-gray-900">
+            {issue?.owner?.name}
+          </span>{' '}
+          created this issue{' '}
+        </div>
+        <span>⋅</span>
+        <time
+          className="flex-none py-0.5 text-xs leading-5 text-gray-500"
+          dateTime={new Date(issue?.createdAt).toISOString()}
+        >
+          {timeAgo(DateTime.fromISO(new Date(issue?.createdAt).toISOString()))}
+        </time>
+      </div>
+    </>
+  );
+}
+
+function renderActivityContent(
+  item: IssueActivityType[number],
+  comments: { id: number; content: string }[],
+) {
+  switch (item.issueActivity) {
+    case 'TitleActivity':
+      return <TitleActivity item={item} />;
+    case 'DescriptionActivity':
+      return <DescriptionActivity item={item} />;
+    case 'StatusActivity':
+      return <StatusActivity item={item} />;
+    case 'PriorityActivity':
+      return <PriorityActivity item={item} />;
+    case 'AssignedActivity':
+      return <AssignedActivity item={item} />;
+    case 'LabelActivity':
+    case 'GroupedLabelActivity':
+      return <LabelActivity item={item} />;
+    case 'CommentActivity':
+      return <CommentActivity comments={comments} item={item} />;
+    default:
+      return null;
+  }
 }
 
 function TitleActivity({

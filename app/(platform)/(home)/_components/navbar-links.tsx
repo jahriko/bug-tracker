@@ -1,6 +1,5 @@
 'use client';
 
-import { NavbarItem } from '@/components/catalyst/navbar';
 // import { DocumentTextIcon, MapIcon, RectangleStackIcon } from "@heroicons/react/24/outline"
 import {
   ChatBubbleBottomCenterTextIcon,
@@ -9,6 +8,7 @@ import {
   RectangleStackIcon,
 } from '@heroicons/react/16/solid';
 import { usePathname } from 'next/navigation';
+import { NavbarItem } from '@/components/catalyst/navbar';
 
 export default function NavbarLinks() {
   const pathname = usePathname();
@@ -18,36 +18,28 @@ export default function NavbarLinks() {
   return (
     <>
       <NavbarItem
+        key="issues"
         current={segments[2] === 'issues'}
         href={`/${workspaceSlug}/issues`}
-        key="issues"
       >
         <CubeIcon className="h-4 w-4" />
         Issues
       </NavbarItem>
       <NavbarItem
-        current={segments[2] === 'projects'}
-        href={`/${workspaceSlug}/projects`}
-        key="projects"
-      >
-        <RectangleStackIcon className="h-4 w-4" />
-        Projects
-      </NavbarItem>
-      <NavbarItem
-        current={segments[2] === 'Wiki'}
-        href={`/${workspaceSlug}/wiki`}
-        key="wiki"
-      >
-        <DocumentTextIcon className="h-4 w-4" />
-        Wiki
-      </NavbarItem>
-      <NavbarItem
+        key="discussions"
         current={segments[2] === 'discussions'}
         href={`/${workspaceSlug}/discussions`}
-        key="discussions"
       >
         <ChatBubbleBottomCenterTextIcon className="h-4 w-4" />
         Discussions
+      </NavbarItem>
+      <NavbarItem
+        key="projects"
+        current={segments[2] === 'projects'}
+        href={`/${workspaceSlug}/projects`}
+      >
+        <RectangleStackIcon className="h-4 w-4" />
+        Projects
       </NavbarItem>
     </>
   );

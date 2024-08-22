@@ -1,5 +1,8 @@
 'use client';
 
+import { type Project } from '@prisma/client';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   Select,
   SelectContent,
@@ -7,9 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Project } from '@prisma/client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 export default function SearchFilter({
   projects,
@@ -48,7 +48,7 @@ export default function SearchFilter({
 
   return (
     <div className="flex space-x-4">
-      <Select onValueChange={setProject} value={project}>
+      <Select value={project} onValueChange={setProject}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Filter by project" />
         </SelectTrigger>
@@ -62,7 +62,7 @@ export default function SearchFilter({
         </SelectContent>
       </Select>
 
-      <Select onValueChange={setUser} value={user}>
+      <Select value={user} onValueChange={setUser}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Filter by user" />
         </SelectTrigger>
@@ -76,7 +76,7 @@ export default function SearchFilter({
         </SelectContent>
       </Select>
 
-      <Select onValueChange={setTimeFilter} value={timeFilter}>
+      <Select value={timeFilter} onValueChange={setTimeFilter}>
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="Filter by time" />
         </SelectTrigger>

@@ -8,6 +8,7 @@ export function InputGroup({
 }: React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
+      data-slot="control"
       className={clsx(
         'relative isolate block',
         '[&_input]:has-[[data-slot=icon]:first-child]:pl-10 [&_input]:has-[[data-slot=icon]:last-child]:pr-10 sm:[&_input]:has-[[data-slot=icon]:first-child]:pl-8 sm:[&_input]:has-[[data-slot=icon]:last-child]:pr-8',
@@ -15,7 +16,6 @@ export function InputGroup({
         '[&>[data-slot=icon]:first-child]:left-3 sm:[&>[data-slot=icon]:first-child]:left-2.5 [&>[data-slot=icon]:last-child]:right-3 sm:[&>[data-slot=icon]:last-child]:right-2.5',
         '[&>[data-slot=icon]]:text-zinc-500 dark:[&>[data-slot=icon]]:text-zinc-400',
       )}
-      data-slot="control"
     >
       {children}
     </span>
@@ -47,6 +47,7 @@ export const Input = forwardRef(function Input(
 ) {
   return (
     <span
+      data-slot="control"
       className={clsx([
         className,
         // Basic layout
@@ -64,7 +65,6 @@ export const Input = forwardRef(function Input(
         // Invalid state
         !borderless && 'before:has-[[data-invalid]]:shadow-red-500/10',
       ])}
-      data-slot="control"
     >
       <Headless.Input
         ref={ref}

@@ -1,4 +1,14 @@
 'use client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type Workspace } from '@prisma/client';
+import { CircleDashed } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { flattenValidationErrors } from 'next-safe-action';
+import { useAction } from 'next-safe-action/hooks';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { Button } from '@/components/catalyst/button';
 import {
   Description,
@@ -12,18 +22,7 @@ import { Input } from '@/components/catalyst/input';
 import { Select } from '@/components/catalyst/select';
 import { Text } from '@/components/catalyst/text';
 import { Textarea } from '@/components/catalyst/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Workspace } from '@prisma/client';
-import { CircleDashed } from 'lucide-react';
-import { useAction } from 'next-safe-action/hooks';
-import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { createProject } from './_actions/create-project';
-
-import { flattenValidationErrors } from 'next-safe-action';
-import { toast } from 'sonner';
 
 const schema = z.object({
   name: z.string().min(2, { message: 'Project name is required' }),
@@ -62,13 +61,12 @@ const useProjectForm = () => {
     const words = name.trim().split(/\s+/);
     if (words.length === 1) {
       return name.slice(0, 3).toUpperCase();
-    } else {
-      return words
-        .map((word) => word[0])
-        .join('')
-        .slice(0, 3)
-        .toUpperCase();
     }
+    return words
+      .map((word) => word[0])
+      .join('')
+      .slice(0, 3)
+      .toUpperCase();
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,7 +130,7 @@ const useProjectForm = () => {
   };
 };
 
-const FormField = ({
+function FormField({
   name,
   label,
   error,
@@ -142,15 +140,17 @@ const FormField = ({
   label: string;
   error?: string | undefined;
   children: React.ReactNode;
-}) => (
-  <Field>
-    <Label>{label}</Label>
-    {children}
-    {error ? <span className="text-sm text-red-500">{error}</span> : null}
-  </Field>
-);
+}) {
+  return (
+    <Field>
+      <Label>{label}</Label>
+      {children}
+      {error ? <span className="text-sm text-red-500">{error}</span> : null}
+    </Field>
+  );
+}
 
-const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
+function CreateProjectForm({ workspaces }: { workspaces: Workspace[] }) {
   const {
     control,
     handleSubmit,
@@ -235,8 +235,8 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
                         render={({ field }) => (
                           <Input
                             {...field}
-                            onChange={handleNameChange}
                             placeholder="Enter a name for your project"
+                            onChange={handleNameChange}
                           />
                         )}
                       />
@@ -253,8 +253,8 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
                         render={({ field }) => (
                           <Input
                             {...field}
-                            onChange={handleProjectIdChange}
                             placeholder="Enter project ID"
+                            onChange={handleProjectIdChange}
                           />
                         )}
                       />
@@ -331,6 +331,6 @@ const CreateProjectForm = ({ workspaces }: { workspaces: Workspace[] }) => {
       </div>
     </main>
   );
-};
+}
 
 export default CreateProjectForm;

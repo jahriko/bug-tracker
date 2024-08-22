@@ -23,6 +23,7 @@ export function Listbox<T>({
       <Headless.ListboxButton
         aria-label={ariaLabel}
         autoFocus={autoFocus}
+        data-slot="control"
         className={clsx([
           className,
           // Basic layout
@@ -38,10 +39,10 @@ export function Listbox<T>({
           // Disabled state
           'data-[disabled]:opacity-50 before:data-[disabled]:bg-zinc-950/5 before:data-[disabled]:shadow-none',
         ])}
-        data-slot="control"
       >
         <Headless.ListboxSelectedOption
           as="span"
+          options={options}
           className={clsx([
             // Basic layout
             'relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[2.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]',
@@ -60,7 +61,6 @@ export function Listbox<T>({
             // Disabled state
             'group-data-[disabled]:border-zinc-950/20 group-data-[disabled]:opacity-100 group-data-[disabled]:dark:border-white/15 group-data-[disabled]:dark:bg-white/[2.5%] dark:data-[hover]:group-data-[disabled]:border-white/15',
           ])}
-          options={options}
           placeholder={
             placeholder ? (
               <span className="block truncate text-zinc-500">
@@ -97,6 +97,7 @@ export function Listbox<T>({
         leaveTo="opacity-0"
       > */}
       <Headless.ListboxOptions
+        transition
         anchor="selection start"
         className={clsx(
           // Anchor positioning
@@ -114,7 +115,6 @@ export function Listbox<T>({
           // Transitions
           'transition-opacity duration-100 ease-in data-[leave]:pointer-events-none data-[closed]:data-[enter]:opacity-100 data-[closed]:data-[leave]:opacity-0',
         )}
-        transition
       >
         {options}
       </Headless.ListboxOptions>

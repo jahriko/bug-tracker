@@ -1,9 +1,9 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import { actionClient } from '@/lib/safe-action';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import prisma from '@/lib/prisma';
+import { actionClient } from '@/lib/safe-action';
 
 const schema = z.object({
   id: z.number(), // This is only for optimistic update

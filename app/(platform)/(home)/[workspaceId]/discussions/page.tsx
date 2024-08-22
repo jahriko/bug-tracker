@@ -1,14 +1,17 @@
 import { MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/16/solid';
 import { redirect } from 'next/navigation';
 
-import DiscussionList from '@/app/(platform)/(home)/[workspaceId]/discussions/_components/discussion-list';
+import { DiscussionList } from '@/app/(platform)/(home)/[workspaceId]/discussions/_components/discussion-list';
 import CategorySelector from '@/app/(platform)/(home)/[workspaceId]/discussions/new-discussion/_components/select-category';
 import { Button } from '@/components/catalyst/button';
 import { Input, InputGroup } from '@/components/catalyst/input';
 import { getCurrentUser } from '@/lib/get-current-user';
 
+import { TablePagination } from '../issues/_components/TablePagination';
 import DiscussionFilter from './_components/discussion-filter';
+import SearchInput from './_components/search-input';
 import { getCategories, getDiscussions } from './_data/discussions';
+import { getPaginationData, parseSearchParams } from './helpers';
 
 export default async function Discussions({
   params,
@@ -23,13 +26,30 @@ export default async function Discussions({
     redirect('/login');
   }
 
-  const categoryFilter = searchParams.category as string | undefined;
-  const discussions = await getDiscussions(
+  const { page, pageSize, category, search } = parseSearchParams(searchParams);
+
+  const { discussions, totalDiscussions } = await getDiscussions(
     user.userId,
     params.workspaceId,
-    searchParams,
+    page,
+    pageSize,
+    category,
+    search,
   );
   const categories = await getCategories(user.userId, params.workspaceId);
+
+  const createPageUrl = (pageNum: number) => {
+    const newSearchParams = new URLSearchParams(
+      searchParams as Record<string, string>,
+    );
+    newSearchParams.set('page', pageNum.toString());
+    return `/${params.workspaceId}/discussions?${newSearchParams.toString()}`;
+  };
+
+  const paginationData = {
+    ...getPaginationData(page, totalDiscussions, pageSize),
+    createPageUrl,
+  };
 
   return (
     <main className="flex flex-1 flex-col pb-2 lg:px-2">
@@ -38,10 +58,10 @@ export default async function Discussions({
           <div className="flex flex-col justify-between gap-y-2">
             <div className="flex w-full items-center gap-x-2">
               <div className="flex-grow">
-                <InputGroup className="w-full">
-                  <MagnifyingGlassIcon />
-                  <Input placeholder="Search discussions..." type="search" />
-                </InputGroup>
+                <SearchInput
+                  initialSearch={(searchParams.search as string) || ''}
+                  workspaceId={params.workspaceId}
+                />
               </div>
               <Button href="discussions/new-discussion/choose-category">
                 <PlusIcon />
@@ -50,61 +70,38 @@ export default async function Discussions({
             </div>
             <DiscussionFilter />
           </div>
-          {/* Left + Middle content */}
-          <div className="flex-1 md:flex">
-            {/* Left content */}
-            <div className="mb-8 w-full md:mb-0 md:w-[15rem]">
-              <div>
-                <div className="md:py-8">
-                  <div className="no-scrollbar -mx-4 flex flex-nowrap overflow-x-scroll px-4 md:block md:space-y-3 md:overflow-auto">
-                    <div>
-                      <div className="mb-3 text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">
-                        Categories
-                      </div>
-                      <CategorySelector
-                        categories={categories}
-                        initialCategory={categoryFilter}
-                      />
-                    </div>
-                  </div>
-                </div>
+
+          {/* Content area */}
+          <div className="mt-6 flex flex-col md:flex-row">
+            {/* Categories for desktop */}
+            <div className="hidden md:block md:w-[15rem] md:pr-8">
+              <div className="mb-3 text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">
+                Categories
               </div>
+              <CategorySelector
+                categories={categories}
+                initialCategory={category}
+              />
             </div>
 
-            {/* Middle content */}
-            <div className="flex-1  ">
-              <div className="md:py-8">
-                {/* Forum Entries */}
-                <DiscussionList
-                  currentUserId={user.userId}
-                  discussions={discussions}
-                  workspaceId={params.workspaceId}
-                />
+            {/* Discussion List and Pagination */}
+            <div className="flex-1">
+              <DiscussionList
+                currentUserId={user.userId}
+                discussions={discussions}
+                workspaceId={params.workspaceId}
+              />
+              <TablePagination {...paginationData} />
 
-                {/* Pagination */}
-                <div className="mt-6 text-right">
-                  <nav
-                    aria-label="Navigation"
-                    className="inline-flex"
-                    role="navigation"
-                  >
-                    <ul className="flex justify-center">
-                      <li className="ml-3 first:ml-0">
-                        <span className="btn border-slate-200 bg-white text-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-600">
-                          &lt;- Previous
-                        </span>
-                      </li>
-                      <li className="ml-3 first:ml-0">
-                        <a
-                          className="btn border-slate-200 bg-white text-indigo-500 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
-                          href="#0"
-                        >
-                          Next -&gt;
-                        </a>
-                      </li>
-                    </ul>
-                  </nav>
+              {/* Categories for mobile */}
+              <div className="mt-8 md:hidden">
+                <div className="mb-3 text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">
+                  Categories
                 </div>
+                <CategorySelector
+                  categories={categories}
+                  initialCategory={category}
+                />
               </div>
             </div>
           </div>

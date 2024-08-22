@@ -84,15 +84,15 @@ export const AvatarButton = React.forwardRef(function AvatarButton(
   return 'href' in props ? (
     <Link
       {...props}
-      className={classes}
       ref={ref as React.ForwardedRef<HTMLAnchorElement>}
+      className={classes}
     >
       <TouchTarget>
         <Avatar alt={alt} initials={initials} square={square} src={src} />
       </TouchTarget>
     </Link>
   ) : (
-    <Headless.Button {...props} className={classes} ref={ref}>
+    <Headless.Button {...props} ref={ref} className={classes}>
       <TouchTarget>
         <Avatar alt={alt} initials={initials} square={square} src={src} />
       </TouchTarget>

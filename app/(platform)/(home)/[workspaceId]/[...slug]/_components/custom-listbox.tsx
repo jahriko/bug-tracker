@@ -23,6 +23,7 @@ export function CustomListbox<T>({
       <Headless.ListboxButton
         aria-label={ariaLabel}
         autoFocus={autoFocus}
+        data-slot="control"
         className={clsx([
           className,
           // Basic layout
@@ -38,10 +39,10 @@ export function CustomListbox<T>({
           // Disabled state
           'data-[disabled]:opacity-50 before:data-[disabled]:bg-zinc-950/5 before:data-[disabled]:shadow-none',
         ])}
-        data-slot="control"
       >
         <Headless.ListboxSelectedOption
           as="span"
+          options={options}
           className={clsx([
             // Basic layout
             'relative block w-full min-w-40 appearance-none rounded-lg py-[calc(theme(spacing[2.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]',
@@ -60,7 +61,6 @@ export function CustomListbox<T>({
             // Disabled state
             'group-data-[disabled]:opacity-50',
           ])}
-          options={options}
           placeholder={
             placeholder ? (
               <span className="block truncate text-zinc-500">
@@ -71,6 +71,7 @@ export function CustomListbox<T>({
         />
       </Headless.ListboxButton>
       <Headless.ListboxOptions
+        transition
         anchor="bottom start"
         className={clsx(
           // Anchor positioning
@@ -88,7 +89,6 @@ export function CustomListbox<T>({
           // Transitions
           'transition-opacity duration-100 ease-in data-[leave]:pointer-events-none data-[closed]:data-[enter]:opacity-100 data-[closed]:data-[leave]:opacity-0',
         )}
-        transition
       >
         {options}
       </Headless.ListboxOptions>

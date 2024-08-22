@@ -7,7 +7,7 @@ import { getPrisma } from '@/lib/getPrisma';
 import { authActionClient } from '@/lib/safe-action';
 
 const schema = z.object({
-  discussionId: z.number(),
+  discussionId: z.string(),
   workspaceUrl: z.string(),
 });
 

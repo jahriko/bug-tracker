@@ -1,6 +1,11 @@
 /* eslint-disable react/jsx-pascal-case */
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useSearchParams } from 'next/navigation';
+import { useAction } from 'next-safe-action/hooks';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import { login } from '@/app/(platform)/(auth)/_actions/login';
 import { loginDemo } from '@/app/(platform)/(auth)/_actions/login-demo';
 import { Button } from '@/components/catalyst/button';
@@ -11,11 +16,6 @@ import {
   LoginSchema,
   type LoginSchema as LoginSchemaType,
 } from '@/lib/validations';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAction } from 'next-safe-action/hooks';
-import { useSearchParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import {
   Field,
   FieldGroup,
@@ -139,17 +139,17 @@ export default function LoginForm() {
         </Form>
         <div className="mt-4">
           <Button
+            outline
             className="w-full"
             disabled={isExecutingDemo}
             onClick={() => {
               executeDemo({});
             }}
-            outline
           >
             {isExecutingDemo ? (
               <Icons.spinner className="mr-2 size-4 animate-spin" />
             ) : null}
-            Login as Demo User
+            Login as Demo Admin
           </Button>
         </div>
         <Text className="text-md mt-5 text-center text-gray-600">

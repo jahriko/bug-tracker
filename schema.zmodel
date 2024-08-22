@@ -71,7 +71,7 @@ model User {
   // can be created by anyone, even not logged in
   @@allow('create', true)
 
-  // can be read by users sharing any workspace
+  // can be read by users sharing a workspace
   @@allow('read', workspaceMembers?[workspace.members?[user == auth()]])
 
   // full access by oneself
@@ -86,37 +86,29 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+
 model Workspace {
   id          Int               @id @default(autoincrement())
   name        String            @unique
-  description String?           // Optional description of the workspace
+  description String?           
   createdAt   DateTime          @default(now())
   private     Boolean           @default(true)
   url         String            @unique
-  members     WorkspaceMember[] // Relationship to users in the workspace
-  projects    Project[]         // Relationship to projects within the workspace
+  members     WorkspaceMember[] 
+  projects    Project[]         
   discussions Discussion[]
-
   owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String            @default(auth().id)
 
-  //everyone can read the workspace if it's not private
-  @@allow('read', !private)
+  //everyone can read the workspace if it's not private or they're a member of the workspace
+  @@allow('read', !private || members?[user == auth()])
 
-  // require login
-  @@deny('all', auth() == null)
+  // workspace admin can create, and update
+  @@allow('create,update',  members?[user == auth() && role == 'ADMIN'])
 
-  // everyone can create a workspace
-  @@allow('create', true)
-
-  // any user in the org can read the org
-  @@allow('read', members?[user == auth()])
-
-  // workspace admin can update and delete
-  @@allow('update',  members?[user == auth() && role == 'ADMIN'])
-
-  // owner can do all operations
+  // Owner can do all operations
   @@allow('all', owner == auth())
+
 
   @@index([ownerId])
 }
@@ -130,21 +122,18 @@ model WorkspaceMember {
 
   role        Role      @default(MEMBER)
 
-  // require login
-  @@deny('all', auth() == null)
+  // everyone can read the workspace if it's not private or they're a member of the workspace
+  @@allow('read', !workspace.private || workspace.members?[user == auth()])
 
-  // owner/admin can create/update/delete
+  // owner/admin can do all operations
   @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && role == 'ADMIN'])
 
-  // user can read members of a workspace if they're a member of it
-  @@allow('read', workspace.members?[user == auth()])
 
   @@id([workspaceId, userId])
 }
 
 enum Role {
   ADMIN
-  PROJECT_MANAGER
   MEMBER
 }
 
@@ -160,17 +149,14 @@ model Project {
   issues               Issue[]
   discussions          Discussion[]
   discussionCategories DiscussionCategory[]
-  workspace            Workspace?           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  workspaceId          Int?
+  workspace            Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId          Int
 
-  // require login
-  @@deny('all', auth() == null)
+  // Owner/Admin can do all operations
+  @@allow('all', check(workspace) || (workspace.members?[user == auth() && (role == 'ADMIN')]))
 
-  // Admins can use all operations on a project 
-  @@allow('all', workspace.owner == auth() || workspace.members?[user == auth() && (role == 'ADMIN')])
-
-  // can be read by members of the project or everyone if it's not private 
-  @@allow('read', members?[user == auth()] || !workspace.private)
+  // can be read by everyone if it's not private or they're a member of the project
+  @@allow('read', check(workspace) || members?[user == auth()])
 
 
   @@index([archivedAt, workspaceId])
@@ -213,8 +199,8 @@ model Label {
 model IssueLabel {
   issueId Int
   labelId Int
-  issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  label   Label @relation(fields: [labelId], references: [id])
+  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label   Label  @relation(fields: [labelId], references: [id])
 
   @@id([issueId, labelId])
 
@@ -226,7 +212,7 @@ model IssueLabel {
 }
 
 model Issue {
-  id             Int             @id() @default(autoincrement())
+  id             Int          @id() @default(autoincrement())
   title          String
   status         Status          @default(BACKLOG)
   priority       Priority        @default(NO_PRIORITY)
@@ -247,15 +233,20 @@ model Issue {
 
 
   // can be read by members of the project or if it's not private 
-  @@allow('read', check(project) || !project.workspace.private || auth() == owner)
+  @@allow('read', check(project))
 
-  // can be created by the member who created the issue, admin, and project manager
-  @@allow('create,update,delete', auth() == owner || project.members?[user == auth()] || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')] )
+  // can be created by everyone within the project
+  @@allow('create', check(project))
+
+  // can be updated/deleted by the member who created the issue, admin
+  @@allow('update,delete', check(project) || auth() == owner )
 
   // update cannot change owner
   @@deny('update', future().owner != owner)
 
-  @@index([projectId, assignedUserId, status])
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
 }
 
 model Comment {
@@ -271,14 +262,16 @@ model Comment {
   parent    Comment?  @relation("ChildComments", fields: [parentId], references: [id])
   parentId  Int?
   children  Comment[] @relation("ChildComments")
-
-  @@index([issueId])
-
+  
   // can be read/created by everyone within the project
   @@allow('read,create', check(issue))
 
   // can be deleted by the user who created the comment or admin
   @@allow('delete', auth() == author || issue.project.workspace.members?[user == auth() && (role == 'ADMIN')])
+
+
+  @@index([authorId])
+  @@index([createdAt])
 }
 
 model IssueActivity {
@@ -299,10 +292,12 @@ model IssueActivity {
   //temporary
   // @@allow('all', true)
 
-  @@index([issueId, createdAt])
 
   // can be read/created by everyone if the project is not private
-  @@allow('read,create,update', check(issue))
+  @@allow('all', check(issue))
+
+
+  @@index([issueId, createdAt])
 }
 
 model StatusActivity extends IssueActivity {
@@ -347,6 +342,10 @@ model CommentActivity extends IssueActivity {
   @@allow('update', auth() == user || issue.project.workspace.members?[user == auth() && role == 'ADMIN'])
 }
 
+model ProjectActivity extends IssueActivity {
+  projectName String
+}
+
 model DiscussionCategory {
   id          Int          @id @default(autoincrement())
   name        String
@@ -361,11 +360,11 @@ model DiscussionCategory {
 
   // Permissions
   @@allow('read', check(project))
-  @@allow('create,update,delete', project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+  @@allow('create,update,delete', project.workspace.members?[user == auth() && (role == 'ADMIN')])
 }
 
 model Discussion {
-  id          Int                @id @default(autoincrement())
+  id          String             @id @default(uuid(7))
   title       String
   content     String             @db.Text
   createdAt   DateTime           @default(now())
@@ -383,22 +382,23 @@ model Discussion {
   workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId Int
   likes       DiscussionLike[]
+  pinnedAt    DateTime?
 
-  @@index([projectId, createdAt])
-  @@index([projectId, isResolved])
+  @@index([projectId])
+  @@index([createdAt])
   @@index([categoryId])
 
   // Permissions
   @@allow('read', check(project))
   @@allow('create', auth() != null && project.members?[user == auth()])
-  @@allow('update', auth() == author || project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
-  @@allow('delete', project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+  @@allow('update', auth() == author || project.workspace.members?[user == auth() && (role == 'ADMIN')])
+  @@allow('delete', project.workspace.members?[user == auth() && (role == 'ADMIN')])
 }
 
 model DiscussionLike {
   id           Int        @id @default(autoincrement())
   discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  discussionId Int
+  discussionId String
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
 
@@ -419,7 +419,7 @@ model DiscussionPost {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   discussion   Discussion       @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  discussionId Int
+  discussionId String
   author       User             @relation("DiscussionPostAuthor", fields: [authorId], references: [id])
   authorId     String
   parent       DiscussionPost?  @relation("Replies", fields: [parentId], references: [id])
@@ -428,11 +428,10 @@ model DiscussionPost {
   isAccepted   Boolean          @default(false)
 
   @@index([discussionId])
-  @@index([parentId])
 
   // Permissions
   @@allow('read', check(discussion))
   @@allow('create', auth() != null && discussion.project.members?[user == auth()])
   @@allow('update', auth() == author)
-  @@allow('delete', auth() == author || discussion.project.workspace.members?[user == auth() && (role == 'ADMIN' || role == 'PROJECT_MANAGER')])
+  @@allow('delete', auth() == author || discussion.project.workspace.members?[user == auth() && (role == 'ADMIN')])
 }

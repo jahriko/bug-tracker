@@ -79,10 +79,10 @@ export function StackedLayout({
     <div className="relative isolate flex min-h-svh w-full flex-col bg-white dark:bg-zinc-900 lg:bg-zinc-100 dark:lg:bg-zinc-950">
       {/* Sidebar on mobile */}
       <MobileSidebar
+        open={showSidebar}
         close={() => {
           setShowSidebar(false);
         }}
-        open={showSidebar}
       >
         {sidebar}
       </MobileSidebar>

@@ -1,5 +1,4 @@
 'use client';
-import { classNames } from '@/lib/utils';
 import {
   Dialog,
   Disclosure,
@@ -10,11 +9,14 @@ import {
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Fragment, useState } from 'react';
+import { classNames } from '@/lib/utils';
 
 const sortOptions = [
   { name: 'Newest', href: '#' },
+  { name: 'Latest Activity', href: '#' },
+  { name: 'Most Popular', href: '#' },
   { name: 'Oldest', href: '#' },
-  { name: 'Most Replies', href: '#' },
+  
 ];
 const filters = [
   {
@@ -83,10 +85,10 @@ export default function DiscussionFilter() {
                   <h2 className="text-lg font-medium text-gray-900">Filters</h2>
                   <button
                     className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    type="button"
                     onClick={() => {
                       setOpen(false);
                     }}
-                    type="button"
                   >
                     <span className="sr-only">Close menu</span>
                     <XMarkIcon aria-hidden="true" className="h-6 w-6" />
@@ -97,9 +99,9 @@ export default function DiscussionFilter() {
                 <form className="mt-4">
                   {filters.map((section) => (
                     <Disclosure
+                      key={section.name}
                       as="div"
                       className="border-t border-gray-200 px-4 py-6"
-                      key={section.name}
                     >
                       {({ open }) => (
                         <>
@@ -123,8 +125,8 @@ export default function DiscussionFilter() {
                             <div className="space-y-6">
                               {section.options.map((option, optionIdx) => (
                                 <div
-                                  className="flex items-center"
                                   key={option.value}
+                                  className="flex items-center"
                                 >
                                   <input
                                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
@@ -181,11 +183,11 @@ export default function DiscussionFilter() {
                   <Menu.Item key={option}>
                     {({ active }) => (
                       <a
+                        href={option.href}
                         className={classNames(
                           active ? 'bg-gray-100' : '',
                           'block px-4 py-2 text-sm font-medium text-gray-900',
                         )}
-                        href={option.href}
                       >
                         {option.name}
                       </a>
@@ -199,10 +201,10 @@ export default function DiscussionFilter() {
 
         <button
           className="inline-block text-sm font-medium text-gray-700 hover:text-gray-900 sm:hidden"
+          type="button"
           onClick={() => {
             setOpen(true);
           }}
-          type="button"
         >
           Filters
         </button>
@@ -210,10 +212,10 @@ export default function DiscussionFilter() {
         <Popover.Group className="hidden sm:flex sm:items-baseline sm:space-x-8">
           {filters.map((section, sectionIdx) => (
             <Popover
+              key={section.name}
               as="div"
               className="relative inline-block text-left"
               id={`desktop-menu-${sectionIdx}`}
-              key={section.name}
             >
               <div>
                 <Popover.Button className="group inline-flex items-center justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
@@ -242,7 +244,7 @@ export default function DiscussionFilter() {
                 <Popover.Panel className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white p-4 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
                   <form className="space-y-4">
                     {section.options.map((option, optionIdx) => (
-                      <div className="flex items-center" key={option.value}>
+                      <div key={option.value} className="flex items-center">
                         <input
                           className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           defaultValue={option.value}
