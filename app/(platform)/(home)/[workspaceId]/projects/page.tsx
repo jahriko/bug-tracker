@@ -58,7 +58,7 @@ export default async function ProjectsPage({
                   </div>
                   <div className="mt-auto flex items-center justify-between px-6 py-6">
                     <TeamSettings
-                      projectDetails={project}
+                      project={project}
                       projectMembers={project.members}
                       workspaceMembers={project.workspace.members ?? []}
                     />

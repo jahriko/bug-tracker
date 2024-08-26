@@ -3,10 +3,11 @@ import {
   LockOpenIcon,
   PencilIcon,
 } from '@heroicons/react/24/outline';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Button } from '@/components/catalyst/button';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
+import { getUserDetails } from '@/lib/supabase/auth';
 
 export default async function SettingsPage({
   params,
@@ -15,9 +16,12 @@ export default async function SettingsPage({
 }) {
   const { workspaceId } = params;
 
-  const session = await getCurrentUser();
+  const { user } = await getUserDetails();
+  if (!user) {
+    return redirect('/login');
+  }
 
-  const workspace = await getPrisma(session.userId).workspace.findUnique({
+  const workspace = await getPrisma(user.id).workspace.findUnique({
     where: {
       url: workspaceId,
     },
