@@ -2,71 +2,34 @@ import { PlusIcon } from '@heroicons/react/16/solid';
 import { redirect } from 'next/navigation';
 import { Avatar } from '@/components/catalyst/avatar';
 import { Link } from '@/components/catalyst/link';
-import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
+import { getUserDetails } from '@/lib/supabase/auth';
 import TeamSettings from './_components/team-settings';
+import { getProjects } from './_data/project-data';
 
 export default async function ProjectsPage({
   params,
 }: {
   params: { workspaceId: string };
 }) {
-  const user = await getCurrentUser();
+  const { user } = await getUserDetails();
+
   if (!user) {
     redirect('/login');
   }
 
-  const projects = await getPrisma(user.userId).project.findMany({
-    include: {
-      _count: {
-        select: {
-          members: true,
-        },
-      },
-      members: {
-        select: {
-          user: {
-            select: {
-              id: true,
-              image: true,
-              email: true,
-              name: true,
-            },
-          },
-        },
-      },
-      workspace: {
-        select: {
-          members: {
-            select: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
-              },
-              role: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const projects = await getProjects(user.id);
+
 
   return (
     <main className="flex flex-1 flex-col pb-2 lg:px-2">
       <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
         <div className="mx-auto max-w-6xl">
-          <ul
-            className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8"
-            role="list"
-          >
+          <ul className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
             <li className="flex">
               <Link
-                href={`/${params.workspaceId}/create-project`}
                 className="relative flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                href={`/${params.workspaceId}/create-project`}
                 // type="button"
               >
                 <PlusIcon className="h-12 w-12 text-gray-500" />
@@ -97,7 +60,7 @@ export default async function ProjectsPage({
                     <TeamSettings
                       projectDetails={project}
                       projectMembers={project.members}
-                      workspaceMembers={project.workspace?.members ?? []}
+                      workspaceMembers={project.workspace.members ?? []}
                     />
 
                     <AvatarGroup avatars={project.members} />

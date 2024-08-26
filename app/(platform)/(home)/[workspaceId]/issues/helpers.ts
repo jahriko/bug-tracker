@@ -1,22 +1,5 @@
 import { type Priority, type Prisma, type Status } from '@prisma/client';
 
-import prisma from '@/lib/prisma';
-
-export async function updateLastWorkspaceUrl(
-  session: {
-    userId: string;
-    lastWorkspaceUrl: string;
-  },
-  workspaceId: string,
-) {
-  if (session.lastWorkspaceUrl !== workspaceId) {
-    await prisma.user.update({
-      where: { id: session.userId },
-      data: { lastWorkspaceUrl: workspaceId },
-    });
-  }
-}
-
 export function getPaginationData(
   currentPage: number,
   totalIssues: number,

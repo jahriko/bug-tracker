@@ -6,6 +6,7 @@
 datasource db {
     provider = "postgresql"
     url = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -31,32 +32,6 @@ enum Role {
     MEMBER
 }
 
-model Account {
-    id String @id() @default(cuid())
-    userId String
-    type String
-    provider String
-    providerAccountId String
-    refresh_token String?
-    access_token String?
-    expires_at Int?
-    token_type String?
-    scope String?
-    id_token String?
-    session_state String?
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([provider, providerAccountId])
-}
-
-model Session {
-    id String @id() @default(cuid())
-    sessionToken String @unique()
-    userId String
-    expires DateTime
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 /// @@allow('create', true)
 /// @@allow('read', workspaceMembers?[workspace.members?[user == auth()]])
 /// @@allow('all', auth() == this)
@@ -68,8 +43,6 @@ model User {
     image String?
     hashedPassword String
     lastWorkspaceUrl String?
-    accounts Account[]
-    sessions Session[]
     ownedWorkspaces Workspace[] @relation("WorkspaceOwner")
     workspaceMembers WorkspaceMember[]
     projectMembers ProjectMember[]
@@ -80,14 +53,6 @@ model User {
     authoredDiscussions Discussion[] @relation("DiscussionAuthor")
     discussionPosts DiscussionPost[] @relation("DiscussionPostAuthor")
     discussionLikes DiscussionLike[]
-}
-
-model VerificationToken {
-    identifier String
-    token String @unique()
-    expires DateTime
-
-    @@unique([identifier, token])
 }
 
 /// @@allow('read', !private || members?[user == auth()])
@@ -329,7 +294,7 @@ model DiscussionCategory {
 /// @@allow('update', auth() == author || project.workspace.members?[user == auth() && role == 'ADMIN'])
 /// @@allow('delete', project.workspace.members?[user == auth() && role == 'ADMIN'])
 model Discussion {
-    id String @id() @default(uuid(7))
+    id Int @id() @default(autoincrement())
     title String
     content String @db.Text()
     createdAt DateTime @default(now())
@@ -359,7 +324,7 @@ model Discussion {
 model DiscussionLike {
     id Int @id() @default(autoincrement())
     discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-    discussionId String
+    discussionId Int
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId String
 
@@ -378,7 +343,7 @@ model DiscussionPost {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt()
     discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-    discussionId String
+    discussionId Int
     author User @relation("DiscussionPostAuthor", fields: [authorId], references: [id])
     authorId String
     parent DiscussionPost? @relation("Replies", fields: [parentId], references: [id])

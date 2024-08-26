@@ -31,6 +31,7 @@ export const addComment = authActionClient
 
         await tx.commentActivity.create({
           data: {
+            issueActivity: lastActivity.activityType,
             commentId: comment.id,
             userId,
             issueId,

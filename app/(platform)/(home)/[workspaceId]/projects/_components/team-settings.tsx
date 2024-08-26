@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import {
@@ -7,11 +8,9 @@ import {
   ComboboxOptions,
 } from '@headlessui/react';
 import {
-  DocumentIcon,
   UserCircleIcon,
   UserPlusIcon,
 } from '@heroicons/react/16/solid';
-import { type Project } from '@prisma/client';
 import clsx from 'clsx';
 import { Fragment, useState } from 'react';
 import { Avatar } from '@/components/catalyst/avatar';
@@ -23,46 +22,43 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/catalyst/dialog';
+import { type Project } from '../_data/project-data';
 
 export default function TeamSettings({
   projectMembers,
-  projectDetails,
+  project,
   workspaceMembers,
 }: {
-  projectMembers: {
-    user: {
-      image: string | null;
-      id: string;
-      name: string;
-      email: string;
-    };
-    role: 'ADMIN' | 'PROJECT_MANAGER' | 'MEMBER';
-  }[];
-  projectDetails: Project;
-  workspaceMembers: {
-    id: string;
-    image: string | null;
-    email: string;
-    name: string;
-  }[];
+  projectMembers: Project[number]['members'];
+  project: Project[number];
+  workspaceMembers: Project[number]['workspace']['members'];
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Function to get the workspace member role
+  const getWorkspaceMemberRole = (userId: string) => {
+    const workspaceMember = workspaceMembers.find(
+      (member) => member.user.id === userId,
+    );
+    return workspaceMember?.role ?? 'MEMBER';
+  };
+
   return (
     <>
-      <p
+      <button
         className="cursor-pointer text-base font-medium leading-6 text-gray-900 hover:underline"
+        type="button"
         onClick={() => {
           setIsOpen(true);
         }}
       >
-        {projectDetails.title}
-      </p>
+        {project.title}
+      </button>
 
       <Dialog open={isOpen} size="3xl" onClose={setIsOpen}>
-        <DialogTitle>{projectDetails.title}</DialogTitle>
+        <DialogTitle>{project.title}</DialogTitle>
         <DialogDescription>
-          Project overview and team management for {projectDetails.title}.
+          Project overview and team management for {project.title}.
         </DialogDescription>
         <DialogBody>
           {/* Team Members */}
@@ -77,45 +73,41 @@ export default function TeamSettings({
                 Invite
               </Button>
             </div>
-            <ul className="divide-y divide-gray-100" role="list">
-              {projectMembers.map((member) => (
-                <li
-                  key={member.user.email}
-                  className="flex items-center justify-between gap-x-4 py-5"
-                >
-                  <div className="flex items-center gap-x-4">
-                    {member.user.image ? (
-                      <img
-                        alt=""
-                        className="h-12 w-12 flex-none rounded-full bg-gray-50"
-                        src={member.user.image}
-                      />
-                    ) : (
-                      <UserCircleIcon className="h-12 w-12 flex-none rounded-full bg-gray-50 p-2 text-gray-400" />
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold leading-6 text-gray-900">
-                        {member.user.name}
-                      </p>
-                      <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                        {member.user.email}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className={clsx(
-                      'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
-                      member.role === 'ADMIN'
-                        ? 'bg-purple-50 text-purple-700 ring-purple-700/10'
-                        : member.role === 'PROJECT_MANAGER'
-                          ? 'bg-green-50 text-green-700 ring-green-700/10'
-                          : 'bg-gray-50 text-gray-600 ring-gray-500/10',
-                    )}
+            <ul className="divide-y divide-gray-100">
+              {projectMembers.map((member) => {
+                const workspaceRole = getWorkspaceMemberRole(member.user.id);
+                return (
+                  <li
+                    key={member.user.email}
+                    className="flex items-center justify-between gap-x-4 py-5"
                   >
-                    {member.role}
-                  </span>
-                </li>
-              ))}
+                    <div className="flex items-center gap-x-4">
+                      {member.user.image ? (
+                        <img
+                          alt="User Avatar"
+                          className="h-12 w-12 flex-none rounded-full bg-gray-50"
+                          src={member.user.image}
+                        />
+                      ) : (
+                        <UserCircleIcon className="h-12 w-12 flex-none rounded-full bg-gray-50 p-2 text-gray-400" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold leading-6 text-gray-900">
+                          {member.user.name}
+                        </p>
+                        <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                          {member.user.email}
+                        </p>
+                      </div>
+                    </div>
+                    {workspaceRole === 'ADMIN' && (
+                      <span className="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10">
+                        Admin
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </DialogBody>
@@ -137,7 +129,7 @@ export default function TeamSettings({
 function SearchCombobox({
   people,
 }: {
-  people: { id: string; name: string; image: string | null; email: string }[];
+  people: Project[number]['workspace']['members'];
 }) {
   const [query, setQuery] = useState(' ');
   const [selected, setSelected] = useState<(typeof people)[number] | null>(
@@ -148,7 +140,7 @@ function SearchCombobox({
     query === ''
       ? people
       : people.filter((person) => {
-          return person.name.includes(query);
+          return person.user.name.toLowerCase().includes(query.toLowerCase());
         });
 
   const sharedClasses = clsx(
@@ -172,11 +164,11 @@ function SearchCombobox({
     >
       <div className="relative">
         <div className="relative">
-          {selected?.image ? (
+          {selected?.user.image ? (
             <Avatar
-              alt={selected.name}
+              alt={selected.user.name}
               className="absolute left-3 top-1/2 size-5 -translate-y-1/2"
-              src={selected.image}
+              src={selected.user.image}
             />
           ) : (
             <UserCircleIcon className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-zinc-500" />
@@ -192,7 +184,7 @@ function SearchCombobox({
               'focus:outline-none focus:ring-2 focus:ring-blue-500',
             )}
             displayValue={(person: (typeof people)[number] | null) =>
-              person?.name ?? ''
+              person?.user.name ?? ''
             }
             onChange={(event) => {
               setQuery(event.target.value);
@@ -217,7 +209,7 @@ function SearchCombobox({
         )}
       >
         {filteredPeople.map((person) => (
-          <ComboboxOption key={person.id} as={Fragment} value={person}>
+          <ComboboxOption key={person.user.id} as={Fragment} value={person}>
             {({ active, selected }) => (
               <div
                 className={clsx(
@@ -239,8 +231,8 @@ function SearchCombobox({
                     'col-start-2 flex items-center gap-x-2',
                   )}
                 >
-                  <Avatar className="h-4 w-4" src={person.image} />
-                  <span className="font-medium">{person.name}</span>
+                  <Avatar className="h-4 w-4" src={person.user.image} />
+                  <span className="font-medium">{person.user.name}</span>
                 </span>
               </div>
             )}

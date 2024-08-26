@@ -1,75 +1,87 @@
-import NextAuth from 'next-auth';
-import { authConfig } from '@/auth.config';
-import { apiAuthPrefix, authRoutes, publicRoutes } from '@/routes';
+import { type NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { updateSession } from './lib/supabase/middleware';
 
-const { auth } = NextAuth(authConfig);
+export async function middleware(req: NextRequest) {
+  // Handle session updates
+  const response = await updateSession(req);
+  if (response) return response;
 
-export default auth((req) => {
+  // Initialize variables and Supabase client
   const { nextUrl } = req;
-  const isLoggedIn = Boolean(req.auth);
-  const user = req.auth?.user;
+  const res = NextResponse.next();
+  const supabase = createClient();
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const lastWorkspaceUsed = user?.lastWorkspaceUrl;
+  // Get user data and check login status
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  
+  // Error handling for user retrieval
+  if (error) {
+    console.error('Error getting user:', error);
+    return res;
+  }
+  
+  const isLoggedIn = Boolean(user);
+  const lastWorkspaceUsed = user?.user_metadata.lastWorkspaceUrl;
+  
+  // Allow direct access to workspace pages
+  if (/^\/[^/]+\/.*$/.test(nextUrl.pathname)) return res;
 
-  // Check if the current path is a workspace root
-  const isWorkspaceRoot = /^\/[^\/]+$/.test(nextUrl.pathname);
-
-  if (isApiAuthRoute) {
-    return;
+  // Redirect workspace root to issues page
+  if (/^\/[^/]+$/.test(nextUrl.pathname)) {
+    const issuesUrl = new URL(`${nextUrl.pathname}/issues`, nextUrl.origin);
+    // Preserve all search params
+    issuesUrl.search = nextUrl.search;
+    return NextResponse.redirect(issuesUrl);
   }
 
-  if (isAuthRoute) {
-    if (isLoggedIn) {
-      // Redirect to create workspace if lastWorkspaceUsed is undefined
-      const redirectUrl = !lastWorkspaceUsed
-        ? new URL('/create-workspace', nextUrl)
-        : new URL(`/${lastWorkspaceUsed}`, nextUrl);
-
-      return Response.redirect(redirectUrl);
-    }
-
-    // Allow access to authentication routes for unauthenticated users
-    return;
-  }
-
-  if (!isLoggedIn && isPublicRoute) {
-    return Response.redirect(new URL('/login', nextUrl));
-  }
-
-  // Redirect logged-in users to their last workspace
-  if (isLoggedIn && nextUrl.pathname === '/') {
+  // Handle logged-in user redirects
+  if (isLoggedIn) {
+    // Redirect to last used workspace if available
     if (lastWorkspaceUsed) {
-      return Response.redirect(new URL(`/${lastWorkspaceUsed}`, nextUrl));
+      return NextResponse.redirect(
+        new URL(`/${lastWorkspaceUsed}`, nextUrl.origin),
+      );
     }
-    return Response.redirect(new URL('/create-workspace', nextUrl));
-  }
 
-  // Handle workspace root redirect
-  if (
-    isLoggedIn &&
-    isWorkspaceRoot &&
-    nextUrl.pathname !== '/create-workspace'
-  ) {
-    // Check if the current path is the lastWorkspaceUsed
-    if (lastWorkspaceUsed && nextUrl.pathname === `/${lastWorkspaceUsed}`) {
-      const issuesUrl = new URL(`${nextUrl.pathname}/issues`, nextUrl);
-      // Preserve all search params
-      issuesUrl.search = nextUrl.search;
-      return Response.redirect(issuesUrl);
+    // Fetch user's workspaces and redirect accordingly
+    const { data: workspaces, error: workspacesError } = await supabase
+      .from('workspaces')
+      .select('url')
+      .eq('user_id', user.id)
+      .limit(1);
+
+    if (workspacesError) {
+      console.error('Error fetching workspaces:', workspacesError);
+      return res;
     }
-    // If it's not the lastWorkspaceUsed, don't redirect
-    return;
+
+    let redirectUrl;
+    if (workspaces && workspaces.length > 0) {
+      redirectUrl = new URL(`/${workspaces[0].url}`, nextUrl.origin);
+    } else {
+      redirectUrl = new URL('/create-workspace', nextUrl.origin);
+    }
+
+    return NextResponse.redirect(redirectUrl);
   }
 
-  // If we're on a workspace page (including issues), allow access
-  if (isLoggedIn && /^\/[^\/]+\/.*$/.test(nextUrl.pathname)) {
+  // Redirect logged-in users on homepage to their last workspace
+  if (nextUrl.pathname === '/') {
+    if (lastWorkspaceUsed) {
+      return NextResponse.redirect(
+        new URL(`/${lastWorkspaceUsed}`, nextUrl.origin),
+      );
+    }
   }
-});
 
+  return res;
+}
+
+// Configure middleware matcher
 export const config = {
-  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
   matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
 };

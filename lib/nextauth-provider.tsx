@@ -1,13 +1,1 @@
-'use client';
-
-import { SessionProvider } from 'next-auth/react';
-import React from 'react';
-
-interface Props {
-  children: React.ReactNode;
-}
-function NextAuthSessionProvider({ children }: Props) {
-  return <SessionProvider>{children}</SessionProvider>;
-}
-
-export default NextAuthSessionProvider;
+// This file can be deleted as it's no longer needed

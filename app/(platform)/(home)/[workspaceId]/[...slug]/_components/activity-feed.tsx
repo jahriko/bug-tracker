@@ -23,7 +23,7 @@ import {
 import { COLORS } from '@/lib/colors';
 import { classNames, timeAgo } from '@/lib/utils';
 
-import { type IssueActivityType, type IssueType } from '../_data/issue';
+import { type IssueActivityList, type IssueByProject } from '../_data/issue';
 
 import CommentOptions from './comment-options';
 
@@ -32,7 +32,7 @@ const Editor = dynamic(() => import('@/components/lexical_editor/editor'), {
 });
 
 type GroupedLabelActivityType = Extract<
-  IssueActivityType[number],
+  IssueActivityList[number],
   { issueActivity: 'GroupedLabelActivity' }
 >;
 
@@ -43,7 +43,7 @@ type GroupedLabelActivityType = Extract<
 const GROUP_TIME_THRESHOLD = 1 * 60 * 1000; // 1 minute in milliseconds
 
 type LabelActivityType = Extract<
-  IssueActivityType[number],
+  IssueActivityList[number],
   { issueActivity: 'LabelActivity' }
 >;
 
@@ -106,7 +106,7 @@ const updateLabelGroup = (
  */
 const shouldStartNewLabelGroup = (
   currentGroup: GroupedLabelActivityType | null,
-  prevActivity: IssueActivityType[number] | undefined,
+  prevActivity: IssueActivityList[number] | undefined,
   activity: LabelActivityType,
 ): boolean => {
   if (!currentGroup) return true;
@@ -125,7 +125,7 @@ const shouldStartNewLabelGroup = (
  * @param currentGroup - The current group to finalize.
  */
 const finalizeGroup = (
-  result: IssueActivityType[number][],
+  result: IssueActivityList[number][],
   currentGroup: GroupedLabelActivityType | null,
 ) => {
   if (currentGroup) {
@@ -146,8 +146,8 @@ const finalizeGroup = (
   }
 };
 
-const processAndGroupLabelActivities = (activities: IssueActivityType) => {
-  const result: IssueActivityType[number][] = [];
+const processAndGroupLabelActivities = (activities: IssueActivityList) => {
+  const result: IssueActivityList[number][] = [];
   let currentGroup: GroupedLabelActivityType | null = null;
 
   activities.forEach((activity, index) => {
@@ -175,8 +175,8 @@ function ActivityFeed({
   issue,
   activities,
 }: {
-  issue: IssueType;
-  activities: IssueActivityType;
+  issue: IssueByProject;
+  activities: IssueActivityList;
 }) {
   const processedActivities = processAndGroupLabelActivities(activities);
 
@@ -226,7 +226,7 @@ function ActivityItem({
   );
 }
 
-function IssueCreationActivity({ issue }: { issue: IssueType }) {
+function IssueCreationActivity({ issue }: { issue: IssueByProject }) {
   return (
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
@@ -256,7 +256,7 @@ function IssueCreationActivity({ issue }: { issue: IssueType }) {
 }
 
 function renderActivityContent(
-  item: IssueActivityType[number],
+  item: IssueActivityList[number],
   comments: { id: number; content: string }[],
 ) {
   switch (item.issueActivity) {
@@ -283,7 +283,7 @@ function renderActivityContent(
 function TitleActivity({
   item,
 }: {
-  item: Extract<IssueActivityType[number], { issueActivity: 'TitleActivity' }>;
+  item: Extract<IssueActivityList[number], { issueActivity: 'TitleActivity' }>;
 }) {
   return (
     <>
@@ -311,7 +311,7 @@ function DescriptionActivity({
   item,
 }: {
   item: Extract<
-    IssueActivityType[number],
+    IssueActivityList[number],
     { issueActivity: 'DescriptionActivity' }
   >;
 }) {
@@ -340,7 +340,7 @@ function DescriptionActivity({
 function StatusActivity({
   item,
 }: {
-  item: Extract<IssueActivityType[number], { issueActivity: 'StatusActivity' }>;
+  item: Extract<IssueActivityList[number], { issueActivity: 'StatusActivity' }>;
 }) {
   return (
     <>
@@ -389,7 +389,7 @@ function PriorityActivity({
   item,
 }: {
   item: Extract<
-    IssueActivityType[number],
+    IssueActivityList[number],
     { issueActivity: 'PriorityActivity' }
   >;
 }) {
@@ -437,7 +437,7 @@ function AssignedActivity({
   item,
 }: {
   item: Extract<
-    IssueActivityType[number],
+    IssueActivityList[number],
     { issueActivity: 'AssignedActivity' }
   >;
 }) {
@@ -481,7 +481,7 @@ function LabelActivity({
   item,
 }: {
   item: Extract<
-    IssueActivityType[number],
+    IssueActivityList[number],
     { issueActivity: 'LabelActivity' | 'GroupedLabelActivity' }
   >;
 }) {
@@ -497,7 +497,6 @@ function LabelActivity({
     removedLabels = [{ name: item.labelName, color: item.labelColor }];
   }
 
-  // If there are no changes, don't render anything
   if (addedLabels.length === 0 && removedLabels.length === 0) {
     return null;
   }
@@ -507,14 +506,14 @@ function LabelActivity({
       <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
         <TagIcon aria-hidden="true" className="h-4 w-4 text-gray-500" />
       </div>
-      <div className="flex gap-x-1">
-        <p className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
+      <div className="flex gap-x-1 min-w-0 flex-auto">
+        <p className="flex items-center flex-wrap gap-x-1 py-0.5 text-xs leading-5 text-gray-500">
           <span className="font-medium text-gray-900">{item.user.name}</span>{' '}
           {addedLabels.length > 0 && (
             <>
               added label{addedLabels.length > 1 ? 's' : ''}
-              {addedLabels.map((label, index) => (
-                <span key={label.name}>
+              {addedLabels.map((label) => (
+                <span key={label.name} className="inline-flex items-center">
                   {' '}
                   <LabelBadge color={label.color} name={label.name} />
                 </span>
@@ -525,8 +524,8 @@ function LabelActivity({
           {removedLabels.length > 0 && (
             <>
               removed label{removedLabels.length > 1 ? 's' : ''}
-              {removedLabels.map((label, index) => (
-                <span key={label.name}>
+              {removedLabels.map((label) => (
+                <span key={label.name} className="inline-flex items-center">
                   {' '}
                   <LabelBadge color={label.color} name={label.name} />
                 </span>
@@ -549,10 +548,10 @@ function LabelActivity({
 // Helper component for rendering label badges
 function LabelBadge({ color, name }: { color: string; name: string }) {
   return (
-    <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+    <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200 -my-1">
       <div
         className={classNames(
-          COLORS[color] || 'bg-zinc-100',
+          COLORS[color] ?? 'bg-zinc-100',
           'flex-none rounded-full p-1',
         )}
       >
@@ -568,7 +567,7 @@ function CommentActivity({
   comments,
 }: {
   item: Extract<
-    IssueActivityType[number],
+    IssueActivityList[number],
     { issueActivity: 'CommentActivity' }
   >;
   comments: { id: number; content: string }[];

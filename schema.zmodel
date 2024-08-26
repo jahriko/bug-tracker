@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -12,6 +13,8 @@ enum Status {
   IN_PROGRESS
   DONE
   CANCELLED
+
+  
 }
 
 enum Priority {
@@ -19,32 +22,8 @@ enum Priority {
   HIGH
   MEDIUM
   LOW
-}
 
-model Account {
-  id                String  @id() @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id() @default(cuid())
-  sessionToken String   @unique()
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
 }
 
 model User {
@@ -55,8 +34,6 @@ model User {
   image               String?
   hashedPassword      String
   lastWorkspaceUrl    String?
-  accounts            Account[]
-  sessions            Session[]
   ownedWorkspaces     Workspace[]       @relation("WorkspaceOwner")
   workspaceMembers    WorkspaceMember[]
   projectMembers      ProjectMember[]
@@ -76,26 +53,19 @@ model User {
 
   // full access by oneself
   @@allow('all', auth() == this)
+
+  
 }
-
-model VerificationToken {
-  identifier String
-  token      String   @unique()
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
 
 model Workspace {
   id          Int               @id @default(autoincrement())
   name        String            @unique
-  description String?           
+  description String?
   createdAt   DateTime          @default(now())
   private     Boolean           @default(true)
   url         String            @unique
-  members     WorkspaceMember[] 
-  projects    Project[]         
+  members     WorkspaceMember[]
+  projects    Project[]
   discussions Discussion[]
   owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String            @default(auth().id)
@@ -111,6 +81,8 @@ model Workspace {
 
 
   @@index([ownerId])
+
+  
 }
 
 model WorkspaceMember {
@@ -130,11 +102,15 @@ model WorkspaceMember {
 
 
   @@id([workspaceId, userId])
+
+  
 }
 
 enum Role {
   ADMIN
   MEMBER
+
+  
 }
 
 model Project {
@@ -160,6 +136,8 @@ model Project {
 
 
   @@index([archivedAt, workspaceId])
+
+  
 }
 
 model ProjectMember {
@@ -180,6 +158,8 @@ model ProjectMember {
 
 
   @@id([projectId, userId])
+
+  
 }
 
 model Label {
@@ -194,13 +174,15 @@ model Label {
 
   // require login
   @@deny('all', auth() == null)
+
+  
 }
 
 model IssueLabel {
   issueId Int
   labelId Int
-  issue   Issue  @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  label   Label  @relation(fields: [labelId], references: [id])
+  issue   Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  label   Label @relation(fields: [labelId], references: [id])
 
   @@id([issueId, labelId])
 
@@ -209,10 +191,12 @@ model IssueLabel {
 
   // Temporary
   @@allow('delete', true)
+
+  
 }
 
 model Issue {
-  id             Int          @id() @default(autoincrement())
+  id             Int             @id() @default(autoincrement())
   title          String
   status         Status          @default(BACKLOG)
   priority       Priority        @default(NO_PRIORITY)
@@ -247,6 +231,8 @@ model Issue {
   @@index([status])
   @@index([priority])
   @@index([createdAt])
+
+  
 }
 
 model Comment {
@@ -272,6 +258,8 @@ model Comment {
 
   @@index([authorId])
   @@index([createdAt])
+
+  
 }
 
 model IssueActivity {
@@ -298,6 +286,8 @@ model IssueActivity {
 
 
   @@index([issueId, createdAt])
+
+  
 }
 
 model StatusActivity extends IssueActivity {
@@ -361,10 +351,12 @@ model DiscussionCategory {
   // Permissions
   @@allow('read', check(project))
   @@allow('create,update,delete', project.workspace.members?[user == auth() && (role == 'ADMIN')])
+
+  
 }
 
 model Discussion {
-  id          String             @id @default(uuid(7))
+  id          Int                @id @default(autoincrement())
   title       String
   content     String             @db.Text
   createdAt   DateTime           @default(now())
@@ -393,12 +385,14 @@ model Discussion {
   @@allow('create', auth() != null && project.members?[user == auth()])
   @@allow('update', auth() == author || project.workspace.members?[user == auth() && (role == 'ADMIN')])
   @@allow('delete', project.workspace.members?[user == auth() && (role == 'ADMIN')])
+
+  
 }
 
 model DiscussionLike {
   id           Int        @id @default(autoincrement())
   discussion   Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  discussionId String
+  discussionId Int
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String
 
@@ -411,6 +405,8 @@ model DiscussionLike {
 
   // can be created/deleted by anyone within the workspace
   @@allow('create,delete', discussion.workspace.members?[user == auth()])
+
+  
 }
 
 model DiscussionPost {
@@ -419,7 +415,7 @@ model DiscussionPost {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   discussion   Discussion       @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  discussionId String
+  discussionId Int
   author       User             @relation("DiscussionPostAuthor", fields: [authorId], references: [id])
   authorId     String
   parent       DiscussionPost?  @relation("Replies", fields: [parentId], references: [id])
@@ -434,4 +430,6 @@ model DiscussionPost {
   @@allow('create', auth() != null && discussion.project.members?[user == auth()])
   @@allow('update', auth() == author)
   @@allow('delete', auth() == author || discussion.project.workspace.members?[user == auth() && (role == 'ADMIN')])
+
+  
 }
