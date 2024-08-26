@@ -17,18 +17,29 @@ export async function middleware(req: NextRequest) {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  
+
   // Error handling for user retrieval
   if (error) {
     console.error('Error getting user:', error);
     return res;
   }
-  
+
   const isLoggedIn = Boolean(user);
   const lastWorkspaceUsed = user?.user_metadata.lastWorkspaceUrl;
-  
+
   // Allow direct access to workspace pages
-  if (/^\/[^/]+\/.*$/.test(nextUrl.pathname)) return res;
+  // if (/^\/[^/]+\/.*$/.test(nextUrl.pathname)) return res;
+
+  // Allow direct access to workspace pages and login page
+  if (/^\/[^/]+\/.*$/.test(nextUrl.pathname) || nextUrl.pathname === '/login')
+    return res;
+
+  // Redirect unauthenticated users to login page
+  if (!isLoggedIn) {
+    const loginUrl = new URL('/login', nextUrl.origin);
+    loginUrl.searchParams.set('redirectTo', nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   // Redirect workspace root to issues page
   if (/^\/[^/]+$/.test(nextUrl.pathname)) {
