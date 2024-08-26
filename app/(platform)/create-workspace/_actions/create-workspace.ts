@@ -13,8 +13,11 @@ const schema = z.object({
 export const createWorkspace = authActionClient
   .schema(schema)
   .action(async ({ parsedInput: { name, url }, ctx: { userId } }) => {
-    await getPrisma(userId).$transaction(async (tx) => {
-      await tx.workspace.create({
+    const prisma = getPrisma(userId);
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Create workspace
+      const workspace = await tx.workspace.create({
         data: {
           name,
           url,
@@ -22,19 +25,28 @@ export const createWorkspace = authActionClient
         },
       });
 
-      await tx.user.update({
-        where: {
-          id: userId,
-        },
+      // Create project with the same name as the workspace
+      const project = await tx.project.create({
         data: {
-          lastWorkspaceUrl: name,
+          title: name,
+          identifier: name.substring(0, 3).toUpperCase(),
+          workspaceId: workspace.id,
         },
       });
+
+      // Update user's lastWorkspaceUrl
+      await tx.user.update({
+        where: { id: userId },
+        data: { lastWorkspaceUrl: url },
+      });
+
+      return { workspace, project };
     });
 
     return {
       workspaceName: name,
+      workspaceUrl: url,
+      projectId: result.project.id,
       code: 'success',
-      message: 'Workspace created',
     };
   });

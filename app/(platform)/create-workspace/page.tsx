@@ -18,6 +18,7 @@ import { Input } from '@/components/catalyst/input';
 import { Icons } from '@/components/icons';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { createWorkspace } from './_actions/create-workspace';
+import { PlusIcon } from '@heroicons/react/16/solid';
 
 const schema = z.object({
   name: z.string().min(2, { message: 'Workspace name is required.' }),
@@ -65,7 +66,7 @@ export default function CreateWorkspacePage() {
 
   const workspaceUrlValue = form.watch('url');
 
-  async function onSubmit(data: z.infer<typeof schema>) {
+  function onSubmit(data: z.infer<typeof schema>) {
     execute(data);
 
     const { serverError } = result;
@@ -74,11 +75,10 @@ export default function CreateWorkspacePage() {
       return toast.error(serverError);
     }
 
-    form.reset();
-
-    router.push(`${result.data?.workspaceName}`);
-
-    return toast.success('Workspace created');
+    if (result.data) {
+      router.push(`/${result.data.workspaceUrl}/issues`);
+      toast.success('Workspace and project created successfully');
+    }
   }
 
   return (
@@ -229,6 +229,7 @@ export default function CreateWorkspacePage() {
               disabled={isExecuting}
               type="submit"
             >
+              <PlusIcon />
               {isExecuting ? (
                 <Icons.spinner className="size-4 animate-spin" />
               ) : null}

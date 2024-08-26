@@ -49,6 +49,7 @@ export function NewDiscussionForm({
   category,
 }: NewDiscussionFormProps) {
   const router = useRouter();
+
   const form = useForm<DiscussionFormData>({
     resolver: zodResolver(discussionSchema),
     defaultValues: {
@@ -114,14 +115,20 @@ export function NewDiscussionForm({
 
           <Field>
             <Label htmlFor="projectId">Project</Label>
-            <Select {...form.register('projectId', { valueAsNumber: true })}>
-              <option value="">Select a project</option>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.title}
-                </option>
-              ))}
-            </Select>
+            {projects.length > 0 ? (
+              <Select {...form.register('projectId', { valueAsNumber: true })}>
+                <option value="">Select a project</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.title}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <Select disabled>
+                <option value="">No projects found</option>
+              </Select>
+            )}
           </Field>
 
           <Field>

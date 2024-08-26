@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
 import { NewDiscussionForm } from './_components/new-discussion-form';
+import { getUserDetails } from '@/lib/supabase/auth';
 
 export default async function NewDiscussionPage({
   params,
@@ -11,9 +12,9 @@ export default async function NewDiscussionPage({
   params: { workspaceId: string };
   searchParams: { categoryId?: string };
 }) {
-  const user = await getCurrentUser();
+  const {user} = await getUserDetails();
   if (!user) {
-    return notFound();
+    return redirect('/login');
   }
 
   const prisma = getPrisma(user.id);

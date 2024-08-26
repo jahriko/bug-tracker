@@ -231,24 +231,22 @@ function IssueCreationActivity({ issue }: { issue: IssueByProject }) {
     <>
       <div className="relative flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
         <Avatar
-          alt={issue?.owner?.name ?? 'User'}
+          alt={issue.owner?.name ?? 'User'}
           className="size-5"
-          src={issue?.owner?.image ?? ''}
+          src={issue.owner?.image ?? ''}
         />
       </div>
       <div className="flex gap-x-2">
         <div className="flex-auto py-0.5 text-xs leading-5 text-gray-500">
-          <span className="font-medium text-gray-900">
-            {issue?.owner?.name}
-          </span>{' '}
+          <span className="font-medium text-gray-900">{issue.owner?.name}</span>{' '}
           created this issue{' '}
         </div>
         <span>⋅</span>
         <time
           className="flex-none py-0.5 text-xs leading-5 text-gray-500"
-          dateTime={new Date(issue?.createdAt).toISOString()}
+          dateTime={new Date(issue.createdAt).toISOString()}
         >
-          {timeAgo(DateTime.fromISO(new Date(issue?.createdAt).toISOString()))}
+          {timeAgo(DateTime.fromISO(new Date(issue.createdAt).toISOString()))}
         </time>
       </div>
     </>
@@ -507,32 +505,36 @@ function LabelActivity({
         <TagIcon aria-hidden="true" className="h-4 w-4 text-gray-500" />
       </div>
       <div className="flex gap-x-1 min-w-0 flex-auto">
-        <p className="flex items-center flex-wrap gap-x-1 py-0.5 text-xs leading-5 text-gray-500">
-          <span className="font-medium text-gray-900">{item.user.name}</span>{' '}
+        <div className="flex items-center flex-wrap gap-x-1 py-0.5 text-xs leading-5 text-gray-500">
+          <span className="font-medium text-gray-900">{item.user.name}</span>
           {addedLabels.length > 0 && (
             <>
-              added label{addedLabels.length > 1 ? 's' : ''}
+              {' added label'}
+              {addedLabels.length > 1 ? 's' : ''}
               {addedLabels.map((label) => (
-                <span key={label.name} className="inline-flex items-center">
-                  {' '}
-                  <LabelBadge color={label.color} name={label.name} />
-                </span>
+                <LabelBadge
+                  key={label.name}
+                  color={label.color}
+                  name={label.name}
+                />
               ))}
             </>
           )}
           {addedLabels.length > 0 && removedLabels.length > 0 && ' and '}
           {removedLabels.length > 0 && (
             <>
-              removed label{removedLabels.length > 1 ? 's' : ''}
+              {' removed label'}
+              {removedLabels.length > 1 ? 's' : ''}
               {removedLabels.map((label) => (
-                <span key={label.name} className="inline-flex items-center">
-                  {' '}
-                  <LabelBadge color={label.color} name={label.name} />
-                </span>
+                <LabelBadge
+                  key={label.name}
+                  color={label.color}
+                  name={label.name}
+                />
               ))}
             </>
           )}
-        </p>
+        </div>
         <span>⋅</span>
         <time
           className="flex-none py-0.5 text-xs leading-5 text-gray-500"

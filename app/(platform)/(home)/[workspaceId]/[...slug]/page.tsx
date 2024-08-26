@@ -3,6 +3,8 @@ import { RedirectType, notFound, redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Avatar } from '@/components/catalyst/avatar';
 import { Divider } from '@/components/catalyst/divider';
+import Editor from '@/components/lexical_editor/editor';
+import { CommentEditor } from '@/components/text-editor/comment-editor';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { COLORS } from '@/lib/colors';
 import { getPrisma } from '@/lib/getPrisma';
@@ -11,6 +13,7 @@ import { getUserDetails } from '@/lib/supabase/auth';
 import { classNames } from '@/lib/utils';
 import { ActivityFeed } from './_components/activity-feed';
 import AddLabelButton from './_components/add-label-button';
+import { IssueDesktopSidebar } from './_components/issue-desktop-sidebar';
 import {
   AssigneeProperty,
   DescriptionField,
@@ -32,9 +35,6 @@ import {
   type Label,
   type LastActivity,
 } from './types';
-import { IssueDesktopSidebar } from './_components/issue-desktop-sidebar';
-import Editor from '@/components/lexical_editor/editor';
-import { CommentEditor } from '@/components/text-editor/comment-editor';
 
 export default async function IssuePage({
   params,
@@ -118,42 +118,34 @@ export default async function IssuePage({
                         <h2 className="sr-only">Details</h2>
                         <div className="flex flex-wrap gap-4">
                           <div className="w-full sm:w-auto">
-                            <Suspense fallback={<p>Loading</p>}>
-                              <StatusProperty
-                                issueId={issue.id}
-                                lastActivity={lastActivityInfo}
-                                value={issue.status}
-                              />
-                            </Suspense>
+                            <StatusProperty
+                              issueId={issue.id}
+                              lastActivity={lastActivityInfo}
+                              value={issue.status}
+                            />
                           </div>
                           <div className="w-full sm:w-auto">
-                            <Suspense fallback={<p>Loading</p>}>
-                              <PriorityProperty
-                                issueId={issue.id}
-                                lastActivity={lastActivityInfo}
-                                value={issue.priority}
-                              />
-                            </Suspense>
+                            <PriorityProperty
+                              issueId={issue.id}
+                              lastActivity={lastActivityInfo}
+                              value={issue.priority}
+                            />
                           </div>
                           <div className="w-full sm:w-auto">
-                            <Suspense fallback={<p>Loading</p>}>
-                              <AssigneeProperty
-                                issueId={issue.id}
-                                lastActivity={lastActivityInfo}
-                                projectMembers={issue.project.members}
-                                value={issue.assignedUserId}
-                              />
-                            </Suspense>
+                            <AssigneeProperty
+                              issueId={issue.id}
+                              lastActivity={lastActivityInfo}
+                              projectMembers={issue.project.members}
+                              value={issue.assignedUserId}
+                            />
                           </div>
                           <div className="w-full sm:w-auto">
-                            <Suspense fallback={<p>Loading</p>}>
-                              <ProjectProperty
-                                issueId={issue.id}
-                                lastActivity={lastActivityInfo}
-                                projects={projects}
-                                value={issue.project.id}
-                              />
-                            </Suspense>
+                            <ProjectProperty
+                              issueId={issue.id}
+                              lastActivity={lastActivityInfo}
+                              projects={projects}
+                              value={issue.project.id}
+                            />
                           </div>
                         </div>
                         <div className="mt-6 border-b border-t border-gray-200 py-6">

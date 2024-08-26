@@ -27,9 +27,6 @@ export async function middleware(req: NextRequest) {
   const isLoggedIn = Boolean(user);
   const lastWorkspaceUsed = user?.user_metadata.lastWorkspaceUrl;
 
-  // Allow direct access to workspace pages
-  // if (/^\/[^/]+\/.*$/.test(nextUrl.pathname)) return res;
-
   // Allow direct access to workspace pages and login page
   if (/^\/[^/]+\/.*$/.test(nextUrl.pathname) || nextUrl.pathname === '/login')
     return res;
@@ -41,23 +38,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect workspace root to issues page
-  if (/^\/[^/]+$/.test(nextUrl.pathname)) {
-    const issuesUrl = new URL(`${nextUrl.pathname}/issues`, nextUrl.origin);
-    // Preserve all search params
-    issuesUrl.search = nextUrl.search;
-    return NextResponse.redirect(issuesUrl);
-  }
-
-  // Handle logged-in user redirects
-  if (isLoggedIn) {
-    // Redirect to last used workspace if available
+  // Redirect logged-in users on homepage to their last workspace
+  if (nextUrl.pathname === '/') {
     if (lastWorkspaceUsed) {
       return NextResponse.redirect(
         new URL(`/${lastWorkspaceUsed}`, nextUrl.origin),
       );
     }
+  }
 
+  // Handle logged-in user redirects (if no workspace exists)
+  if (isLoggedIn) {
     // Fetch user's workspaces and redirect accordingly
     const { data: workspaces, error: workspacesError } = await supabase
       .from('workspaces')
@@ -70,23 +61,12 @@ export async function middleware(req: NextRequest) {
       return res;
     }
 
-    let redirectUrl;
     if (workspaces && workspaces.length > 0) {
-      redirectUrl = new URL(`/${workspaces[0].url}`, nextUrl.origin);
-    } else {
-      redirectUrl = new URL('/create-workspace', nextUrl.origin);
-    }
-
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // Redirect logged-in users on homepage to their last workspace
-  if (nextUrl.pathname === '/') {
-    if (lastWorkspaceUsed) {
       return NextResponse.redirect(
-        new URL(`/${lastWorkspaceUsed}`, nextUrl.origin),
+        new URL(`/${workspaces[0].url}`, nextUrl.origin),
       );
     }
+    return NextResponse.redirect(new URL('/create-workspace', nextUrl.origin));
   }
 
   return res;

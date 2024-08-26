@@ -44,7 +44,7 @@ export default function SwitchWorkspace({
       </DropdownButton>
       <DropdownMenu anchor="bottom start" className="min-w-80 lg:min-w-64">
         {workspaces.map((workspace) => (
-          <DropdownItem key={workspace.id} href={`/${workspace.url}`}>
+          <DropdownItem key={workspace.id} href={`/${workspace.url}/issues`}>
             <Avatar
               square
               className="bg-zinc-900 text-white dark:bg-white dark:text-black"
