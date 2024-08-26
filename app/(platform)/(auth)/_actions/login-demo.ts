@@ -1,58 +1,45 @@
 'use server';
 
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { signIn } from '@/auth';
 import prisma from '@/lib/prisma';
-import { actionClient } from '@/lib/safe-action';
+import { AuthenticationError, actionClient } from '@/lib/safe-action';
+import { createClient } from '@/lib/supabase/server';
 
 const schema = z.object({});
 
-export const loginDemo = actionClient.schema(schema).action(
-  async () => {
-    const demoUser = await prisma.user.findFirst({
-      where: {
-        workspaceMembers: {
-          some: {
-            role: 'ADMIN',
-          },
+export const loginDemo = actionClient.schema(schema).action(async () => {
+  const supabase = createClient();
+
+  const demoUser = await prisma.user.findFirst({
+    where: {
+      workspaceMembers: {
+        some: {
+          role: 'ADMIN',
         },
       },
-      include: {
-        workspaceMembers: {
-          where: {
-            role: 'ADMIN',
-          },
-          select: {
-            workspace: {
-              select: {
-                url: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!demoUser) {
-      throw new Error(
-        'Demo admin user not found. Please ensure the database is seeded with demo data.',
-      );
-    }
-
-    const lastWorkspaceUsed = demoUser.lastWorkspaceUrl ?? 'create-workspace';
-
-    await signIn('credentials', {
-      email: demoUser.email,
-      password: '12345678',
-      redirectTo: `/${lastWorkspaceUsed}/issues`,
-    });
-
-    return { success: true };
-  },
-  {
-    onError: (error) => {
-      console.error('Demo login error:', error);
-      throw new Error('Failed to log in as demo user. Please try again later.');
     },
-  },
-);
+    select: {
+      id: true,
+      email: true,
+      lastWorkspaceUrl: true,
+    },
+  });
+
+  if (!demoUser) {
+    return { success: false, error: 'Demo admin user not found.' };
+  }
+
+  const lastWorkspaceUrl = demoUser.lastWorkspaceUrl ?? 'create-workspace';
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: demoUser.email,
+    password: '12345678',
+  });
+
+  if (error) {
+    throw new AuthenticationError(error.message);
+  }
+
+  return redirect(`/${lastWorkspaceUrl}/issues`);
+});

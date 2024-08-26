@@ -1,38 +1,27 @@
 'use server';
 
-import { faker } from '@faker-js/faker';
-import bcrypt from 'bcryptjs';
-import prisma from '@/lib/prisma';
-import { getUserByEmail } from '@/lib/user';
-import {
-  RegisterSchema,
-  type RegisterSchema as RegisterSchemaType,
-} from '@/lib/validations';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { actionClient } from '@/lib/safe-action';
+import { createClient } from '@/lib/supabase/server';
 
-export const register = async (values: RegisterSchemaType) => {
-  const validatedFields = RegisterSchema.safeParse(values);
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6).max(50),
+});
 
-  if (!validatedFields.success) {
-    return { error: 'Invalid fields!' };
-  }
+export const registerAction = actionClient
+  .schema(schema)
+  .action(async ({ parsedInput: { email, password } }) => {
+    const supabase = createClient();
 
-  const { email, password, name } = validatedFields.data;
-  const hashedPassword = await bcrypt.hash(password, 10);
+    const { error } = await supabase.auth.signUp({ email, password });
 
-  const existingUser = await getUserByEmail(email);
+    if (error) {
+      return { success: false, error: error.message };
+    }
 
-  if (existingUser) {
-    return { error: 'Email already in use!' };
-  }
+    revalidatePath('/', 'layout');
 
-  await prisma.user.create({
-    data: {
-      image: faker.image.avatar(),
-      name,
-      email,
-      hashedPassword,
-    },
+    return { success: true };
   });
-
-  return { success: 'Successfully registered' };
-};

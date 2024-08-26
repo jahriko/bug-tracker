@@ -1,9 +1,16 @@
 'use server';
 
-import { signOut } from '@/auth';
+import { redirect } from 'next/navigation';
+import { AuthenticationError } from '@/lib/safe-action';
+import { createClient } from '@/lib/supabase/server';
 
 export async function logout() {
-  await signOut({
-    redirectTo: '/login',
-  });
+  const supabase = createClient();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    throw new AuthenticationError(error.message);
+  }
+
+  redirect('/login');
 }
