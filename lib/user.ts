@@ -1,18 +1,7 @@
-import { Prisma } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import prisma from '@/lib/prisma';
+import prisma from './prisma';
 
-export async function getUserByEmail(email: string) {
-  try {
-    return await prisma.user.findFirstOrThrow({
-      where: { email },
-    });
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError) {
-      if (e.code === 'P2025') {
-        console.error(e.message);
-      }
-    }
-    throw e;
-  }
-}
+export const getUserByEmail = async (email: string) => {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return null;
+  return user;
+};

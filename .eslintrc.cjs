@@ -119,10 +119,12 @@ module.exports = {
         'app/**/{sitemap,robots}.ts',
         'app/**/{_components, _data, _hooks, _utils}/**/*.ts',
         'vitest.config.integration.ts',
+        'auth.config.ts',
+        'middleware.ts',
       ],
       rules: {
         'import/no-default-export': 'off',
-        'import/prefer-default-export': ['error', { target: 'any' }],
+        // 'import/prefer-default-export': ['error', { target: 'any' }],
       },
     },
     // module declarations

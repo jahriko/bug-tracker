@@ -64,6 +64,6 @@ export async function getIssuesData(
   return { issues, totalIssues };
 }
 
-
-export type IssueDataType = NonNullable<Prisma.PromiseReturnType<typeof getIssuesData>['issues'][number]>;
-
+export type IssueDataType = NonNullable<
+  Prisma.PromiseReturnType<typeof getIssuesData>['issues'][number]
+>;

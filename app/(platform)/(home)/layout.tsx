@@ -2,6 +2,7 @@ import { UserCircleIcon, UserIcon } from '@heroicons/react/16/solid';
 import { redirect } from 'next/navigation';
 import React from 'react';
 import LogoutButton from '@/app/(platform)/(auth)/_components/logout-button';
+import { Avatar } from '@/components/catalyst/avatar';
 import {
   Dropdown,
   DropdownButton,
@@ -26,8 +27,8 @@ import {
   SidebarSection,
 } from '@/components/catalyst/sidebar';
 import { StackedLayout } from '@/components/catalyst/stacked-layout';
-import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
+import { getUserDetails } from '@/lib/supabase/auth';
 import NavbarLinks from './_components/navbar-links';
 import SwitchWorkspace from './_components/switch-workspace';
 
@@ -41,13 +42,15 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getCurrentUser();
+  const { user } = await getUserDetails();
 
-  if (!session) {
+  if (!user) {
     redirect('/login');
   }
 
-  const workspaces = await getPrisma(session.userId).workspace.findMany({
+  const metadata = user.user_metadata;
+
+  const workspaces = await getPrisma(user.id).workspace.findMany({
     select: {
       id: true,
       name: true,
@@ -68,16 +71,17 @@ export default async function DashboardLayout({
           <NavbarSection>
             <Dropdown>
               <DropdownButton as={NavbarItem}>
-                <UserCircleIcon />
+                {metadata.avatarUrl ? (
+                  <Avatar className="size-5" src={metadata.avatarUrl} />
+                ) : (
+                  <UserCircleIcon />
+                )}
               </DropdownButton>
               <DropdownMenu anchor="bottom end" className="min-w-64">
                 <DropdownHeader>
                   <div className="pr-6">
                     <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Signed in as {session.name}
-                    </div>
-                    <div className="text-sm/7 font-semibold text-zinc-800 dark:text-white">
-                      {session.email}
+                      Signed in as {user.email}
                     </div>
                   </div>
                 </DropdownHeader>

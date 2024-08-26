@@ -2,18 +2,14 @@ import { type Prisma } from '@prisma/client';
 import { unstable_cache } from 'next/cache';
 import { getPrisma } from '@/lib/getPrisma';
 
-interface User {
-  userId: string;
-}
-
 export const getIssueByProject = async (
-  user: User,
+  userId: string,
   projectId: string,
   id: string,
 ) => {
   return unstable_cache(
     () => {
-      const issue = getPrisma(user.userId).issue.findUnique({
+      const issue = getPrisma(userId).issue.findUnique({
         where: {
           project: {
             identifier: projectId.toUpperCase(),
@@ -79,9 +75,11 @@ export const getIssueByProject = async (
   )();
 };
 
-export type IssueType = Prisma.PromiseReturnType<typeof getIssueByProject>;
+export type IssueByProject = NonNullable<
+  Prisma.PromiseReturnType<typeof getIssueByProject>
+>;
 
-export async function getActivities(userId, issueId) {
+export async function getActivities(userId: string, issueId: string) {
   const issueActivities = await getPrisma(userId).issueActivity.findMany({
     where: {
       issueId: Number(issueId),
@@ -102,7 +100,7 @@ export async function getActivities(userId, issueId) {
   return issueActivities;
 }
 
-export type IssueActivityType =
+export type IssueActivityList =
   | Prisma.PromiseReturnType<typeof getActivities>
   | {
       id: string;

@@ -4,7 +4,8 @@ import { type LabelsData } from '@/server/data/many/get-labels';
 import { LabelSelector } from '../../_components/label-selector';
 import { addIssueLabel } from '../_actions/add-issue-label';
 import { removeIssueLabel } from '../_actions/remove-issue-label';
-import { type IssueActivityType } from '../_data/issue';
+import { IssueByProject, type IssueActivityList } from '../_data/issue';
+import { IssueLabel } from '@prisma/client';
 
 export default function AddLabelButton({
   labels,
@@ -14,9 +15,9 @@ export default function AddLabelButton({
 }: {
   labels: LabelsData;
   issueId: number;
-  issueLabels: { label: LabelsData[number] }[];
+  issueLabels: IssueByProject['labels'];
   activities: Extract<
-    IssueActivityType[number],
+    IssueActivityList[number],
     { issueActivity: 'LabelActivity' }
   >[];
 }) {

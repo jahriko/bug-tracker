@@ -13,8 +13,9 @@ import { getWorkspaceData } from './_data/workspace-data';
 import {
   getPaginationData,
   parseSearchParams,
-  updateLastWorkspaceUrl,
 } from './helpers';
+import { getUserDetails } from '@/lib/supabase/auth';
+import { updateLastWorkspaceUrl } from '@/lib/supabase/auth';
 
 export default async function IssuePage({
   params,
@@ -23,23 +24,23 @@ export default async function IssuePage({
   params: { workspaceId: string };
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  const session = await getCurrentUser();
-  if (!session) notFound();
+  const {user} = await getUserDetails()
+  if (!user) notFound();
 
-  await updateLastWorkspaceUrl(session, params.workspaceId);
+  await updateLastWorkspaceUrl(user.id, params.workspaceId);
 
   const { page, pageSize, filter, status, priority, search } =
     parseSearchParams(searchParams);
 
   const workspaceData = await getWorkspaceData(
-    session.userId,
+    user.id,
     params.workspaceId,
   );
   if (!workspaceData) notFound();
 
   const projectIds = workspaceData.projects.map((p) => p.id);
   const { issues, totalIssues } = await getIssuesData(
-    session.userId,
+    user.id,
     projectIds,
     page,
     pageSize,
