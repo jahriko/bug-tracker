@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/card';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
+import { CommentEditor } from '@/components/text-editor/comment-editor';
 
 export default async function DiscussionPage({
   params,
@@ -25,7 +26,7 @@ export default async function DiscussionPage({
     return notFound();
   }
 
-  const prisma = getPrisma(user.userId);
+  const prisma = getPrisma(user.id);
   const discussion = await prisma.discussion.findUnique({
     where: { id: Number(params.discussionId) },
     include: {
@@ -107,11 +108,11 @@ export default async function DiscussionPage({
                 <CardTitle>Add a comment</CardTitle>
               </CardHeader>
               <CardContent>
-                <Textarea placeholder="Type your comment here..." rows={4} />
+                <CommentEditor
+                  discussionId={Number(params.discussionId)}
+                  lastActivity={discussion.updatedAt}
+                />
               </CardContent>
-              <CardFooter>
-                <Button>Post Comment</Button>
-              </CardFooter>
             </Card>
           </div>
         </div>

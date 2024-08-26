@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { toast } from 'sonner';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
@@ -11,12 +11,12 @@ export default async function NewDiscussionPage({
   params: { workspaceId: string };
   searchParams: { categoryId?: string };
 }) {
-  const session = await getCurrentUser();
-  if (!session?.userId) {
-    throw new Error('User not authenticated');
+  const user = await getCurrentUser();
+  if (!user) {
+    return notFound();
   }
 
-  const prisma = getPrisma(session.userId);
+  const prisma = getPrisma(user.id);
 
   if (!searchParams.categoryId) {
     redirect(

@@ -29,14 +29,14 @@ export default async function Discussions({
   const { page, pageSize, category, search } = parseSearchParams(searchParams);
 
   const { discussions, totalDiscussions } = await getDiscussions(
-    user.userId,
+    user.id,
     params.workspaceId,
     page,
     pageSize,
     category,
     search,
   );
-  const categories = await getCategories(user.userId, params.workspaceId);
+  const categories = await getCategories(user.id, params.workspaceId);
 
   const createPageUrl = (pageNum: number) => {
     const newSearchParams = new URLSearchParams(
@@ -87,7 +87,7 @@ export default async function Discussions({
             {/* Discussion List and Pagination */}
             <div className="flex-1">
               <DiscussionList
-                currentUserId={user.userId}
+                currentUserId={user.id}
                 discussions={discussions}
                 workspaceId={params.workspaceId}
               />

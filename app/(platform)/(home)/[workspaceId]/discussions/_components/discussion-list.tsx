@@ -66,7 +66,7 @@ export function DiscussionList({
     },
   );
 
-  const handleLikeToggle = (discussionId: string) => {
+  const handleLikeToggle = (discussionId: number) => {
     execute({ discussionId, workspaceUrl: workspaceId });
 
     if (result.serverError) {
