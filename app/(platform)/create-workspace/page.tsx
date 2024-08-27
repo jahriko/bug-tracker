@@ -1,7 +1,7 @@
 'use client';
 import * as Headless from '@headlessui/react';
+import { PlusIcon } from '@heroicons/react/16/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useAction } from 'next-safe-action/hooks';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,7 +18,6 @@ import { Input } from '@/components/catalyst/input';
 import { Icons } from '@/components/icons';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { createWorkspace } from './_actions/create-workspace';
-import { PlusIcon } from '@heroicons/react/16/solid';
 
 const schema = z.object({
   name: z.string().min(2, { message: 'Workspace name is required.' }),
@@ -28,7 +27,6 @@ const schema = z.object({
 });
 
 export default function CreateWorkspacePage() {
-  const router = useRouter();
   const { execute, result, isExecuting } = useAction(createWorkspace);
 
   const form = useForm<z.infer<typeof schema>>({
@@ -69,15 +67,13 @@ export default function CreateWorkspacePage() {
   function onSubmit(data: z.infer<typeof schema>) {
     execute(data);
 
-    const { serverError } = result;
-
-    if (serverError) {
-      return toast.error(serverError);
+    if (result.serverError) {
+      return toast.error(result.serverError);
     }
 
     if (result.data) {
-      router.push(`/${result.data.workspaceUrl}/issues`);
       toast.success('Workspace and project created successfully');
+      form.reset();
     }
   }
 

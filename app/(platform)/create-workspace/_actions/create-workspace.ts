@@ -1,4 +1,5 @@
 'use server';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getPrisma } from '@/lib/getPrisma';
 import { authActionClient } from '@/lib/safe-action';
@@ -43,10 +44,11 @@ export const createWorkspace = authActionClient
       return { workspace, project };
     });
 
+    redirect(`/${url}/issues`);
+
     return {
       workspaceName: name,
       workspaceUrl: url,
       projectId: result.project.id,
-      code: 'success',
     };
   });
