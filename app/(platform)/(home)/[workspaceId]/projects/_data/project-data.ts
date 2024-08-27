@@ -1,8 +1,13 @@
 import { type Prisma } from '@prisma/client';
 import { getPrisma } from '@/lib/getPrisma';
 
-export const getProjects = async (userId: string) => {
+export const getProjects = async (userId: string, workspaceUrl: string) => {
   return await getPrisma(userId).project.findMany({
+    where: {
+      workspace: {
+        url: workspaceUrl,
+      }
+    },
     include: {
       _count: {
         select: {

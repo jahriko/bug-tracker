@@ -18,7 +18,7 @@ export default async function ProjectsPage({
     redirect('/login');
   }
 
-  const projects = await getProjects(user.id);
+  const projects = await getProjects(user.id, params.workspaceId);
 
 
   return (
