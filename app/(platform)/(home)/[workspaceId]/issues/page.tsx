@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { InputGroup } from '@/components/catalyst/input';
 import { getCurrentUser } from '@/lib/get-current-user';
 import prisma from '@/lib/prisma';
+import { getUserDetails, updateLastWorkspaceUrl } from '@/lib/supabase/auth';
 import { NoIssuesFound } from './_components/NoIssuesFound';
 import { TablePagination } from './_components/TablePagination';
 import IssueTable from './_components/issue-table';
@@ -10,12 +11,7 @@ import NewIssueDialog from './_components/new-issue-dialog';
 import SearchInput from './_components/search-input';
 import { getIssuesData } from './_data/issue-data';
 import { getWorkspaceData } from './_data/workspace-data';
-import {
-  getPaginationData,
-  parseSearchParams,
-} from './helpers';
-import { getUserDetails } from '@/lib/supabase/auth';
-import { updateLastWorkspaceUrl } from '@/lib/supabase/auth';
+import { getPaginationData, parseSearchParams } from './helpers';
 
 export default async function IssuePage({
   params,
@@ -24,7 +20,7 @@ export default async function IssuePage({
   params: { workspaceId: string };
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  const {user} = await getUserDetails()
+  const { user } = await getUserDetails();
   if (!user) notFound();
 
   await updateLastWorkspaceUrl(user.id, params.workspaceId);
@@ -32,10 +28,7 @@ export default async function IssuePage({
   const { page, pageSize, filter, status, priority, search } =
     parseSearchParams(searchParams);
 
-  const workspaceData = await getWorkspaceData(
-    user.id,
-    params.workspaceId,
-  );
+  const workspaceData = await getWorkspaceData(user.id, params.workspaceId);
   if (!workspaceData) notFound();
 
   const projectIds = workspaceData.projects.map((p) => p.id);

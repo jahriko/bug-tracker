@@ -1,5 +1,8 @@
 'use client';
 
+import { CodeNode } from '@lexical/code';
+import { AutoLinkNode, LinkNode } from '@lexical/link';
+import { ListItemNode, ListNode } from '@lexical/list';
 import { $convertToMarkdownString, TRANSFORMERS } from '@lexical/markdown';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -8,6 +11,7 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import {
   $createParagraphNode,
   $createTextNode,
@@ -15,17 +19,13 @@ import {
   type EditorState,
   FORMAT_TEXT_COMMAND,
 } from 'lexical';
-import { useEffect, useState, useCallback } from 'react';
-import { Button } from '@/components/catalyst/button';
 import { useAction } from 'next-safe-action/hooks';
-import { addDiscussionComment } from '@/app/(platform)/(home)/[workspaceId]/discussions/[discussionId]/_actions/add-discussion-comment';
+import { useCallback, useEffect, useState } from 'react';
 import { addComment } from '@/app/(platform)/(home)/[workspaceId]/[...slug]/_actions/add-comment';
-import { ImageNode } from './nodes/ImageNode';
-import { CodeNode } from '@lexical/code';
-import { AutoLinkNode, LinkNode } from '@lexical/link';
-import { ListItemNode, ListNode } from '@lexical/list';
-import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { addDiscussionComment } from '@/app/(platform)/(home)/[workspaceId]/discussions/[discussionId]/_actions/add-discussion-comment';
+import { Button } from '@/components/catalyst/button';
 import { Icons } from '../icons';
+import { ImageNode } from './nodes/ImageNode';
 
 function Placeholder() {
   return (
@@ -36,13 +36,12 @@ function Placeholder() {
 }
 const CAN_USE_DOM: boolean =
   typeof window !== 'undefined' &&
-  typeof window.document !== 'undefined' &&
   typeof window.document.createElement !== 'undefined';
-type CommentEditorProps = {
+interface CommentEditorProps {
   discussionId?: number;
   issueId?: number;
   lastActivity: { activityType: string; activityId: number };
-};
+}
 
 export function CommentEditor({
   discussionId,
@@ -134,7 +133,7 @@ export function CommentEditor({
             <HistoryPlugin />
             <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
             <div className="flex justify-end mt-2">
-              <Button type="submit" disabled={isExecuting}>
+              <Button disabled={isExecuting} type="submit">
                 {isExecuting ? (
                   <Icons.spinner className="animate-spin h-4 w-4" />
                 ) : null}

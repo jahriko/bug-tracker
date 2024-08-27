@@ -31,6 +31,20 @@ const config = {
     },
     typography: typographyStyles,
     extend: {
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+      },
+      animation: {
+        'fade-in': 'fadeIn 1s ease-out forwards',
+        'fade-out': 'fadeOut 1s ease-out forwards',
+      },
       boxShadow: {
         glow: '0 0 4px rgb(0 0 0 / 0.1)',
       },

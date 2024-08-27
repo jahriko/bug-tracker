@@ -15,34 +15,39 @@ const schema = z.object({
 
 export const updateTitle = authActionClient
   .schema(schema)
-  .action(async ({ parsedInput: { issueId, title, lastActivity }, ctx: { userId } }) => {
-    await getPrisma(userId).$transaction(async (tx) => {
-      await tx.issue.update({
-        where: {
-          id: issueId,
-        },
-        data: {
-          title,
-        },
-      });
+  .action(
+    async ({
+      parsedInput: { issueId, title, lastActivity },
+      ctx: { userId },
+    }) => {
+      await getPrisma(userId).$transaction(async (tx) => {
+        await tx.issue.update({
+          where: {
+            id: issueId,
+          },
+          data: {
+            title,
+          },
+        });
 
-      await tx.titleActivity.upsert({
-        where: {
-          id:
-            lastActivity.activityType === 'TitleActivity'
-              ? lastActivity.activityId
-              : -1,
-        },
-        update: {
-          body: title,
-        },
-        create: {
-          userId,
-          issueId,
-          body: title,
-        },
-      });
+        await tx.titleActivity.upsert({
+          where: {
+            id:
+              lastActivity.activityType === 'TitleActivity'
+                ? lastActivity.activityId
+                : -1,
+          },
+          update: {
+            body: title,
+          },
+          create: {
+            userId,
+            issueId,
+            body: title,
+          },
+        });
 
-      revalidateTag(`issue-${issueId}`);
-    });
-  });
+        revalidateTag(`issue-${issueId}`);
+      });
+    },
+  );
