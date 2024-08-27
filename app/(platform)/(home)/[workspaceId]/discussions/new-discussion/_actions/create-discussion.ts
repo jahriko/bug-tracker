@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { getPrisma } from '@/lib/getPrisma';
 import { authActionClient } from '@/lib/safe-action';
+import { redirect } from 'next/navigation';
 
 const discussionSchema = z.object({
   title: z
@@ -50,6 +51,8 @@ export const createDiscussion = authActionClient
             authorId: ctx.userId,
           },
         });
+
+        redirect(`/${workspaceUrl}/discussions/${newDiscussion.id}`);
 
         return {
           id: newDiscussion.id,
