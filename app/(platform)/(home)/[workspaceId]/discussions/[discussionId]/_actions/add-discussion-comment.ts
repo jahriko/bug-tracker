@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
@@ -30,6 +31,8 @@ export const addDiscussionComment = authActionClient
         author: true,
       },
     });
+
+    revalidatePath(`/${discussionId}`);
 
     return newComment;
   });
