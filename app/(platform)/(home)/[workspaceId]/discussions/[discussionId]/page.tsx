@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon';
 import { notFound } from 'next/navigation';
 import { Avatar } from '@/components/catalyst/avatar';
-import { Button } from '@/components/catalyst/button';
 import { Heading } from '@/components/catalyst/heading';
 import { Text } from '@/components/catalyst/text';
-import { Textarea } from '@/components/catalyst/textarea';
+import { CommentEditor } from '@/components/text-editor/comment-editor';
 import {
   Card,
   CardContent,
@@ -14,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { getCurrentUser } from '@/lib/get-current-user';
 import { getPrisma } from '@/lib/getPrisma';
-import { CommentEditor } from '@/components/text-editor/comment-editor';
+import { timeAgo } from '@/lib/utils';
 
 export default async function DiscussionPage({
   params,
@@ -49,71 +48,84 @@ export default async function DiscussionPage({
     return DateTime.fromJSDate(date).toRelative();
   };
 
+  function CommentFeed({ posts }: { posts: typeof discussion.posts }) {
+    return (
+      <div className="flow-root">
+        <ul className="space-y-6">
+          {posts.map((post) => (
+            <CommentItem key={post.id} post={post} />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  function CommentItem({ post }: { post: (typeof discussion.posts)[number] }) {
+    return (
+      <li className="relative flex gap-x-4">
+        <div className="relative mt-3 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-200">
+          <Avatar
+            alt={post.author.name}
+            className="size-5"
+            initials={post.author.name.charAt(0)}
+            src={post.author.image}
+          />
+        </div>
+        <div className="flex-auto rounded-md p-3 ring-1 ring-inset ring-gray-200">
+          <div className="flex justify-between gap-x-4">
+            <div className="py-0.5 text-xs leading-5 text-gray-500">
+              <span className="font-semibold text-gray-900">
+                {post.author.name}
+              </span>
+            </div>
+            <time
+              className="flex-none py-0.5 text-xs leading-5 text-gray-500"
+              dateTime={post.createdAt.toISOString()}
+            >
+              {timeAgo(DateTime.fromJSDate(post.createdAt))}
+            </time>
+          </div>
+          <Text className="mt-2">{post.content}</Text>
+        </div>
+      </li>
+    );
+  }
+
   return (
     <main className="flex flex-1 flex-col pb-2 lg:px-2">
       <div className="grow p-6 lg:rounded-lg lg:bg-white lg:p-10 lg:shadow-sm lg:ring-1 lg:ring-zinc-950/5 dark:lg:bg-zinc-900 dark:lg:ring-white/10">
-        <div className="mx-auto max-w-6xl">
-          <div className="container mx-auto px-4 py-8">
-            <Heading level={1}>{discussion.title}</Heading>
-            <div className="mt-4 flex items-center space-x-4">
-              <Avatar
-                alt={discussion.author.name}
-                className="size-4"
-                initials={discussion.author.name.charAt(0)}
-                src={discussion.author.image}
-              />
-              <div className="flex items-center space-x-1">
-                <Text>{discussion.author.name}</Text>
-                <span>⋅</span>
-                <Text color="subtle">
-                  {formatRelativeTime(discussion.createdAt)}
-                </Text>
+        <div className="mx-auto max-w-4xl">
+          <div className="container mx-auto px-4 py-4 flex flex-col space-y-6">
+            <div className="flex flex-col space-y-2">
+              <Heading level={1}>{discussion.title}</Heading>
+              <div className="flex items-center space-x-4">
+                <Avatar
+                  alt={discussion.author.name}
+                  className="size-4"
+                  initials={discussion.author.name.charAt(0)}
+                  src={discussion.author.image}
+                />
+                <div className="flex items-center space-x-1">
+                  <Text>{discussion.author.name}</Text>
+                  <span>⋅</span>
+                  <Text color="subtle">
+                    {timeAgo(DateTime.fromJSDate(discussion.createdAt))}
+                  </Text>
+                </div>
               </div>
             </div>
-            <div className="mt-6">
-              <Card>
-                <CardContent>
-                  <Text>{discussion.content}</Text>
-                </CardContent>
-              </Card>
+            <Text>{discussion.content}</Text>
+            <div className="flex flex-col space-y-4">
+              <Heading level={3}>Replies</Heading>
+              <CommentFeed posts={discussion.posts} />
             </div>
-            <div className="mt-8">
-              <Heading level={2}>Replies</Heading>
-              {discussion.posts.map((post) => (
-                <Card key={post.id} className="mt-4">
-                  <CardHeader>
-                    <div className="flex items-center space-x-4">
-                      <Avatar
-                        alt={post.author.name}
-                        className="size-4"
-                        initials={post.author.name.charAt(0)}
-                        src={post.author.image}
-                      />
-                      <div>
-                        <Text>{post.author.name}</Text>
-                        <Text color="subtle">
-                          Posted {formatRelativeTime(post.createdAt)}
-                        </Text>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Text>{post.content}</Text>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <Card className="mt-8">
-              <CardHeader>
-                <CardTitle>Add a comment</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CommentEditor
-                  discussionId={Number(params.discussionId)}
-                  lastActivity={discussion.updatedAt}
-                />
-              </CardContent>
-            </Card>
+            <CommentEditor
+              discussionId={Number(params.discussionId)}
+              lastActivity={{
+                activityType: 'DiscussionComment',
+                activityId: discussion.id,
+              }}
+            />
           </div>
         </div>
       </div>
