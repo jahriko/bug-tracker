@@ -4,7 +4,7 @@ import { getPrisma } from '@/lib/getPrisma';
 export async function getWorkspaceData(userId: string, workspaceId: string) {
   return getPrisma(userId).workspace.findUnique({
     where: { url: workspaceId },
-    include: {
+    select: {
       projects: {
         select: {
           id: true,
@@ -23,10 +23,21 @@ export async function getWorkspaceData(userId: string, workspaceId: string) {
           },
         },
       },
+      members: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
+        },
+      },
     },
   });
 }
 
-export type WorkspaceDataType = NonNullable<
+export type WorkspaceData = NonNullable<
   Prisma.PromiseReturnType<typeof getWorkspaceData>
 >;
