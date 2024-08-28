@@ -27,6 +27,7 @@ import {
   SidebarSection,
 } from '@/components/catalyst/sidebar';
 import { StackedLayout } from '@/components/catalyst/stacked-layout';
+import { ModeToggle } from '@/components/theme-toggle';
 import { getPrisma } from '@/lib/getPrisma';
 import { getUserDetails } from '@/lib/supabase/auth';
 import NavbarLinks from './_components/navbar-links';
@@ -69,6 +70,7 @@ export default async function DashboardLayout({
           </NavbarSection>
           <NavbarSpacer />
           <NavbarSection>
+            {/* <ModeToggle /> */}
             <Dropdown>
               <DropdownButton as={NavbarItem}>
                 {metadata.avatarUrl ? (

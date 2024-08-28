@@ -28,6 +28,14 @@ import { cn } from '@/lib/utils';
 const theme: EditorThemeClasses = {
   ltr: 'ltr',
   rtl: 'rtl',
+  paragraph: 'mb-1 last:mb-0',
+  text: {
+    bold: 'font-bold',
+    italic: 'italic',
+    underline: 'underline',
+    strikethrough: 'line-through',
+    underlineStrikethrough: 'underline line-through',
+  },
 };
 
 function onError(error) {
@@ -76,7 +84,7 @@ export default function Editor({
     >
       <span
         className={cn(
-          'relative mx-auto max-w-full overflow-hidden bg-white text-left font-normal text-gray-950',
+          'relative mx-auto max-w-full overflow-hidden bg-white dark:bg-zinc-900 text-left font-normal text-gray-950 dark:text-gray-100',
           withBorder && [
             // Basic layout
             'relative block w-full',
@@ -103,7 +111,7 @@ export default function Editor({
                   // Basic layout
                   'relative block h-full w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[2.5])-1px)] sm:px-[calc(theme(spacing.3)-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]',
                   // Typography
-                  'text-base/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white sm:text-sm/6',
+                  'text-base/6 text-zinc-950 dark:text-white placeholder:text-zinc-500 dark:placeholder:text-whit sm:text-sm/6',
                   // Border
                   'border border-zinc-950/10 data-[hover]:border-zinc-950/20 dark:border-white/10 dark:data-[hover]:border-white/20',
                   // Background color
@@ -115,7 +123,7 @@ export default function Editor({
                   // Disabled state
                   'disabled:border-zinc-950/20 disabled:dark:border-white/15 disabled:dark:bg-white/[2.5%] dark:data-[hover]:disabled:border-white/15',
                 ],
-                'lexical prose resize-none caret-gray-900 outline-none',
+                'lexical prose dark:prose-invert resize-none caret-gray-900 dark:caret-gray-100 outline-none',
               )}
             />
           }

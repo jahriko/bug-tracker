@@ -53,9 +53,9 @@ export function CustomListbox<T>({
             // Typography
             'text-left text-base/6 text-zinc-950 placeholder:text-zinc-500 dark:text-white sm:text-sm/6 forced-colors:text-[CanvasText]',
             // Borderless
-            'border-transparent text-zinc-950 group-data-[active]:text-blue-800 group-data-[hover]:text-blue-700 dark:text-white dark:group-data-[hover]:bg-white/10 dark:group-data-[active]:text-blue-800',
+            'border-transparent text-zinc-950 group-data-[active]:text-blue-800 group-data-[hover]:text-blue-700 dark:text-white dark:group-data-[hover]:bg-transparent dark:group-data-[active]:text-blue-500 dark:group-data-[hover]:text-blue-400',
             // Background color
-            'bg-transparent dark:bg-white/5',
+            'bg-transparent dark:bg-transparent',
             // Invalid state
             // "group-data-[invalid]:border-red-500 group-data-[invalid]:group-data-[hover]:border-red-500 group-data-[invalid]:dark:border-red-600 group-data-[invalid]:data-[hover]:dark:border-red-600",
             // Disabled state
