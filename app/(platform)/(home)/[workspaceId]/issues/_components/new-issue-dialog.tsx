@@ -9,7 +9,7 @@ import { Ban, CheckCircle2, CircleDashed, Loader2, User2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import { flattenValidationErrors } from 'next-safe-action';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { toast } from 'sonner';
@@ -40,7 +40,7 @@ import {
   CustomListboxOption,
 } from '../../_components/custom-listbox';
 import { LabelSelector } from '../../_components/label-selector';
-import { type WorkspaceDataType } from '../_data/workspace-data';
+import { type WorkspaceData } from '../_data/workspace-data';
 
 const Editor = dynamic(() => import('@/components/lexical_editor/editor'), {
   ssr: false,
@@ -122,10 +122,10 @@ export default function NewIssueDialog({
   hasProjects,
   projects,
 }: {
-  assignees: UsersData;
+  assignees: WorkspaceData['members'];
   labels: LabelsData;
   hasProjects: boolean;
-  projects: WorkspaceDataType['projects'];
+  projects: WorkspaceData['projects'];
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -140,6 +140,22 @@ export default function NewIssueDialog({
       labels: [],
     },
   });
+
+  const selectedAssigneeId = form.watch('assigneeId');
+  const selectedProjectId = form.watch('projectId');
+
+  const filteredProjects = useMemo(() => {
+    if (!selectedAssigneeId) return projects;
+    return projects.filter((project) =>
+      project.members.some((member) => member.user.id === selectedAssigneeId),
+    );
+  }, [projects, selectedAssigneeId]);
+
+  const filteredAssignees = useMemo(() => {
+    if (!selectedProjectId) return assignees;
+    const project = projects.find((p) => p.id === selectedProjectId);
+    return project ? project.members : assignees;
+  }, [assignees, projects, selectedProjectId]);
 
   const handleOpenDialog = () => {
     if (!hasProjects) {
@@ -331,7 +347,6 @@ export default function NewIssueDialog({
                       name="assigneeId"
                       render={({ field }) => {
                         const { ref, ...rest } = field;
-
                         return (
                           <FormItem>
                             <FormControl>
@@ -345,17 +360,17 @@ export default function NewIssueDialog({
                                   </div>
                                 }
                               >
-                                {assignees.map((assignee) => (
+                                {filteredAssignees.map((assignee) => (
                                   <CustomListboxOption
-                                    key={assignee.id}
-                                    value={assignee.id}
+                                    key={assignee.user.id}
+                                    value={assignee.user.id}
                                   >
                                     <Avatar
                                       className="size-4 text-white"
-                                      src={assignee.image}
+                                      src={assignee.user.image}
                                     />
                                     <CustomListboxLabel>
-                                      {assignee.name}
+                                      {assignee.user.name}
                                     </CustomListboxLabel>
                                   </CustomListboxOption>
                                 ))}
@@ -392,7 +407,6 @@ export default function NewIssueDialog({
                       name="projectId"
                       render={({ field }) => {
                         const { ref, ...rest } = field;
-
                         return (
                           <FormItem>
                             <FormControl>
@@ -406,7 +420,7 @@ export default function NewIssueDialog({
                                   </div>
                                 }
                               >
-                                {projects.map((project) => (
+                                {filteredProjects.map((project) => (
                                   <CustomListboxOption
                                     key={project.id}
                                     value={project.id}
