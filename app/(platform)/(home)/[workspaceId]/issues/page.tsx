@@ -1,7 +1,6 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/16/solid';
 import { notFound } from 'next/navigation';
 import { InputGroup } from '@/components/catalyst/input';
-import { getCurrentUser } from '@/lib/get-current-user';
 import prisma from '@/lib/prisma';
 import { getUserDetails, updateLastWorkspaceUrl } from '@/lib/supabase/auth';
 import { NoIssuesFound } from './_components/NoIssuesFound';
@@ -44,7 +43,9 @@ export default async function IssuePage({
   );
 
   const projectMembers = workspaceData.projects.flatMap((p) =>
-    p.members.map((m) => m.user),
+    p.members.map((m) => ({
+      user: m.user
+    }))
   );
 
   const labels = await prisma.label.findMany();
