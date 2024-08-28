@@ -96,7 +96,7 @@ export default async function IssuePage({
 
   return (
     <>
-      <ScrollArea className="flex-grow lg:h-[calc(100vh-4rem)]">
+      <ScrollArea className="flex-grow lg:h-[calc(100vh-4rem)] bg-white dark:bg-zinc-900">
         <div className="mx-auto w-full max-w-4xl p-6 lg:p-10">
           <main className="flex-1">
             <div className="px-2 lg:px-0 xl:max-w-full">
@@ -146,18 +146,19 @@ export default async function IssuePage({
                         />
                       </div>
                     </div>
-                    <div className="mt-6 border-b border-t border-gray-200 py-6">
-                      <h2 className="text-sm font-medium text-gray-500">
+                    <div className="mt-6 border-b border-t border-gray-200 dark:border-zinc-700 py-6">
+                      <h2 className="text-sm font-medium text-gray-500 dark:text-zinc-400">
                         Labels
                       </h2>
                       <ul className="mt-2 flex flex-wrap gap-2 leading-8">
                         {issueLabels.map((label) => {
                           return (
                             <li key={label.label.id} className="inline">
-                              <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
+                              <span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-2xs font-medium text-gray-900 dark:text-zinc-100 ring-1 ring-inset ring-gray-200 dark:ring-zinc-700">
                                 <div
                                   className={classNames(
-                                    COLORS[label.label.color] ?? 'bg-zinc-100',
+                                    COLORS[label.label.color] ??
+                                      'bg-zinc-100 dark:bg-zinc-800',
                                     'flex-none rounded-full p-1',
                                   )}
                                 >
