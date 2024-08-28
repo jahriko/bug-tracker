@@ -18,14 +18,14 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning className="h-full" lang="en">
       <body className={`${inter.className} h-full`}>
-        <ThemeProvider
+        {/* <ThemeProvider
           disableTransitionOnChange
           enableSystem
           attribute="class"
           defaultTheme="system"
-        >
+        > */}
           {children}
-        </ThemeProvider>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );
