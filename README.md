@@ -1,6 +1,6 @@
 # Project Overview
 
-This issue tracking application was born out of a desire to transition from passive learning to active development. Recognizing that hands-on experience is invaluable in software engineering, I embarked on this project to gain practical knowledge and challenge myself with real-world development scenarios.
+This issue tracking application was created as a hands-on learning project in software engineering. Recognizing the value of practical experience, I embarked on this project to gain real-world development skills and challenge myself with complex scenarios.
 
 This project serves as a sandbox environment, allowing for experimentation, iteration, and deep learning through trial and error. It has been instrumental in bridging the gap between theoretical knowledge and practical application, becoming my go-to platform for exploring new concepts and technologies.
 
