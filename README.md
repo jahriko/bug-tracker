@@ -58,25 +58,30 @@ This project serves as a sandbox environment, allowing for experimentation, iter
    AUTH_SECRET="your-secret-key"
    ```
 
-4. Set up the database:
+
+4. Generate and set up the database:
+
+   ```
+   pnpm zenstack generate
+   ```
 
    ```
    pnpm prisma db push
    ```
 
-5. Seed database
+6. Seed database
 
    ```
    pnpm prisma db seed
    ```
 
-6. Run the development server:
+7. Run the development server:
 
    ```
    pnpm dev
    ```
 
-7. Open [http://localhost:3000](http://localhost:3000) in your browser.
+8. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Structure
 
