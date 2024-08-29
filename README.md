@@ -9,14 +9,15 @@ This project serves as a sandbox environment, allowing for experimentation, iter
 
 ## Technologies
 
+- React
 - Next.js 14
 - TypeScript
-- Prisma w/ Zenstack (this one rocks!)
+- Prisma with Zenstack 
 - PostgreSQL
 - TailwindCSS
 - React Hook Form
 - Zod
-- NextAuth.js
+- Supabase
 
 ## Features
 
@@ -24,6 +25,7 @@ This project serves as a sandbox environment, allowing for experimentation, iter
 - Workspace and project management (multi-tenant)
 - Issue tracking and labeling
 - Activity logging
+- Projects
 
 ## Getting Started
 
@@ -79,13 +81,15 @@ This project serves as a sandbox environment, allowing for experimentation, iter
 ## Project Structure
 
 - `app/`: Next.js app router and page components
+  - `(platform)/`: Platform-specific routes and components
+    - `(auth)/`: Authentication-related components and routes
+    - `(home)/`: Main application routes and components
   - `_components/`: Shared components specific to routes
   - `_actions/`: Server actions for routes
 - `components/`: Reusable React components
 - `lib/`: Utility functions and shared logic
 - `prisma/`: Prisma schema and migrations
 - `public/`: Static assets
-- `styles/`: Global styles
 
 ## License
 
