@@ -1,11 +1,6 @@
 # Project Overview
 
-This issue tracking application was created as a hands-on learning project in software engineering. Recognizing the value of practical experience, I embarked on this project to gain real-world development skills and challenge myself with complex scenarios.
-
-This project serves as a sandbox environment, allowing for experimentation, iteration, and deep learning through trial and error. It has been instrumental in bridging the gap between theoretical knowledge and practical application, becoming my go-to platform for exploring new concepts and technologies.
-
-**Note:** The design and functionality draw inspiration from industry-leading tools such as Linear, GitHub, and JetBrains YouTrack. By emulating aspects of these established platforms, this project aims to explore and implement best practices in user interface design and functionality within the context of issue tracking systems.
-
+An issue tracking and project management application built with modern web technologies. It provides an intuitive interface for managing tasks, tracking issues, and collaborating with your team across multiple projects and workspaces.
 
 ## Technologies
 
@@ -21,11 +16,12 @@ This project serves as a sandbox environment, allowing for experimentation, iter
 
 ## Features
 
-- User authentication / authorization
+- User authentication and authorization
 - Workspace and project management (multi-tenant)
-- Issue tracking and labeling
+- Issue tracking with labels, priorities, and statuses
 - Activity logging
-- Projects
+- Discussion forums
+- Rich text editing for issue descriptions and comments
 
 ## Getting Started
 
@@ -99,3 +95,8 @@ This project serves as a sandbox environment, allowing for experimentation, iter
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+- Design inspiration from Linear, Github, and Jetbrains YouTrack
+- Icons from Heroicons and Lucide React
+- UI components from Radix UI and Headless UI
